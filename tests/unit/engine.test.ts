@@ -46,3 +46,11 @@ describe('engine adf', async () => {
     expect(Math.min(r, 360 - r)).toBeLessThan(0.5)
   })
 })
+
+describe('engine wind', () => {
+  it('E5 westerly drifts east', () => {
+    const w = createWorld({ ac: { onGround: false, gearDown: false, altFt: 3900, hdgDeg: 0, iasKt: 120, throttle: 120 / 140, x: 0, y: 0 }, wind: { fromDeg: 270, speedKt: 20 } })
+    const e = run(w, { roll: 0, pitch: 0, throttle: 120 / 140 }, 60)
+    expect(Math.abs(e.ac.x - 0.333)).toBeLessThan(0.02)
+  })
+})

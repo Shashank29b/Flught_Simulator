@@ -19,6 +19,7 @@ import DmeReadout from '../../components/instruments/DmeReadout.vue'
 import NavRadio from '../../components/radios/NavRadio.vue'
 import RMI from '../../components/instruments/RMI.vue'
 import AdfIndicator from '../../components/instruments/AdfIndicator.vue'
+import VorDiagram from '../../components/views/VorDiagram.vue'
 
 definePageMeta({ layout: 'cockpit', middleware: 'auth' })
 
@@ -71,6 +72,7 @@ useSimLoop()
         <div class="grid grid-cols-2 gap-2">
           <NavRadio :active="store.world.radios.nav1MHz" @tune="store.setRadio({ nav1MHz: $event })" />
           <DmeReadout :dme="store.world.nav.dme1" :gs-kt="store.world.ac.gsKt" />
+          <VorDiagram :world="store.world" />
           <NavRadio label="ADF" :active="store.world.radios.adfKHz" :min="190" :max="1750" :fine="1" :coarse="10" :decimals="0" unit="kHz" @tune="store.setRadio({ adfKHz: $event })" />
         </div>
       </ClientOnly>
