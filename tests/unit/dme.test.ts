@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { dmeReceive } from '../../app/nav/dme'
 import { air, station } from './helpers/fixtures'
+import { AIRPORT_ELEV_FT } from '../../shared/utils/units'
 
 describe('dme', () => {
   it('D1 slant range 3-4-5', () => {
-    const d = dmeReceive([station({ type: 'DME' })], 113.5, air({ x: 3, y: 0, altFt: 900 + 24304.48 }))
+    const d = dmeReceive([station({ type: 'DME' })], 113.5, air({ x: 3, y: 0, altFt: AIRPORT_ELEV_FT + 24304.48 }))
     expect(d.valid).toBe(true)
     expect(Math.abs(d.distNm - 5)).toBeLessThan(0.001)
   })

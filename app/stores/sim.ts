@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { shallowRef, ref } from 'vue'
 import { createWorld, simStep, type Radios, type World } from '../sim/engine'
 import { keysToControls } from '../sim/input'
+import { DEFAULT_STATE } from '../sim/flightModel'
+import type { Preset } from '../sim/presets'
 
 export const useSimStore = defineStore('sim', () => {
   const world = shallowRef<World>(createWorld())
@@ -50,5 +52,25 @@ export const useSimStore = defineStore('sim', () => {
     world.value = { ...world.value, radios: { ...world.value.radios, ...p } }
   }
 
-  return { world, paused, keys, trail, load, reset, tick, toggleGear, cycleFlaps, setRadio }
+  function setThrottle(t: number): void {
+    const ac = world.value.ac
+    world.value = { ...world.value, ac: { ...ac, throttle: Math.min(1, Math.max(0, t)) } }
+  }
+
+  function setFlaps(f: 0 | 10 | 20 | 30): void {
+    world.value = { ...world.value, ac: { ...world.value.ac, flapsDeg: f } }
+  }
+
+  /** On-screen buttons press the same keys as the keyboard. */
+  function holdKey(key: string, down: boolean): void {
+    if (down) keys.add(key)
+    else keys.delete(key)
+  }
+
+  function applyPreset(p: Preset): void {
+    const w = { ...world.value, ac: { ...DEFAULT_STATE, ...p.ac }, radios: { ...world.value.radios, ...(p.radios ?? {}) }, done: null, simMs: 0, objProgress: { heldSec: 0 } }
+    load(w)
+  }
+
+  return { world, paused, keys, trail, load, reset, tick, toggleGear, cycleFlaps, setRadio, setThrottle, setFlaps, holdKey, applyPreset }
 })

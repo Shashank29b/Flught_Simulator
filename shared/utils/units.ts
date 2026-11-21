@@ -3,7 +3,8 @@ export const NM_TO_M = 1852
 export const KT_TO_MPS = 0.514444
 export const KT_TO_FPM = 101.2687
 export const G = 9.80665
-export const AIRPORT_ELEV_FT = 900
+/** VOBL Kempegowda International field elevation (OurAirports). Terrain is flat at this height. */
+export const AIRPORT_ELEV_FT = 3000
 
 export const deg2rad = (d: number): number => (d * Math.PI) / 180
 export const rad2deg = (r: number): number => (r * 180) / Math.PI

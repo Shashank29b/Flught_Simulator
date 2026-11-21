@@ -42,9 +42,9 @@ await check('health db true', async () => {
 })
 
 // ---- W1-T07
-await check('airports has XTRN', async () => {
+await check('airports has VOBL', async () => {
   const r = await req('GET', '/api/airports')
-  assert(r.status === 200 && r.json?.some(a => a.icao === 'XTRN'), JSON.stringify(r.json).slice(0, 200))
+  assert(r.status === 200 && r.json?.some(a => a.icao === 'VOBL'), JSON.stringify(r.json).slice(0, 200))
 })
 await check('stations >= 10', async () => {
   const r = await req('GET', '/api/stations')
@@ -52,7 +52,7 @@ await check('stations >= 10', async () => {
 })
 await check('stations ?type=NDB', async () => {
   const r = await req('GET', '/api/stations?type=NDB')
-  assert(r.status === 200 && r.json?.length === 1, `len ${r.json?.length}`)
+  assert(r.status === 200 && r.json?.length >= 1 && r.json.every(s => s.type === 'NDB'), `len ${r.json?.length}`)
 })
 
 // ---- W2-T11 auth
@@ -105,7 +105,7 @@ await check('flights list', async () => {
 })
 
 // ---- pages
-for (const page of ['/', '/login', '/register', '/scenarios', '/flights', '/fly/1', '/fly/2']) {
+for (const page of ['/', '/cockpit', '/login', '/register', '/scenarios', '/flights', '/fly/1', '/fly/2']) {
   await check(`page ${page} 200`, async () => {
     const r = await req('GET', page)
     assert(r.status === 200, `status ${r.status}`)

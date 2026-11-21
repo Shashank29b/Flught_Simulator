@@ -11,7 +11,8 @@ async function logout(): Promise<void> {
 <template>
   <nav class="flex items-center gap-5 text-sm">
     <NuxtLink to="/" class="text-lg font-bold tracking-wide text-sky-400">SkyNav Sim</NuxtLink>
-    <NuxtLink to="/scenarios" class="text-slate-300 hover:text-white">Scenarios</NuxtLink>
+    <NuxtLink to="/cockpit" class="text-slate-300 hover:text-white">Cockpit</NuxtLink>
+    <NuxtLink to="/scenarios" class="text-slate-300 hover:text-white">Test mode</NuxtLink>
     <NuxtLink v-if="loggedIn" to="/flights" class="text-slate-300 hover:text-white">Flights</NuxtLink>
     <NuxtLink v-if="user?.role === 'ADMIN'" to="/admin/stations" class="text-slate-300 hover:text-white">Admin</NuxtLink>
     <span class="ml-auto" />

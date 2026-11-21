@@ -52,6 +52,13 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 ## Handoff log
 Newest at the top. At most 5 lines per task.
 
+### MODES + VOBL + OSM (extra, user request) · DONE · 2026-11-21
+- Main product = `/cockpit` (no login): every instrument, radio and control in one UI (CockpitPanel + ControlPanel with presets, throttle slider, yoke buttons, flaps, gear). Test mode = `/scenarios` → `/fly/:id` (scored).
+- Real data: VOBL Bengaluru from OurAirports (2 runways, 7 VOR-DME, 8 NDB) + training ILS 09L/09R. Origin = 09L threshold, field elevation 3000 ft.
+- Map: Leaflet + OpenStreetMap tiles (OsmMap.vue), with the old canvas chart as a "Nav chart" tab. No Google tile scraping (ToS).
+- Bug fixed: reseeding changed scenario ids → /fly/1 loaded an empty world ("controls not working"). Seed now TRUNCATE … RESTART IDENTITY.
+- New: `npm run test:e2e` (headless Chrome via playwright-core): 8 cockpit checks incl. takeoff, roll, presets.
+
 ### ISA-ATMO (extra, user request) · DONE · 2026-11-21
 - shared/utils/isa.ts: ICAO ISA (troposphere + stratosphere), QNH + ISA deviation, CAS↔TAS (compressible), Mach, indicated/pressure/density altitude; 15 tests.
 - Flight model moves with TAS; IAS for limits; altimeter shows indicated altitude with the baro setting; AirDataPanel (IAS/TAS/Mach/OAT/σ/PA/DA, baro ±/STD/QNH).

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_STATE, step } from '../../app/sim/flightModel'
 import type { AircraftState, Controls, Wind } from '../../shared/types'
+import { AIRPORT_ELEV_FT } from '../../shared/utils/units'
 
 const AIR: AircraftState = { ...DEFAULT_STATE, onGround: false, gearDown: false, altFt: 3900, iasKt: 120, throttle: 120 / 140, hdgDeg: 90 }
 const hold = (throttle: number): Controls => ({ roll: 0, pitch: 0, throttle })
@@ -23,7 +24,7 @@ describe('flight model', () => {
     const s = { ...AIR, iasKt: 100, throttle: 100 / 140, bankDeg: 15, hdgDeg: 0 }
     const e = runFor(s, hold(100 / 140), null, 1)
     expect(Math.abs(e.hdgDeg - 2.763)).toBeLessThan(0.05) // TAS 105.9 kt at 3900 ft
-    const sl = runFor({ ...s, altFt: 1000 }, hold(100 / 140), null, 1)
+    const sl = runFor({ ...s, altFt: 3100 }, hold(100 / 140), null, 1)
     expect(sl.hdgDeg).toBeGreaterThan(e.hdgDeg) // lower altitude → lower TAS → faster turn
   })
   it('F3 climb rate from pitch', () => {
@@ -50,10 +51,10 @@ describe('flight model', () => {
     expect(Math.abs(e.iasKt - 70)).toBeLessThan(0.1)
   })
   it('F8 touchdown', () => {
-    const s = { ...AIR, altFt: 905, iasKt: 100, pitchDeg: -2 }
+    const s = { ...AIR, altFt: AIRPORT_ELEV_FT + 5, iasKt: 100, pitchDeg: -2 }
     const e = runFor(s, hold(100 / 140), null, 2)
     expect(e.onGround).toBe(true)
-    expect(e.altFt).toBe(900)
+    expect(e.altFt).toBe(AIRPORT_ELEV_FT)
   })
   it('F9 hot day (ISA+20) gives a higher TAS for the same IAS', () => {
     const std = step(AIR, hold(120 / 140), null, 1 / 60)
@@ -66,6 +67,6 @@ describe('flight model', () => {
     s = runFor(s, { roll: 0, pitch: 1, throttle: 1 }, null, 2)
     s = runFor(s, hold(1), null, 10)
     expect(s.onGround).toBe(false)
-    expect(s.altFt).toBeGreaterThan(950)
+    expect(s.altFt).toBeGreaterThan(AIRPORT_ELEV_FT + 50)
   })
 })

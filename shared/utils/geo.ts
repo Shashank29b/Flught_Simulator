@@ -3,8 +3,8 @@ import { deg2rad, rad2deg, wrap360 } from './units'
 export interface LatLon { lat: number; lon: number }
 export interface Vec2 { x: number; y: number }
 
-/** Reference point = runway 09 threshold of XTRN. */
-export const REF: LatLon = { lat: 13.0, lon: 77.6 }
+/** Local-frame origin = VOBL runway 09L threshold (OurAirports). */
+export const REF: LatLon = { lat: 13.207164, lon: 77.686073 }
 
 export function toLocal(p: LatLon, ref: LatLon = REF): Vec2 {
   return {

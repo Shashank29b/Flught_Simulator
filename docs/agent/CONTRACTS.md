@@ -10,7 +10,7 @@ Gains marked *(tunable)* may be changed if a test cannot pass. If you change one
 
 ## §1 Units, frame, constants
 
-- **Local frame:** x is east and y is north, in **NM**. The origin is the **runway 09 threshold** of airport XTRN.
+- **Local frame:** x is east and y is north, in **NM**. The origin is the **VOBL runway 09L threshold** (13.207164 N, 77.686073 E).
 - **Bearings are true**, in degrees 0–360, measured clockwise from north. Magnetic variation is 0.
 - Altitudes are **feet MSL**. AGL = `altFt - AIRPORT_ELEV_FT`. Terrain is flat at the airport elevation.
 
@@ -21,7 +21,7 @@ export const NM_TO_M = 1852
 export const KT_TO_MPS = 0.514444
 export const KT_TO_FPM = 101.2687      // 1 kt = 101.2687 ft/min
 export const G = 9.80665
-export const AIRPORT_ELEV_FT = 900
+export const AIRPORT_ELEV_FT = 3000      // VOBL
 export const deg2rad = (d: number) => d * Math.PI / 180
 export const rad2deg = (r: number) => r * 180 / Math.PI
 export const wrap360 = (a: number) => ((a % 360) + 360) % 360
@@ -33,7 +33,7 @@ export const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.ma
 // shared/utils/geo.ts
 export interface LatLon { lat: number; lon: number }
 export interface Vec2 { x: number; y: number }
-export const REF: LatLon = { lat: 13.0, lon: 77.6 }   // = runway 09 threshold
+export const REF: LatLon = { lat: 13.207164, lon: 77.686073 }   // = VOBL 09L threshold
 toLocal(p: LatLon, ref = REF): Vec2      // x = (lon-lon0)*60*cos(lat0), y = (lat-lat0)*60
 toLatLon(v: Vec2, ref = REF): LatLon     // exact inverse
 bearingDeg(from: Vec2, to: Vec2): number // wrap360(rad2deg(atan2(dx, dy)))
@@ -51,8 +51,8 @@ gaussian(rng: () => number): number      // Box-Muller, mean 0, sd 1
 |---|---|---|
 | U1 | wrap360(-90), wrap360(370) | 270, 10 |
 | U2 | wrap180(190), wrap180(-190), wrap180(10) | -170, 170, 10 |
-| G1 | toLocal({13.1, 77.6}) | x 0, y 6.000 (±0.001) |
-| G2 | toLocal({13.0, 77.7}) | x 5.846 (±0.001), y 0 |
+| G1 | toLocal({13.1, 77.6}, ref {13.0, 77.6}) | x 0, y 6.000 (±0.001) |
+| G2 | toLocal({13.0, 77.7}, ref {13.0, 77.6}) | x 5.846 (±0.001), y 0 |
 | G3 | toLatLon(toLocal(p)) for p = {13.05, 77.55} | p (±1e-9) |
 | G4 | bearingDeg((0,0),(0,-10)), bearingDeg((0,0),(10,0)) | 180, 90 |
 | G5 | distNm((0,0),(3,4)) | 5 |
@@ -606,39 +606,14 @@ Server files: `server/api/<path>.<method>.ts`. Services: `server/services/<name>
 
 ---
 
-## §14 Seed data (`prisma/seed.ts`)
+## §14 Seed data (`prisma/seedData.ts`): VOBL Bengaluru, real data
+Source: **OurAirports** (public domain), retrieved 2026-11-21. The seed is idempotent: `TRUNCATE … RESTART IDENTITY`, so ids are stable (scenario 1 = Free flight).
+- **Airport** VOBL Kempegowda International, elevation 3000 ft.
+- **Runways** 09L/27R and 09R/27L, 4000 m × 45 m. Headings are derived from the threshold coordinates (≈ 090.5 / 270.5).
+- **Navaids within 160 NM:** VOR-DME (a VOR row + a paired DME row) BBG 115.50, TTP 115.70, KKP 115.40, BBI 112.80, CCB 112.90, MMV 112.50, TTR 113.10; NDB YH 223, BG 363, SAI 241, BI 310, CB 354, MA 228, OM 385, TR 307. VOR range 130 NM, NDB 50 NM.
+- **Training ILS (not real procedures):** 09L IBLA 110.30, 09R IBLB 109.90. LOC 300 m beyond the far threshold; GS 300 m past the threshold, 150 m right; markers O/M/I at 4.5, 0.6 and 0.15 NM before the threshold (idents `O09L`, `M09L`, `I09L`…).
+- **Training waypoints:** WP1 (−30, 0), WP2 (−30, 20), WP3 (−10, 20).
+- **Users:** `admin@skynav.local` / `admin1234`, `student@skynav.local` / `student1234`.
+- **Scenarios:** Free flight from VOBL · BBG radial tracking (R-360 TO) · Fly to BBG (ISA−10, QNH 1022) · YH NDB homing (wind 270/15, ISA+15, QNH 1003) · ILS 09L · AP coupled ILS 09R · FMS route · TCAS encounter · GPS + VOR failure.
 
-Define the positions in **local NM** and convert them with `toLatLon` from `shared/utils/geo.ts`. The seed must be idempotent: delete all rows, then insert.
-
-**Airport:** `XTRN`, "SkyNav Training Field", position REF (13.0, 77.6), elevation 900 ft.
-**Runway:** `09`, heading 90, threshold (0,0), 3000 m × 45 m.
-
-| type | ident | name | freq | local (x, y) | rangeNm | runway |
-|---|---|---|---|---|---|---|
-| VOR | TRN | Trainer VOR | 113.50 | (2, 6) | 130 | – |
-| DME | TRN | Trainer DME | 113.50 | (2, 6) | 130 | – |
-| DVOR | ALF | Alpha DVOR | 116.20 | (−40, 25) | 130 | – |
-| DME | ALF | Alpha DME | 116.20 | (−40, 25) | 130 | – |
-| NDB | NB | November NDB | 350 (kHz) | (−25, −12) | 50 | – |
-| ILS_LOC | ITRN | ILS 09 LOC | 110.30 | (1.80, 0) | 25 | 09 |
-| ILS_GS | ITRN | ILS 09 GS | 110.30 | (0.16, −0.08) | 10 | 09 |
-| MARKER_OM | OM | Outer Marker | 75.0 | (−4.5, 0) | 1 | 09 |
-| MARKER_MM | MM | Middle Marker | 75.0 | (−0.6, 0) | 1 | 09 |
-| MARKER_IM | IM | Inner Marker | 75.0 | (−0.15, 0) | 1 | 09 |
-
-**Waypoints:** WP1 (−30, 0), WP2 (−30, 20), WP3 (−10, 20).
-
-**Users:** `admin@skynav.local` / `admin1234` (ADMIN), `student@skynav.local` / `student1234` (STUDENT).
-
-**Scenarios** (config follows §2; unspecified state fields use DEFAULT_STATE):
-| week | title | startState | target | extras |
-|---|---|---|---|---|
-| 1 | Free flight | DEFAULT_STATE (on the runway) | LAND 09 | radios nav1 113.50 |
-| 1 | VOR radial tracking | (−15, −5), alt 3900, hdg 60, ias 120, airborne, throttle 0.857 | TRACK_RADIAL TRN 270 TO, hold 60 | nav1 113.50, obs 90 |
-| 2 | VOR to VOR | (5, 10), alt 4900, hdg 300, ias 120, airborne | REACH ALF ≤ 1 | nav1 116.20 |
-| 2 | NDB homing | (0, 10), alt 3900, hdg 180, ias 120, airborne | REACH NB ≤ 0.5 | adf 350; wind 270/15 |
-| 3 | ILS approach 09 | (−12, 1.0), alt 3400, hdg 120, ias 120, airborne, flaps 10 | LAND 09 | nav1 110.30 |
-| 4 | Autopilot coupled ILS | as above | LAND 09 | nav1 110.30 |
-| 5 | FMS route | (−25, −5), alt 4900, hdg 0, ias 120, airborne | ROUTE WP1, WP2, WP3 | – |
-| 6 | TCAS encounter | (−20, 0), alt 4900, hdg 90, ias 120, airborne | REACH TRN ≤ 1 | traffic: T1 at (0, 0), alt 4900, track 270, gs 150 |
-| 6 | GPS + VOR failure | FMS route start | ROUTE WP1, WP2, WP3 | failures: GPS at 60 s, VOR at 120 s |
+Unit tests use their **own synthetic fixtures** (`tests/unit/helpers/fixtures.ts`: TRN, ALF, NB, ITRN…), so they don't depend on the real seed.

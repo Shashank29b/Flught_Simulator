@@ -62,7 +62,7 @@ watch(() => props.world, redraw)
       <span>{{ station ? `${station.type === 'DVOR' ? 'Doppler VOR' : 'Conventional VOR'} · ${station.ident}` : 'VOR' }}</span>
       <span v-if="siteError !== null" class="font-mono">site error {{ siteError.toFixed(2) }}°</span>
     </div>
-    <canvas ref="canvas" class="aspect-square w-full" />
+    <canvas ref="canvas" class="mx-auto aspect-square w-full max-w-[200px]" />
     <p class="mt-1 text-[11px] leading-snug text-slate-500">
       {{ station?.type === 'DVOR'
         ? '48-antenna ring: the lit antenna rotates, giving a Doppler-shifted variable phase; reflections cause little site error.'

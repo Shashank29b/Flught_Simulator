@@ -12,7 +12,10 @@ const byWeek = computed(() => {
 
 <template>
   <section class="space-y-6">
-    <h1 class="text-2xl font-bold">Scenarios</h1>
+    <div>
+      <h1 class="text-2xl font-bold">Test mode</h1>
+      <p class="text-sm text-slate-400">Graded scenarios: your flight is recorded and scored. For free practice with every control, use the <NuxtLink to="/cockpit" class="text-sky-400">Cockpit</NuxtLink>.</p>
+    </div>
     <div v-for="[week, rows] in byWeek" :key="week">
       <h2 class="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">Level {{ week }}</h2>
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

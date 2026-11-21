@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { cdi, radialDeg, vorReceive } from '../../app/nav/vor'
 import { inRange, losNm } from '../../app/nav/range'
 import { air, station } from './helpers/fixtures'
+import { AIRPORT_ELEV_FT } from '../../shared/utils/units'
 
 const O = { x: 0, y: 0 }
 describe('vor', () => {
@@ -25,9 +26,9 @@ describe('vor', () => {
     expect(r.cdiDevDeg).toBeCloseTo(-5, 9)
   })
   it('C5', () => expect(cdi(0, 90).toFrom).toBe('OFF'))
-  it('R1 line of sight', () => expect(losNm(900 + 10000)).toBeCloseTo(123, 6))
+  it('R1 line of sight', () => expect(losNm(AIRPORT_ELEV_FT + 10000)).toBeCloseTo(123, 6))
   it('R2 out of range on the ground', () => {
-    expect(inRange(station({}), air({ x: 50, altFt: 900 }))).toBe(false)
+    expect(inRange(station({}), air({ x: 50, altFt: AIRPORT_ELEV_FT }))).toBe(false)
   })
   it('wrong frequency is invalid', () => {
     expect(vorReceive([station({})], 116.2, 90, air({ x: -10 })).valid).toBe(false)

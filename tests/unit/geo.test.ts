@@ -3,6 +3,8 @@ import { wrap180, wrap360 } from '../../shared/utils/units'
 import { bearingDeg, distNm, toLatLon, toLocal } from '../../shared/utils/geo'
 import { mulberry32 } from '../../shared/utils/random'
 
+const OLD = { lat: 13.0, lon: 77.6 }
+
 describe('units', () => {
   it('U1 wrap360', () => {
     expect(wrap360(-90)).toBe(270)
@@ -17,12 +19,12 @@ describe('units', () => {
 
 describe('geo', () => {
   it('G1 north offset', () => {
-    const v = toLocal({ lat: 13.1, lon: 77.6 })
+    const v = toLocal({ lat: 13.1, lon: 77.6 }, OLD)
     expect(v.x).toBeCloseTo(0, 3)
     expect(v.y).toBeCloseTo(6, 3)
   })
   it('G2 east offset', () => {
-    const v = toLocal({ lat: 13.0, lon: 77.7 })
+    const v = toLocal({ lat: 13.0, lon: 77.7 }, OLD)
     expect(v.x).toBeCloseTo(5.846, 3)
     expect(v.y).toBeCloseTo(0, 3)
   })
