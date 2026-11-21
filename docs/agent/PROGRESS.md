@@ -39,7 +39,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | P2 | W4-T27 | MCP panel + AP wiring (classic/glass toggle after P3) | T26 | DONE |
 | P3 | W4-T23 | PFD | P2 | DONE |
 | P3 | W4-T24 | ND | T23 | DONE |
-| P3 | P3-CHK | Checkpoint: coupled ILS on the glass cockpit | P2, P3 | TODO |
+| P3 | P3-CHK | Checkpoint: coupled ILS on the glass cockpit | P2, P3 | DONE |
 | P4 | W5-T28 | INS model (drift) | P3-CHK | TODO |
 | P4 | W5-T29 | GPS + INS/GPS blend | T28 | TODO |
 | P4 | W5-T31 | INS/GPS/blended positions on the map, nav source selector | T29 | TODO |
