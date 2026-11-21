@@ -9,7 +9,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | W1-T02 | Docker Postgres, Prisma schema, migration, health API, with-dev.sh | T01 | DONE |
 | W1-T03 | Seed data | T02, T04 | DONE |
 | W1-T04 | Shared units, geo, random, types | T01 | DONE |
-| W1-T05 | Flight model, wind, loop helper | T04 | TODO |
+| W1-T05 | Flight model, wind, loop helper | T04 | DONE |
 | W1-T06 | Sim store, useSimLoop, useKeyboard | T05 | TODO |
 | W1-T07 | Airports/stations API, cockpit page, MapView | T03, T06 | TODO |
 | W1-T08 | Gauge helpers + 5 basic instruments | T06 | TODO |
@@ -51,6 +51,10 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W1-T05 · DONE · 2026-11-21
+- app/sim/{flightModel,wind,loop}.ts; F1–F8, L1–L2 + takeoff test pass.
+- ROTATE_KT=65 exported from flightModel.
 
 ### W1-T03 · DONE · 2026-11-21
 - prisma/seedData.ts (pure, local NM → lat/lon) + prisma/seed.ts (idempotent transaction, bcryptjs).
