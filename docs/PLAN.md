@@ -17,7 +17,9 @@ Updated 2026-11-21. It replaces the order of the original 6-week plan (`../FLIGH
 
 **Quality:** 112 unit tests, database integration tests, an API smoke test and an 11-check browser test, all green.
 
-## Remaining work, in priority order
+## Status: P1–P5 DONE (v1.0, 2026-11-21). Only the optional items below remain.
+
+## Remaining work, in priority order (completed)
 | # | Goal | Tasks | Done when | Effort |
 |---|---|---|---|---|
 | **P1** | **Landing scoring and replay** (lab-assessment minimum) | touchdown judge (W3-T20) · flight recorder (W3-T21) · replay page (W3-T22) | Fly the ILS in Test mode, land, get a score, and replay the flight with graphs | 2–3 h |

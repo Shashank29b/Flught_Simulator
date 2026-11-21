@@ -44,7 +44,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | P4 | W5-T29 | GPS + INS/GPS blend | T28 | DONE |
 | P4 | W5-T31 | INS/GPS/blended positions on the map, nav source selector | T29 | DONE |
 | P5 | W6-T35 | Dockerfile + compose app service (one-command run) | – | DONE |
-| P5 | FINAL | Final regression, demo script, tag v1.0 | P1–P5 | TODO |
+| P5 | FINAL | Final regression, demo script, tag v1.0 | P1–P5 | DONE |
 | Optional | W3-T19 | Approach profile (side) view | T17 | TODO |
 | Optional | W4-T25 | Alerts, EICAS, Master Caution/Warning | – | TODO |
 | Optional | W5-T30 | FMS route + CDU + LNAV (waypoints API done) | – | TODO |
@@ -56,6 +56,11 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### FINAL (P5) · DONE · 2026-11-21 · tag v1.0
+- Regression: 145 unit, 9 int, smoke, 2 browser suites (15 + 4 checks) green on the dev server and on the Docker container; clean production build OK.
+- Demo script: (1) Cockpit: take off with throttle + S, fly with W/S/A/D/Q/E; (2) ILS 09L final preset → HSI/PFD on LOC + G/S → MCP APP + A/THR + AP ON (coupled ILS); (3) Journey VOBL → VOMM at 64×; (4) INS/GPS panel: watch drift, GPS outage, re-align; (5) Test mode: ILS approach 09L from the runway at zero → land → score → replay; (6) triple-tap any panel.
+- Remaining optional items: approach profile view, EICAS/alerts, FMS/LNAV, TCAS, GPWS/failures, admin page.
 
 ### W6-T35 · DONE · 2026-11-21
 - Dockerfile (node:22-slim + openssl/curl, npm ci, prisma generate, nuxt build; CMD migrate deploy + node .output); compose app service (env_file .env, DATABASE_URL → db, APP_PORT, ./data mounted).
