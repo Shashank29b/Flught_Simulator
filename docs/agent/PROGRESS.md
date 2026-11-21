@@ -52,6 +52,13 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 ## Handoff log
 Newest at the top. At most 5 lines per task.
 
+### WORLD DATA + LEGEND (extra, user request) · DONE · 2026-11-21
+- `bash scripts/data/download.sh` → data/ourairports (gitignored); seed imports 48,082 airports, 28,708 runway ends, 13,831 navaids (prisma/world.ts + csv.ts), else falls back to VOBL only. VOBL training ILS always added.
+- Migration world_data (Airport ident/iata/type/country/municipality, lat/lon indexes), applied via `migrate diff` + `migrate deploy` (migrate dev is interactive).
+- API: /api/airports?q= (search) | ?near=lat,lon&radiusNm=; /api/airports/:ident; /api/stations?near=&radiusNm=.
+- Client: World.ref + groundElevFt + airports; rebaseWorld() re-centres at 40 NM; nav data refetched around store.navCenter; receivers pick the nearest station on a frequency.
+- Map legend on the OSM map.
+
 ### MODES + VOBL + OSM (extra, user request) · DONE · 2026-11-21
 - Main product = `/cockpit` (no login): every instrument, radio and control in one UI (CockpitPanel + ControlPanel with presets, throttle slider, yoke buttons, flaps, gear). Test mode = `/scenarios` → `/fly/:id` (scored).
 - Real data: VOBL Bengaluru from OurAirports (2 runways, 7 VOR-DME, 8 NDB) + training ILS 09L/09R. Origin = 09L threshold, field elevation 3000 ft.

@@ -37,8 +37,20 @@ export interface NavStation {
   runwayId: number | null
 }
 
+export interface AirportInfo {
+  id: number
+  ident: string
+  name: string
+  iata: string | null
+  type: string
+  x: number
+  y: number
+  elevationFt: number
+}
+
 export interface RunwayInfo {
   id: number
+  airportId?: number
   ident: string
   headingDeg: number
   x: number

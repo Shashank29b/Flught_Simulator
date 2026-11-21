@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import type { ScenarioDTO } from '../../../shared/types'
 import { useSimStore } from '../../stores/sim'
 import { buildScenarioWorld } from '../../composables/useScenarioWorld'
@@ -15,17 +16,20 @@ definePageMeta({ layout: 'cockpit', middleware: 'auth' })
 const route = useRoute()
 const scenarioId = Number(route.params.id)
 const store = useSimStore()
-const nav = useNavData()
+const { navCenter } = storeToRefs(store)
+const nav = useNavData(navCenter)
 const session = useFlightSession()
 const { data: scenario, error: scenarioError } = await useFetch<ScenarioDTO>(`/api/scenarios/${scenarioId}`)
 
 function begin(): void {
-  if (!scenario.value || !nav.stations.value.length) return
-  store.load(buildScenarioWorld(scenario.value, nav.stations.value, nav.runways.value))
+  if (!scenario.value) return
+  store.load(buildScenarioWorld(scenario.value))
+  store.setNavData(nav.raw.value)
   if (import.meta.client) void session.start(scenarioId)
 }
 
-watch([scenario, nav.stations], begin, { immediate: true })
+watch(scenario, begin, { immediate: true })
+watch(nav.raw, raw => store.setNavData(raw))
 watch(() => store.world.done, (d) => {
   if (d) void session.end(d.result, d.landing)
 })

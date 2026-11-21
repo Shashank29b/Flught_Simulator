@@ -70,15 +70,20 @@ const navaids: [string, 'VOR-DME' | 'NDB', number, string, number, number][] = [
   ['TR', 'NDB', 307, 'Tiruchirappalli', 10.749899864196777, 78.68840026855469],
 ]
 
-export const stations: SeedStation[] = [
+/** VOBL-area navaids (fallback when the world dataset is not downloaded). */
+export const navaidStations: SeedStation[] = [
   ...navaids.flatMap(([ident, kind, freq, name, lat, lon]): SeedStation[] => kind === 'NDB'
     ? [{ type: 'NDB', ident, name: `${name} NDB`, frequency: freq, lat, lon, rangeNm: 50, runwayIdent: null }]
     : [
         { type: 'VOR', ident, name: `${name} VOR`, frequency: freq, lat, lon, rangeNm: 130, runwayIdent: null },
         { type: 'DME', ident, name: `${name} DME`, frequency: freq, lat, lon, rangeNm: 130, runwayIdent: null },
       ]),
-  ...pairs.flatMap(ilsStations),
 ]
+
+/** Training ILS + markers for VOBL 09L/09R (always seeded). */
+export const trainingIls: SeedStation[] = pairs.flatMap(ilsStations)
+
+export const stations: SeedStation[] = [...navaidStations, ...trainingIls]
 
 const ll = (x: number, y: number) => toLatLon({ x, y })
 /** Training fixes (fictional), local NM from the 09L threshold. */

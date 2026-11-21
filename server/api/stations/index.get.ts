@@ -1,12 +1,9 @@
-import { z } from 'zod'
 import { prisma } from '../../utils/prisma'
+import { stationsQuery } from '../../validators/navdata'
 import { listStations } from '../../services/navdata'
 
-const querySchema = z.object({
-  type: z.enum(['VOR', 'DVOR', 'DME', 'NDB', 'ILS_LOC', 'ILS_GS', 'MARKER_OM', 'MARKER_MM', 'MARKER_IM']).optional(),
-})
-
+/** ?near=lat,lon&radiusNm=200 for an area; without near, returns at most 500 rows (optionally ?type=). */
 export default defineEventHandler(async (event) => {
-  const q = await getValidatedQuery(event, querySchema.parse)
-  return listStations(prisma, q.type)
+  const q = await getValidatedQuery(event, stationsQuery.parse)
+  return listStations(prisma, { type: q.type, area: q.near ? { ...q.near, radiusNm: q.radiusNm } : undefined })
 })

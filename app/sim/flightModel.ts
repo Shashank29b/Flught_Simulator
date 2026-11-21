@@ -11,7 +11,7 @@ export const DEFAULT_STATE: AircraftState = {
 }
 
 /** One fixed step of the point-mass model (CONTRACTS §3). IAS is flown; TAS (ISA) moves the aircraft. Pure. */
-export function step(s: AircraftState, c: Controls, wind: Wind | null, dt: number, atmo: Atmosphere = STANDARD_ATMOSPHERE): AircraftState {
+export function step(s: AircraftState, c: Controls, wind: Wind | null, dt: number, atmo: Atmosphere = STANDARD_ATMOSPHERE, elevFt = AIRPORT_ELEV_FT): AircraftState {
   const throttle = s.fuelPct <= 0 ? 0 : clamp(c.throttle, 0, 1)
   let bank = clamp(s.bankDeg + c.roll * 15 * dt, -35, 35)
   let pitch = clamp(s.pitchDeg + c.pitch * 5 * dt, -15, 20)
@@ -40,12 +40,12 @@ export function step(s: AircraftState, c: Controls, wind: Wind | null, dt: numbe
   if (onGround) {
     if (ias >= ROTATE_KT && pitch > 0) onGround = false
     else {
-      alt = AIRPORT_ELEV_FT
+      alt = elevFt
       vs = 0
     }
   }
-  else if (alt <= AIRPORT_ELEV_FT) {
-    alt = AIRPORT_ELEV_FT
+  else if (alt <= elevFt) {
+    alt = elevFt
     vs = 0
     onGround = true
   }

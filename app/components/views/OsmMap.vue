@@ -18,7 +18,7 @@ let navLayer: Leaflet.LayerGroup | null = null
 let lastUpdate = 0
 
 const COLORS: Record<string, string> = { VOR: '#0284c7', DVOR: '#0284c7', NDB: '#9333ea', ILS_LOC: '#16a34a', ILS_GS: '#16a34a', MARKER_OM: '#2563eb', MARKER_MM: '#d97706', MARKER_IM: '#64748b' }
-const ll = (x: number, y: number): [number, number] => { const p = toLatLon({ x, y }); return [p.lat, p.lon] }
+const ll = (x: number, y: number): [number, number] => { const p = toLatLon({ x, y }, props.world.ref); return [p.lat, p.lon] }
 
 function planeIcon(hdg: number): Leaflet.DivIcon {
   return L!.divIcon({
@@ -83,6 +83,19 @@ onMounted(async () => {
 onUnmounted(() => map.value?.remove())
 
 watch(() => [props.world.stations, props.world.runways] as const, ([s, r]) => drawNav(s, r))
+const legendOpen = ref(true)
+const LEGEND = [
+  { sym: 'circle', color: COLORS.VOR, label: 'VOR / VOR-DME (tune NAV 1, MHz)' },
+  { sym: 'circle', color: COLORS.NDB, label: 'NDB (tune ADF, kHz)' },
+  { sym: 'circle', color: COLORS.ILS_LOC, label: 'ILS localiser (training, VOBL)' },
+  { sym: 'dash', color: '#16a34a', label: 'ILS approach course' },
+  { sym: 'dot', color: COLORS.MARKER_OM, label: 'Outer marker' },
+  { sym: 'dot', color: COLORS.MARKER_MM, label: 'Middle marker' },
+  { sym: 'dot', color: COLORS.MARKER_IM, label: 'Inner marker' },
+  { sym: 'bar', color: '#111827', label: 'Runway' },
+  { sym: 'line', color: '#65a30d', label: 'Your flight path' },
+  { sym: 'plane', color: '#facc15', label: 'Your aircraft' },
+]
 watch(() => props.world, () => update())
 watch(follow, f => f && update(true))
 </script>
@@ -90,6 +103,22 @@ watch(follow, f => f && update(true))
 <template>
   <div class="relative h-full w-full">
     <div ref="el" class="h-full w-full" />
+    <div class="absolute bottom-6 left-2 z-[1000] rounded bg-white/90 p-2 text-[11px] text-slate-800 shadow">
+      <button class="w-full text-left font-semibold" @click="legendOpen = !legendOpen">Legend {{ legendOpen ? '▾' : '▸' }}</button>
+      <ul v-if="legendOpen" class="mt-1 space-y-0.5">
+        <li v-for="l in LEGEND" :key="l.label" class="flex items-center gap-2">
+          <svg width="18" height="12" viewBox="0 0 18 12">
+            <circle v-if="l.sym === 'circle'" cx="9" cy="6" r="5" :stroke="l.color" stroke-width="2" :fill="l.color" fill-opacity="0.25" />
+            <circle v-else-if="l.sym === 'dot'" cx="9" cy="6" r="3" :stroke="l.color" stroke-width="2" :fill="l.color" fill-opacity="0.25" />
+            <line v-else-if="l.sym === 'dash'" x1="1" y1="6" x2="17" y2="6" :stroke="l.color" stroke-width="2" stroke-dasharray="4 3" />
+            <line v-else-if="l.sym === 'bar'" x1="1" y1="6" x2="17" y2="6" :stroke="l.color" stroke-width="5" />
+            <line v-else-if="l.sym === 'line'" x1="1" y1="6" x2="17" y2="6" :stroke="l.color" stroke-width="2" />
+            <path v-else d="M9,0 L10.4,4 L17,7 L17,8.5 L10.4,7 L10,10 L12,12 L6,12 L8,10 L7.6,7 L1,8.5 L1,7 L7.6,4 Z" :fill="l.color" stroke="#000" stroke-width="0.5" />
+          </svg>
+          <span>{{ l.label }}</span>
+        </li>
+      </ul>
+    </div>
     <button class="absolute bottom-6 right-2 z-[1000] rounded px-2 py-1 text-xs font-semibold shadow" :class="follow ? 'bg-sky-600 text-white' : 'bg-white text-slate-800'" @click="follow = !follow">
       {{ follow ? 'Following aircraft' : 'Follow aircraft' }}
     </button>

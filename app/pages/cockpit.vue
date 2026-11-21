@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useSimStore } from '../stores/sim'
 import { createWorld } from '../sim/engine'
 import { PRESETS } from '../sim/presets'
@@ -11,15 +12,11 @@ import CockpitPanel from '../components/views/CockpitPanel.vue'
 definePageMeta({ layout: 'cockpit' })
 
 const store = useSimStore()
-const nav = useNavData()
-let loaded = false
-
-watch([nav.stations, nav.runways], ([stations, runways]) => {
-  if (!stations.length || loaded) return
-  loaded = true
-  const start = PRESETS.find(p => p.id === 'runway')!
-  store.load(createWorld({ stations, runways, ac: start.ac, radios: { nav1MHz: 115.5, obsDeg: 180, adfKHz: 223 } }))
-}, { immediate: true })
+const start = PRESETS.find(p => p.id === 'runway')!
+store.load(createWorld({ ac: start.ac, radios: { nav1MHz: 115.5, obsDeg: 180, adfKHz: 223 } }))
+const { navCenter } = storeToRefs(store)
+const nav = useNavData(navCenter)
+watch(nav.raw, raw => store.setNavData(raw), { immediate: true })
 
 useKeyboard()
 useSimLoop()

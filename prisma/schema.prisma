@@ -43,13 +43,20 @@ model User {
 }
 
 model Airport {
-  id          Int      @id @default(autoincrement())
-  icao        String   @unique
-  name        String
-  lat         Float
-  lon         Float
-  elevationFt Int
-  runways     Runway[]
+  id           Int      @id @default(autoincrement())
+  ident        String?  @unique
+  icao         String?  @unique
+  iata         String?
+  name         String
+  type         String   @default("airport")
+  country      String?
+  municipality String?
+  lat          Float
+  lon          Float
+  elevationFt  Int
+  runways      Runway[]
+
+  @@index([lat, lon])
 }
 
 model Runway {
@@ -63,6 +70,8 @@ model Runway {
   lengthM      Int
   widthM       Int
   stations     NavStation[]
+
+  @@index([airportId])
 }
 
 model NavStation {
@@ -76,8 +85,10 @@ model NavStation {
   rangeNm   Int
   runway    Runway?     @relation(fields: [runwayId], references: [id])
   runwayId  Int?
+  country   String?
 
   @@index([frequency])
+  @@index([lat, lon])
 }
 
 model Waypoint {

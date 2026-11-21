@@ -54,3 +54,26 @@ describe('engine wind', () => {
     expect(Math.abs(e.ac.x - 0.333)).toBeLessThan(0.02)
   })
 })
+
+describe('frame re-centring', async () => {
+  const { rebaseWorld, groundElevation } = await import('../../app/sim/engine')
+  const { toLatLon } = await import('../../shared/utils/geo')
+  const { SEED_STATIONS, air } = await import('./helpers/fixtures')
+  it('keeps every object at the same lat/lon', () => {
+    const w = createWorld({ stations: SEED_STATIONS, ac: air({ x: 45, y: -10 }) })
+    const before = { ac: toLatLon(w.ac, w.ref), st: toLatLon(w.stations[0]!, w.ref) }
+    const r = rebaseWorld(w, toLatLon(w.ac, w.ref))
+    expect(Math.hypot(r.ac.x, r.ac.y)).toBeLessThan(1e-9)
+    const after = { ac: toLatLon(r.ac, r.ref), st: toLatLon(r.stations[0]!, r.ref) }
+    expect(after.ac.lat).toBeCloseTo(before.ac.lat, 9)
+    expect(after.st.lon).toBeCloseTo(before.st.lon, 9)
+    expect(r.ac.hdgDeg).toBe(w.ac.hdgDeg)
+  })
+  it('takes the ground elevation from the nearest airport', () => {
+    const w = createWorld({ ac: air({ x: 5, y: 0 }), airports: [
+      { id: 1, ident: 'AAA', name: 'A', iata: null, type: 'small_airport', x: 0, y: 0, elevationFt: 100 },
+      { id: 2, ident: 'BBB', name: 'B', iata: null, type: 'small_airport', x: 50, y: 0, elevationFt: 5000 },
+    ] })
+    expect(groundElevation(w)).toBe(100)
+  })
+})

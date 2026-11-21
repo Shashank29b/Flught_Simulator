@@ -1,7 +1,7 @@
 import { clamp, deg2rad, wrap180, wrap360 } from '../../shared/utils/units'
 import { bearingDeg, type Vec2 } from '../../shared/utils/geo'
 import type { AircraftState, NavStation, ToFrom, VorOutput } from '../../shared/types'
-import { findStation, inRange } from './range'
+import { findNearest, inRange } from './range'
 
 /** Radial (bearing from station) with the type's site error. */
 export function radialDeg(st: Vec2, ac: Vec2, kind: 'VOR' | 'DVOR'): number {
@@ -21,9 +21,9 @@ export function invalidVor(obsDeg: number): VorOutput {
   return { valid: false, ident: '', radialDeg: 0, obsDeg, toFrom: 'OFF', cdiDevDeg: 0, cdiFrac: 0 }
 }
 
-export function vorReceive(stations: NavStation[], nav1MHz: number, obsDeg: number, ac: AircraftState): VorOutput {
-  const st = findStation(stations, ['VOR', 'DVOR'], nav1MHz)
-  if (!st || !inRange(st, ac)) return invalidVor(obsDeg)
+export function vorReceive(stations: NavStation[], nav1MHz: number, obsDeg: number, ac: AircraftState, elevFt?: number): VorOutput {
+  const st = findNearest(stations, ['VOR', 'DVOR'], nav1MHz, ac)
+  if (!st || !inRange(st, ac, elevFt)) return invalidVor(obsDeg)
   const r = radialDeg(st, ac, st.type === 'DVOR' ? 'DVOR' : 'VOR')
   return { valid: true, ident: st.ident, radialDeg: r, obsDeg, ...cdi(r, obsDeg) }
 }
