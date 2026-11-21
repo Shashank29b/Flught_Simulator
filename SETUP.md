@@ -45,18 +45,15 @@ This starts PostgreSQL 17 on port 5432 and also creates the `skynav_test` databa
 npx prisma migrate deploy
 ```
 
-## 6. Download the world airport data (recommended)
-```bash
-npm run data:download
-```
-This downloads the free OurAirports dataset (airports, runways, nav aids, about 18 MB) into `data/ourairports/`. The folder is not committed to git.
+## 6. World airport data
+The OurAirports dataset (airports, runways, nav aids, about 18 MB, public domain) is **included in the repo** under `data/ourairports/`. To refresh it later, run `npm run data:download`.
 
 ## 7. Seed the database
 ```bash
 npx prisma db seed
 ```
 - **With** the downloaded data: about 48,000 airports, 28,700 runway ends and 13,800 nav aids worldwide, plus the training ILS at Bengaluru. Takes about 10 s.
-- **Without** it: Bengaluru (VOBL) and nearby nav aids only.
+- If `data/ourairports/` is missing: Bengaluru (VOBL) and nearby nav aids only.
 
 The seed is safe to rerun: it wipes and recreates everything, including users and saved flights.
 
@@ -113,13 +110,11 @@ npm run test:e2e
 
 ## 11. Run everything with Docker (no Node.js needed)
 ```bash
-docker compose up -d --build                                # database + app on http://localhost:3000
-docker compose run --rm app node scripts/data/download.mjs  # once: world airport data (optional)
-docker compose run --rm app npx prisma db seed              # once: seed the database
+docker compose up -d --build      # database + app on http://localhost:3000, migrated and seeded automatically
 ```
-- Use another host port with `APP_PORT=8080 docker compose up -d --build`.
-- Stop with `docker compose down`; add `-v` to delete the database volume too.
-- The app runs `prisma migrate deploy` automatically when it starts.
+- Use another port with `APP_PORT=8080 docker compose up -d --build`. The database host port is `DB_PORT` (default 5432).
+- Stop with `docker compose down`; add `-v` to delete the database volume too (it reseeds itself on the next start).
+- See **DOCKER.md** for the simple start/stop/update guide.
 
 ### Windows (Docker Desktop, with or without WSL)
 1. Start **Docker Desktop**. If you use WSL, enable it under *Settings → Resources → WSL integration*.

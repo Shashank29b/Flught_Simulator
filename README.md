@@ -2,7 +2,7 @@
 
 A web-based flight simulator for learning aircraft navigation systems. It is a single full-stack application built with **Nuxt 4 (Vue 3)**, **PostgreSQL** and **Prisma**.
 
-**Quick start (Docker):** `docker compose up -d --build`, then `docker compose run --rm app node scripts/data/download.mjs` and `docker compose run --rm app npx prisma db seed`, then open http://localhost:3000 · **Docker guide: [DOCKER.md](DOCKER.md)** · **Full setup: [SETUP.md](SETUP.md)** · **Roadmap: [docs/PLAN.md](docs/PLAN.md)**
+**Quick start (Docker):** `docker compose up -d --build`, then open http://localhost:3000/cockpit (it seeds itself on first start) · **Docker guide: [DOCKER.md](DOCKER.md)** · **Full setup: [SETUP.md](SETUP.md)** · **Roadmap: [docs/PLAN.md](docs/PLAN.md)**
 
 ## Features
 - **One-screen cockpit:**
@@ -12,7 +12,7 @@ A web-based flight simulator for learning aircraft navigation systems. It is a s
   - ISA air-data panel with baro setting
   - a CVOR/DVOR teaching diagram
   - on-screen and keyboard flight controls
-- **Real data:** 48,000 airports, runways and nav aids worldwide from [OurAirports](https://ourairports.com/data/) (public domain), on an [OpenStreetMap](https://www.openstreetmap.org/) moving map. India only by default, with a whole-world toggle and per-layer legend toggles.
+- **Real data (included in the repo):** 48,000 airports, runways and nav aids worldwide from [OurAirports](https://ourairports.com/data/) (public domain), on an [OpenStreetMap](https://www.openstreetmap.org/) moving map. India only by default, with a whole-world toggle and per-layer legend toggles.
 - **Journey autopilot:** pick any two airports. The aircraft takes off, climbs, cruises, descends, captures the runway centreline, flies a 3° glide path, flares, lands and stops. You can watch the stick, rudder and throttle move, adjust the cruise speed and speed up time (up to 64×).
 - **Physics:**
   - point-mass flight model with jet (350 kt) and trainer (140 kt) profiles

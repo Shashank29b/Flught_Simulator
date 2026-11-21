@@ -10,4 +10,4 @@ COPY . .
 RUN npx prisma generate && npx nuxi prepare && npm run build
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000
 EXPOSE 3000
-CMD ["sh", "-c", "npx prisma migrate deploy && node .output/server/index.mjs"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node scripts/seed-if-empty.mjs && node .output/server/index.mjs"]

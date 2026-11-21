@@ -5,7 +5,7 @@ services:
       POSTGRES_USER: skynav
       POSTGRES_PASSWORD: skynav
       POSTGRES_DB: skynav
-    ports: ["5432:5432"]
+    ports: ["${DB_PORT:-5432}:5432"]
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./docker/initdb:/docker-entrypoint-initdb.d:ro
@@ -15,15 +15,13 @@ services:
       timeout: 3s
       retries: 20
 
-  # Whole app: `docker compose up -d --build` (then seed once, see SETUP.md). Host port: APP_PORT (default 3000).
+  # Whole app: `docker compose up -d --build` (migrates and seeds itself on first start). Host port: APP_PORT (default 3000).
   app:
     build: .
     env_file: .env
     environment:
       DATABASE_URL: postgresql://skynav:skynav@db:5432/skynav
     ports: ["${APP_PORT:-3000}:3000"]
-    volumes:
-      - ./data:/app/data
     depends_on:
       db:
         condition: service_healthy

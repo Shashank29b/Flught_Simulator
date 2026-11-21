@@ -12,13 +12,8 @@ Works on Windows, macOS and Linux. You only need **Git** and **Docker Desktop**.
 git clone https://github.com/Shashank29b/Flught_Simulator.git
 cd Flught_Simulator
 docker compose up -d --build
-docker compose run --rm app node scripts/data/download.mjs
-docker compose run --rm app npx prisma db seed
 ```
-1. **`git clone …` and `cd …`** download the code and go into its folder.
-2. **`docker compose up -d --build`** builds and starts the app and the database. The first build takes 5–10 minutes.
-3. **`docker compose run --rm app node scripts/data/download.mjs`** downloads the world airport data.
-4. **`docker compose run --rm app npx prisma db seed`** fills the database. It should print "World data: 48082 airports…"
+That's all. On the first start the app creates the database tables and loads the world airport data (included in the repo) by itself. The first build takes 5–10 minutes; give it about 30 seconds more for the first seed.
 
 Open **http://localhost:3000/cockpit**
 
@@ -54,21 +49,20 @@ docker compose up -d --build
 ```bash
 docker compose down -v
 docker compose up -d --build
-docker compose run --rm app node scripts/data/download.mjs
-docker compose run --rm app npx prisma db seed
 ```
+The app seeds itself again on start.
 
 ---
 
 ## Full cycle at a glance
 | Step | Command |
 |---|---|
-| Install (first time) | section 1 |
+| Install (first time) | `git clone …`, then `cd Flught_Simulator`, then `docker compose up -d --build` |
 | Start | `docker compose up -d` |
 | Use | open http://localhost:3000/cockpit |
 | Stop | `docker compose down` |
 | Update | `docker compose down`, then `git pull`, then `docker compose up -d --build` |
-| Reset everything | section 5 |
+| Reset everything | `docker compose down -v`, then `docker compose up -d --build` |
 
 ## Help
 | Problem | Fix |
@@ -76,6 +70,6 @@ docker compose run --rm app npx prisma db seed
 | `Cannot connect to the Docker daemon` | Open Docker Desktop and wait until it is running |
 | `port 3000 is already allocated` | Close any other server on port 3000 (for example `npm run dev`) |
 | `port 5432 is already allocated` | Stop the PostgreSQL that is installed on your computer (Windows: Services → postgresql → Stop) |
-| Map has few or no airports | Rerun the download and seed commands from section 1 |
+| Map has few or no airports | Wait about 30 s after the first start (seeding), then reload. Still empty: `docker compose logs app --tail 50` |
 | Page shows an error | Run `docker compose logs app --tail 50` and send the output |
 | Is it running? | `docker compose ps`: `db` and `app` should be *Up* |
