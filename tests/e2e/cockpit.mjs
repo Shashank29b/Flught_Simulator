@@ -31,6 +31,13 @@ await check('map shows India airports and nav aids', async () => {
   const info = await page.locator('text=/India · in this view: \\d+ airports/').innerText()
   if (!/India · in this view: \d+ airports/.test(info)) throw new Error(info)
 })
+await check('triple-tap on the airspeed indicator explains it', async () => {
+  const asi = page.locator('[data-info=airspeed]')
+  await asi.click({ clickCount: 3 })
+  await page.getByRole('dialog', { name: 'Airspeed indicator (ASI)' }).waitFor({ timeout: 3000 })
+  await page.keyboard.press('Escape')
+  await page.getByRole('dialog').waitFor({ state: 'detached', timeout: 3000 })
+})
 await check('throttle slider sets throttle', async () => {
   await page.locator('input[type=range]').fill('100')
   await waitFor(async () => (await num('THR')) === 100, 3000, 'THR 100')

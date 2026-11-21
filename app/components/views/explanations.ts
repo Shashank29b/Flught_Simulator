@@ -1,0 +1,110 @@
+/** Explanation cards shown when a cockpit panel is triple-tapped. */
+export interface Explanation { title: string; what: string; read: string[]; how: string; controls?: string }
+
+export const EXPLANATIONS: Record<string, Explanation> = {
+  airspeed: {
+    title: 'Airspeed indicator (ASI)',
+    what: 'Indicated airspeed (IAS) in knots, measured from the dynamic pressure in the pitot tube.',
+    read: ['White arc: flap operating range (bottom = stall with full flap).', 'Green arc: normal operating range (bottom = clean stall).', 'Yellow arc: caution range; red line: never-exceed speed.', 'The scale follows the selected aircraft (Jet up to 400 kt, Trainer up to 200 kt).'],
+    how: 'IAS is what the wings "feel", so stall and limit speeds are given as IAS. The aircraft actually moves at true airspeed (TAS), which the ISA model computes from IAS, altitude and temperature; TAS is higher than IAS at altitude.',
+  },
+  attitude: {
+    title: 'Attitude indicator (artificial horizon)',
+    what: 'The aircraft\'s pitch (nose up/down) and bank (wings tilt) relative to the horizon.',
+    read: ['The yellow symbol is your aircraft; blue is sky, brown is ground.', 'Pitch ladder lines every 5° (numbers every 10°).', 'The yellow pointer at the top shows the bank angle against the 10/20/30/45/60° marks.'],
+    how: 'In a real aircraft a gyroscope (or an AHRS/IRS) holds a stable reference to the horizon. It is the primary instrument for flying without outside visual references.',
+    controls: 'W/S stick forward/back (pitch), A/D roll.',
+  },
+  altimeter: {
+    title: 'Altimeter',
+    what: 'Altitude in feet, from the static (outside air) pressure.',
+    read: ['Long hand: hundreds of feet; short hand: thousands.', 'The number shows the reading directly.'],
+    how: 'Pressure falls with height (ISA: about 1 hPa per 27–30 ft near the ground). The reading depends on the barometric setting in the Air Data panel: with QNH set it shows height above sea level; with STD (1013.25 hPa) it shows pressure altitude (flight levels).',
+    controls: 'BARO −/+, STD and QNH buttons in the Air Data panel.',
+  },
+  vsi: {
+    title: 'Vertical speed indicator (VSI)',
+    what: 'Rate of climb or descent in thousands of feet per minute.',
+    read: ['Needle at 9 o\'clock = level flight.', 'Needle up = climbing; needle down = descending (full scale ±2000 fpm).'],
+    how: 'Measures how fast the static pressure changes. In this simulator VS = true airspeed × sin(pitch).',
+  },
+  heading: {
+    title: 'Heading indicator (directional gyro)',
+    what: 'The direction the nose points, in degrees (000 = north, 090 = east).',
+    read: ['Read the heading under the orange index at the top; the number below shows it digitally.', 'Card numbers are tens of degrees (3 = 030, 12 = 120…).'],
+    how: 'A gyroscope keeps a fixed direction; in real aircraft it is aligned with the magnetic compass. Here all directions are true bearings. Heading is not the track over the ground: wind makes the aircraft drift (see GS/TRK on the map).',
+    controls: 'Turn by banking (A/D); Q/E (rudder) yaws slightly in the air and steers on the ground.',
+  },
+  cdi: {
+    title: 'VOR / CDI (course deviation indicator)',
+    what: 'Shows where you are relative to a chosen radial of the tuned VOR.',
+    read: ['OBS: the course you selected (turn with the OBS buttons).', 'Needle left/right of centre: fly toward the needle to get back on course; each dot is 2°.', 'TO: flying the course takes you to the station; FR (FROM): away from it.', 'Red OFF flag: no usable signal (not tuned, out of range or abeam the station).'],
+    how: 'A VOR transmits a 30 Hz reference signal and a 30 Hz variable signal whose phase difference equals the bearing from the station (the radial). Conventional VORs have larger site errors than Doppler VORs (see the VOR panel).',
+    controls: 'Tune NAV 1 (108.00–117.95 MHz), then set the OBS.',
+  },
+  rmi: {
+    title: 'RMI (radio magnetic indicator)',
+    what: 'A compass card with two needles pointing at radio stations.',
+    read: ['The card rotates so your heading is at the top.', 'Thin green needle: points to the tuned VOR.', 'Thick yellow needle: points to the tuned NDB (ADF).', 'A needle lying at 3 o\'clock means that receiver has no signal.'],
+    how: 'Combines heading with the VOR and ADF bearings, so you read the bearing TO each station directly on the card.',
+  },
+  adf: {
+    title: 'ADF (automatic direction finder)',
+    what: 'Relative bearing to the tuned NDB (non-directional beacon).',
+    read: ['0 at the top = the station is straight ahead; 90 = to the right; 180 = behind.', 'To fly to the station, turn until the needle points to 0.', 'Bearing TO the station = heading + relative bearing.'],
+    how: 'The NDB transmits on LF/MF (190–1750 kHz); a loop antenna finds the direction of the strongest signal. NDBs have no "radial"; in wind you must correct for drift.',
+    controls: 'Tune the ADF radio in kHz (e.g. YH 223).',
+  },
+  navRadio: {
+    title: 'NAV 1 radio',
+    what: 'Selects the VHF navigation frequency used by the VOR/CDI, RMI needle 1 and the DME.',
+    read: ['ACTIVE (green): the frequency in use.', 'STBY (amber): the frequency you are preparing.', '⇆ swaps active and standby.'],
+    how: 'VORs use 108.00–117.95 MHz; ILS localisers use 108.10–111.95 (odd tenths). The DME is paired with the VOR on the same frequency. With worldwide data, the nearest station on the frequency is received.',
+    controls: '−1/+1 change MHz; −0.05/+0.05 fine-tune.',
+  },
+  adfRadio: {
+    title: 'ADF radio',
+    what: 'Selects the NDB frequency for the ADF needle and RMI needle 2.',
+    read: ['ACTIVE / STBY in kHz.'],
+    how: 'NDBs transmit 190–1750 kHz. Each identifies itself in Morse code.',
+    controls: '−10/+10 and −1/+1 kHz, then ⇆.',
+  },
+  dme: {
+    title: 'DME (distance measuring equipment)',
+    what: 'Slant distance to the DME paired with the tuned VOR, plus groundspeed and time to the station.',
+    read: ['Large number: distance in NM.', 'Below: groundspeed (kt) and minutes to the station.'],
+    how: 'The aircraft sends pulses and the ground station replies after a fixed delay; the round-trip time gives the distance. It is the slant range, so over the station it shows your height (in NM), not zero.',
+  },
+  airData: {
+    title: 'Air data (ISA atmosphere)',
+    what: 'Airspeeds and atmosphere values computed with the International Standard Atmosphere.',
+    read: ['IAS = indicated airspeed; TAS = true airspeed; M = Mach number.', 'OAT = outside air temperature; σ = density ratio (air density ÷ sea-level density); P = static pressure (hPa).', 'PA = pressure altitude; DA = density altitude (how high the aircraft "feels"); TRUE = true altitude above sea level.', 'BARO = altimeter setting (STD = 1013.25 hPa).'],
+    how: 'ISA: 15 °C and 1013.25 hPa at sea level, temperature falling 6.5 °C per km up to 11 km. Scenarios can set a hot/cold day (ISA ± °C) and a QNH, which change TAS, density altitude and the altimeter reading.',
+    controls: 'BARO −/+ (hPa), STD, QNH.',
+  },
+  vor: {
+    title: 'VOR station diagram (CVOR vs DVOR)',
+    what: 'A slowed-down picture of how the tuned VOR transmits, plus its site error.',
+    read: ['Conventional VOR: a rotating figure-8 pattern.', 'Doppler VOR (DVOR): a ring of 48 antennas, the lit one moving round the ring.', 'Dashed line: your bearing from the station. Site error: difference between the received radial and the true bearing.'],
+    how: 'Both produce a 30 Hz reference and a 30 Hz variable signal; the phase difference is the radial. The DVOR uses the Doppler shift of the rotating source, so reflections cause much smaller errors (about 0.3° vs 1.5° here).',
+  },
+  map: {
+    title: 'Moving map',
+    what: 'OpenStreetMap with airports, runways and nav aids (OurAirports data); your aircraft and trail.',
+    read: ['Legend checkboxes show/hide each layer; "Whole world" loads data outside India.', 'Zoom in for small airports and nav aids; hover a symbol for its name and frequency.', '"Nav chart" tab: a plain navigation chart with grid and scale.'],
+    how: 'Positions use latitude/longitude; the simulator flies in a local flat frame that re-centres every 40 NM so it works anywhere in the world.',
+  },
+  controls: {
+    title: 'Flight controls',
+    what: 'Everything you use to fly: stick, rudder, throttle, flaps, gear and start positions.',
+    read: ['Stick box: blue dot = stick position (yours or the autopilot\'s); orange bar = rudder.', 'Throttle %: sets the target airspeed; the status line shows IAS, altitude, heading, pitch and bank.'],
+    how: 'Take-off: full throttle, wait for the rotate speed, then pull back (S). Land by flying a 3° approach and reducing power just before touchdown.',
+    controls: 'W/S stick fwd/back · A/D roll · Q/E yaw · ↑/↓ or +/− throttle · G gear · F flaps · P pause · R reset.',
+  },
+  journey: {
+    title: 'Journey (automatic flight)',
+    what: 'Pick a departure and destination: the autopilot takes off, flies there and lands on the chosen runway.',
+    read: ['Phase bar: take-off roll → rotate → climb → cruise → descent → approach → final 3° → flare → rollout → arrived.', 'Time ×: speed up the simulation (up to 64×).', 'Any W/S/A/D/Q/E input disengages the autopilot; "Engage autopilot" gives control back to it.'],
+    how: 'The autopilot moves the same stick, rudder and throttle you use (watch the stick box): it flies direct to a fix 12–15 NM out on the runway centreline, captures the centreline, follows a 3° glide path, flares at 40 ft and brakes to a stop.',
+  },
+}

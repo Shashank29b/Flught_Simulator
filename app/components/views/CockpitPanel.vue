@@ -17,6 +17,7 @@ import AdfIndicator from '../instruments/AdfIndicator.vue'
 import DmeReadout from '../instruments/DmeReadout.vue'
 import AirDataPanel from '../instruments/AirDataPanel.vue'
 import NavRadio from '../radios/NavRadio.vue'
+import InfoTap from './InfoTap.vue'
 
 const store = useSimStore()
 const mapTab = ref<'osm' | 'nav'>('osm')
@@ -26,7 +27,8 @@ const mapTab = ref<'osm' | 'nav'>('osm')
   <div class="grid min-h-0 flex-1 grid-cols-1 gap-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
     <div class="flex min-h-[420px] flex-col gap-2">
       <div class="relative min-h-0 flex-1 overflow-hidden rounded border border-slate-800">
-        <div class="absolute left-12 top-2 z-[1000] flex gap-1 text-xs">
+        <InfoTap id="map" class="absolute left-12 top-2 z-[1000]"><span class="block rounded bg-slate-800/90 px-2 py-1 text-[10px] text-slate-300">triple-tap here: map info</span></InfoTap>
+        <div class="absolute left-12 top-9 z-[1000] flex gap-1 text-xs">
           <button class="rounded px-2 py-1 shadow" :class="mapTab === 'osm' ? 'bg-sky-600' : 'bg-slate-800'" @click="mapTab = 'osm'">Map (OSM)</button>
           <button class="rounded px-2 py-1 shadow" :class="mapTab === 'nav' ? 'bg-sky-600' : 'bg-slate-800'" @click="mapTab = 'nav'">Nav chart</button>
         </div>
@@ -35,26 +37,26 @@ const mapTab = ref<'osm' | 'nav'>('osm')
           <MapView v-else :world="store.world" :trail="store.trail" />
         </ClientOnly>
       </div>
-      <ControlPanel />
+      <InfoTap id="controls"><ControlPanel /></InfoTap>
     </div>
     <div class="flex min-h-0 flex-col gap-2 overflow-y-auto">
       <ClientOnly>
         <div class="grid grid-cols-4 gap-2 rounded border border-slate-800 bg-slate-950 p-2">
-          <AirspeedIndicator :ias-kt="store.world.ac.iasKt" :max-kt="store.world.profile.gaugeMaxKt" :stall-kt="store.world.profile.stallCleanKt" :flap-stall-kt="store.world.profile.stallCleanKt * 0.7" :vne-kt="store.world.profile.maxIasKt" />
-          <AttitudeIndicator :pitch-deg="store.world.ac.pitchDeg" :bank-deg="store.world.ac.bankDeg" />
-          <Altimeter :alt-ft="indicatedAltitudeFt(store.world.ac.altFt, store.world.radios.baroHpa, store.world.atmo)" />
-          <VerticalSpeed :vs-fpm="store.world.ac.vsFpm" />
-          <HeadingIndicator :hdg-deg="store.world.ac.hdgDeg" />
-          <CDI :vor="store.world.nav.vor1" :obs-deg="store.world.radios.obsDeg" @obs="store.setRadio({ obsDeg: $event })" />
-          <RMI :hdg-deg="store.world.ac.hdgDeg" :vor="store.world.nav.vor1" :adf="store.world.nav.adf" />
-          <AdfIndicator :adf="store.world.nav.adf" />
+          <InfoTap id="airspeed"><AirspeedIndicator :ias-kt="store.world.ac.iasKt" :max-kt="store.world.profile.gaugeMaxKt" :stall-kt="store.world.profile.stallCleanKt" :flap-stall-kt="store.world.profile.stallCleanKt * 0.7" :vne-kt="store.world.profile.maxIasKt" /></InfoTap>
+          <InfoTap id="attitude"><AttitudeIndicator :pitch-deg="store.world.ac.pitchDeg" :bank-deg="store.world.ac.bankDeg" /></InfoTap>
+          <InfoTap id="altimeter"><Altimeter :alt-ft="indicatedAltitudeFt(store.world.ac.altFt, store.world.radios.baroHpa, store.world.atmo)" /></InfoTap>
+          <InfoTap id="vsi"><VerticalSpeed :vs-fpm="store.world.ac.vsFpm" /></InfoTap>
+          <InfoTap id="heading"><HeadingIndicator :hdg-deg="store.world.ac.hdgDeg" /></InfoTap>
+          <InfoTap id="cdi"><CDI :vor="store.world.nav.vor1" :obs-deg="store.world.radios.obsDeg" @obs="store.setRadio({ obsDeg: $event })" /></InfoTap>
+          <InfoTap id="rmi"><RMI :hdg-deg="store.world.ac.hdgDeg" :vor="store.world.nav.vor1" :adf="store.world.nav.adf" /></InfoTap>
+          <InfoTap id="adf"><AdfIndicator :adf="store.world.nav.adf" /></InfoTap>
         </div>
         <div class="grid grid-cols-2 gap-2">
-          <NavRadio :active="store.world.radios.nav1MHz" @tune="store.setRadio({ nav1MHz: $event })" />
-          <NavRadio label="ADF" :active="store.world.radios.adfKHz" :min="190" :max="1750" :fine="1" :coarse="10" :decimals="0" unit="kHz" @tune="store.setRadio({ adfKHz: $event })" />
-          <DmeReadout :dme="store.world.nav.dme1" :gs-kt="store.world.ac.gsKt" />
-          <AirDataPanel :ac="store.world.ac" :atmo="store.world.atmo" :baro-hpa="store.world.radios.baroHpa" @baro="store.setRadio({ baroHpa: $event })" />
-          <VorDiagram :world="store.world" />
+          <InfoTap id="navRadio"><NavRadio :active="store.world.radios.nav1MHz" @tune="store.setRadio({ nav1MHz: $event })" /></InfoTap>
+          <InfoTap id="adfRadio"><NavRadio label="ADF" :active="store.world.radios.adfKHz" :min="190" :max="1750" :fine="1" :coarse="10" :decimals="0" unit="kHz" @tune="store.setRadio({ adfKHz: $event })" /></InfoTap>
+          <InfoTap id="dme"><DmeReadout :dme="store.world.nav.dme1" :gs-kt="store.world.ac.gsKt" /></InfoTap>
+          <InfoTap id="airData"><AirDataPanel :ac="store.world.ac" :atmo="store.world.atmo" :baro-hpa="store.world.radios.baroHpa" @baro="store.setRadio({ baroHpa: $event })" /></InfoTap>
+          <InfoTap id="vor"><VorDiagram :world="store.world" /></InfoTap>
         </div>
       </ClientOnly>
     </div>
