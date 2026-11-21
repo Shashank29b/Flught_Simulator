@@ -33,7 +33,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 |---|---|---|---|---|
 | P1 | W3-T20 | Touchdown judge + flight end on landing/crash | T17 | DONE |
 | P1 | W3-T21 | Browser flight recorder (5 Hz, batched) → server scoring (server side already done) | T20 | DONE |
-| P1 | W3-T22 | Replay page (track, altitude/LOC/GS graphs, score) | T21 | TODO |
+| P1 | W3-T22 | Replay page (track, altitude/LOC/GS graphs, score) | T21 | DONE |
 | P1 | P1-CHK | Checkpoint: ILS landing → score → replay works (lab minimum) | P1 | TODO |
 | P2 | W4-T26 | Autopilot modes HDG/ALT/VS/NAV/APP (closed-loop tests; reuse autoflight inner loops) | P1-CHK | TODO |
 | P2 | W4-T27 | MCP panel + AP wiring (classic/glass toggle after P3) | T26 | TODO |
@@ -56,6 +56,10 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W3-T22 · DONE · 2026-11-21
+- pages/flights/[id].vue + TrackPlot.vue (track coloured by altitude over the VOBL runways, scrubber) + LineChart.vue (altitude, LOC, GS, IAS).
+- tests/e2e/testmode.mjs: login → ILS scenario → short final → LANDED 100/100 → replay; npm run test:e2e runs both browser suites.
 
 ### W3-T21 · DONE · 2026-11-21
 - app/composables/useRecorder.ts: 5 Hz sim-time samples in the fixed VOBL frame, batches of 25, flushed via session.beforeEnd before PATCH end.

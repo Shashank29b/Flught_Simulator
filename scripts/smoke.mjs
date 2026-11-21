@@ -118,6 +118,11 @@ await check('start → 25 samples → LANDED → score > 0 → replay data', asy
   ctx.replayId = s.json.id
 })
 
+await check('replay page renders', async () => {
+  const r = await req('GET', `/flights/${ctx.replayId}`)
+  assert(r.status === 200 && r.text.includes('Score breakdown'), `status ${r.status}`)
+})
+
 // ---- pages
 for (const page of ['/', '/cockpit', '/login', '/register', '/scenarios', '/flights', '/fly/1', '/fly/2']) {
   await check(`page ${page} 200`, async () => {
