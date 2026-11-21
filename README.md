@@ -2,7 +2,7 @@
 
 A web-based flight simulator for learning aircraft navigation systems. It is a single full-stack application built with **Nuxt 4 (Vue 3)**, **PostgreSQL** and **Prisma**.
 
-**Setup: see [SETUP.md](SETUP.md)** · **Roadmap: [docs/PLAN.md](docs/PLAN.md)**
+**Quick start (Docker):** `docker compose up -d --build`, then `docker compose run --rm app npx prisma db seed`, then open http://localhost:3000 · **Full setup: [SETUP.md](SETUP.md)** · **Roadmap: [docs/PLAN.md](docs/PLAN.md)**
 
 ## Features
 - **One-screen cockpit:**
@@ -22,6 +22,11 @@ A web-based flight simulator for learning aircraft navigation systems. It is a s
 - **Nav receivers:** VOR (with CVOR/DVOR site error), DME slant range, ADF, line-of-sight range and nearest-station selection.
 - **Test mode:** graded scenarios (VOR tracking, NDB homing, ILS approaches…) with login, saved flights, scores and a flight log.
 - **Explain mode:** triple-tap any panel for an explanation of how it works.
+- **ILS:** localiser, glide slope, marker beacons, radio altimeter with callouts, and an HSI that switches automatically between VOR and ILS.
+- **Autopilot (MCP):** HDG, NAV (VOR), APP (coupled ILS), ALT, V/S and A/THR, with a flight-mode annunciator.
+- **Glass cockpit:** PFD and ND (switchable with the classic gauges).
+- **INS / GPS:** inertial drift, GPS fixes and outages, INS+GPS blending, shown on the map.
+- **Test mode:** each test starts on runway 09L at zero; the touchdown is judged and scored, and every flight is recorded for a replay page with graphs.
 
 ## Tech stack
 | Layer | Choice |

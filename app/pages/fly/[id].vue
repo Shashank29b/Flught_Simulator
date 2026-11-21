@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import type { ScenarioDTO } from '../../../shared/types'
+import type { ScenarioDTO } from '#shared/types'
 import { useSimStore } from '../../stores/sim'
 import { buildScenarioWorld } from '../../composables/useScenarioWorld'
 import { useFlightSession } from '../../composables/useFlightSession'

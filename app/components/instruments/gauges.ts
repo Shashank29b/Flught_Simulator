@@ -1,4 +1,4 @@
-import { clamp } from '../../../shared/utils/units'
+import { clamp } from '#shared/utils/units'
 
 export const airspeedNeedleDeg = (ias: number, maxKt = 200): number => (clamp(ias, 0, maxKt) / maxKt) * 320
 

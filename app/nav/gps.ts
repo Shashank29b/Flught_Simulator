@@ -1,4 +1,4 @@
-import { gaussian } from '../../shared/utils/random'
+import { gaussian } from '#shared/utils/random'
 
 /** One GPS fix: the measurement error (metres) relative to the true position, or null during an outage. */
 export function gpsFix(rng: () => number, opts: { sigmaM?: number; outage: boolean }): [number, number] | null {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { wrap360 } from '../../../shared/utils/units'
+import { wrap360 } from '#shared/utils/units'
 import { useCanvas } from '../../composables/useCanvas'
 import { dial, label, tick } from './dial'
 import { hsiBarOffsetPx, type HsiInput } from './hsiMath'

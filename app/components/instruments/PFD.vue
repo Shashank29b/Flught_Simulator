@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 import type { World } from '../../sim/engine'
 import { stallKt } from '../../sim/aircraft'
 import { fma } from '../../systems/autopilot'
-import { indicatedAltitudeFt } from '../../../shared/utils/isa'
+import { indicatedAltitudeFt } from '#shared/utils/isa'
 import { useCanvas } from '../../composables/useCanvas'
 import { drawAttitude, drawDiamondScale, drawHeadingTape, drawTape, drawVsi } from './pfdDraw'
 

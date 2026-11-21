@@ -1,6 +1,6 @@
-import { AIRPORT_ELEV_FT, G, KT_TO_FPM, KT_TO_MPS, clamp, deg2rad, rad2deg, wrap360 } from '../../shared/utils/units'
-import type { AircraftState, Atmosphere, Controls, Wind } from '../../shared/types'
-import { STANDARD_ATMOSPHERE, casToTas } from '../../shared/utils/isa'
+import { AIRPORT_ELEV_FT, G, KT_TO_FPM, KT_TO_MPS, clamp, deg2rad, rad2deg, wrap360 } from '#shared/utils/units'
+import type { AircraftState, Atmosphere, Controls, Wind } from '#shared/types'
+import { STANDARD_ATMOSPHERE, casToTas } from '#shared/utils/isa'
 import { applyWind } from './wind'
 import { TRAINER, type AircraftProfile } from './aircraft'
 

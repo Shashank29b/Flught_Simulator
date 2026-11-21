@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import type { FlightResult } from '../../shared/types'
+import type { FlightResult } from '#shared/types'
 
 /** Talks to the flights API: start on load, end exactly once. */
 export function useFlightSession() {

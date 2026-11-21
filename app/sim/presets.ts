@@ -1,5 +1,5 @@
-import { AIRPORT_ELEV_FT, NM_TO_FT, deg2rad } from '../../shared/utils/units'
-import type { AircraftState } from '../../shared/types'
+import { AIRPORT_ELEV_FT, NM_TO_FT, deg2rad } from '#shared/utils/units'
+import type { AircraftState } from '#shared/types'
 import type { Radios } from './engine'
 
 export interface Preset { id: string; label: string; ac: Partial<AircraftState>; radios?: Partial<Radios> }

@@ -1,5 +1,5 @@
-import { deg2rad, rad2deg, wrap360 } from '../../shared/utils/units'
-import type { Wind } from '../../shared/types'
+import { deg2rad, rad2deg, wrap360 } from '#shared/utils/units'
+import type { Wind } from '#shared/types'
 
 export interface GroundVector { gsKt: number; trackDeg: number; vxKt: number; vyKt: number }
 

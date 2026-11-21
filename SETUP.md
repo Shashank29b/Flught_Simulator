@@ -111,13 +111,23 @@ The browser test needs a running server (`npm run dev` in another terminal) and 
 npm run test:e2e
 ```
 
-## 11. Production build
+## 11. Run everything with Docker (no Node.js needed)
+```bash
+docker compose up -d --build                                # database + app on http://localhost:3000
+docker compose run --rm app bash scripts/data/download.sh   # once: world airport data (optional)
+docker compose run --rm app npx prisma db seed              # once: seed the database
+```
+- Use another host port with `APP_PORT=8080 docker compose up -d --build`.
+- Stop with `docker compose down`; add `-v` to delete the database volume too.
+- The app runs `prisma migrate deploy` automatically when it starts.
+
+## 12. Production build (without Docker)
 ```bash
 npm run build
 node .output/server/index.mjs     # serves on port 3000; needs DATABASE_URL and NUXT_APP_SECRET set
 ```
 
-## 12. Troubleshooting
+## 13. Troubleshooting
 | Problem | Fix |
 |---|---|
 | `permission denied … docker.sock` | use `sudo docker …`, or join the docker group (see §1) |

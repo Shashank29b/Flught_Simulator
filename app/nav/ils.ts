@@ -1,6 +1,6 @@
-import { AIRPORT_ELEV_FT, NM_TO_FT, clamp, rad2deg, wrap180, wrap360 } from '../../shared/utils/units'
-import { bearingDeg, distNm } from '../../shared/utils/geo'
-import type { AircraftState, IlsOutput, NavStation, RunwayInfo } from '../../shared/types'
+import { AIRPORT_ELEV_FT, NM_TO_FT, clamp, rad2deg, wrap180, wrap360 } from '#shared/utils/units'
+import { bearingDeg, distNm } from '#shared/utils/geo'
+import type { AircraftState, IlsOutput, NavStation, RunwayInfo } from '#shared/types'
 import { findNearest, inRange } from './range'
 
 export const LOC_FULL_SCALE_DEG = 2.5

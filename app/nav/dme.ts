@@ -1,6 +1,6 @@
-import { AIRPORT_ELEV_FT, NM_TO_FT } from '../../shared/utils/units'
-import { distNm } from '../../shared/utils/geo'
-import type { AircraftState, DmeOutput, NavStation } from '../../shared/types'
+import { AIRPORT_ELEV_FT, NM_TO_FT } from '#shared/utils/units'
+import { distNm } from '#shared/utils/geo'
+import type { AircraftState, DmeOutput, NavStation } from '#shared/types'
 import { findNearest, inRange } from './range'
 
 export function slantNm(st: NavStation, ac: AircraftState, elevFt = AIRPORT_ELEV_FT): number {

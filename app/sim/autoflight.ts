@@ -2,9 +2,9 @@
  * Automatic journey: take-off → climb → cruise → descent → approach (centreline capture) → 3° final → flare → rollout.
  * Produces the same Controls a pilot would (roll/pitch/throttle), plus gear and flap selections. Pure.
  */
-import { KT_TO_FPM, NM_TO_FT, clamp, deg2rad, rad2deg, wrap180 } from '../../shared/utils/units'
-import { distNm, toLocal, type LatLon, type Vec2 } from '../../shared/utils/geo'
-import type { AircraftState, Controls } from '../../shared/types'
+import { KT_TO_FPM, NM_TO_FT, clamp, deg2rad, rad2deg, wrap180 } from '#shared/utils/units'
+import { distNm, toLocal, type LatLon, type Vec2 } from '#shared/utils/geo'
+import type { AircraftState, Controls } from '#shared/types'
 import { JET, type AircraftProfile } from './aircraft'
 
 export interface JourneyEnd {

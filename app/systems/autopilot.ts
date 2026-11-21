@@ -2,8 +2,8 @@
  * Mode-based autopilot (CONTRACTS §8): lateral HDG / NAV (VOR) / APP (localiser), vertical ALT / VS / GS,
  * optional autothrottle (SPD). Outputs stick commands like a pilot would. Pure.
  */
-import { KT_TO_FPM, clamp, deg2rad, rad2deg, wrap180 } from '../../shared/utils/units'
-import type { AircraftState, NavOutputs } from '../../shared/types'
+import { KT_TO_FPM, clamp, deg2rad, rad2deg, wrap180 } from '#shared/utils/units'
+import type { AircraftState, NavOutputs } from '#shared/types'
 import type { AircraftProfile } from '../sim/aircraft'
 
 export type LateralMode = 'HDG' | 'NAV' | 'APP'

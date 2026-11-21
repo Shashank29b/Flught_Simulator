@@ -1,4 +1,4 @@
-import type { IlsOutput, NavStation, RunwayInfo, ToFrom, VorOutput } from '../../../shared/types'
+import type { IlsOutput, NavStation, RunwayInfo, ToFrom, VorOutput } from '#shared/types'
 import { tunedLocaliser } from '../../nav/ils'
 
 export interface HsiInput {

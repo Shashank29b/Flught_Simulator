@@ -68,7 +68,7 @@ The simulation runs in the browser at 60 fps; the server only stores data (stati
 ## Code conventions
 - TypeScript strict mode. No `any`; use `unknown` and narrow it.
 - **Pure logic folders:** `app/sim`, `app/nav`, `app/systems`, `shared/utils`, and the `*.logic.ts` files in `server/services`.
-  - Plain TS functions only: no Vue or Nuxt imports, no auto-imports, **relative imports only**.
+  - Plain TS functions only: no Vue or Nuxt imports, no auto-imports. Import `shared/` code via the **`#shared/…` alias** (deep relative imports into `shared/` break the Nuxt production build); other imports are relative. Vitest resolves `#shared` too.
   - No `Date.now()` or `Math.random()` inside. Pass the time or an RNG in (`shared/utils/random.ts`).
 - **Units go in names:** `altFt`, `iasKt`, `distNm`, `hdgDeg`, `vsFpm`, `tMs`, `lateralM`. Use degrees at module boundaries and radians only internally.
 - **Local frame:** x is east and y is north, in NM. The origin is the runway 09 threshold. All bearings are **true**; magnetic variation is 0.

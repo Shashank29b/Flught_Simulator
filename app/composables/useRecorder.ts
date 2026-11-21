@@ -1,6 +1,6 @@
 import { watch, type Ref } from 'vue'
-import { REF, toLatLon, toLocal } from '../../shared/utils/geo'
-import type { FlightSampleInput } from '../../shared/types'
+import { REF, toLatLon, toLocal } from '#shared/utils/geo'
+import type { FlightSampleInput } from '#shared/types'
 import type { World } from '../sim/engine'
 
 const PERIOD_MS = 200 // 5 Hz of simulated time

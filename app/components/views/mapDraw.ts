@@ -1,5 +1,5 @@
-import type { NavStation, RunwayInfo } from '../../../shared/types'
-import { NM_TO_M, deg2rad } from '../../../shared/utils/units'
+import type { NavStation, RunwayInfo } from '#shared/types'
+import { NM_TO_M, deg2rad } from '#shared/utils/units'
 
 export type Project = (x: number, y: number) => [number, number]
 

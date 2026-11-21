@@ -1,6 +1,6 @@
-import { clamp, deg2rad, wrap180, wrap360 } from '../../shared/utils/units'
-import { bearingDeg, type Vec2 } from '../../shared/utils/geo'
-import type { AircraftState, NavStation, ToFrom, VorOutput } from '../../shared/types'
+import { clamp, deg2rad, wrap180, wrap360 } from '#shared/utils/units'
+import { bearingDeg, type Vec2 } from '#shared/utils/geo'
+import type { AircraftState, NavStation, ToFrom, VorOutput } from '#shared/types'
 import { findNearest, inRange } from './range'
 
 /** Radial (bearing from station) with the type's site error. */

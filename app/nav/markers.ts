@@ -1,6 +1,6 @@
-import { AIRPORT_ELEV_FT, NM_TO_FT } from '../../shared/utils/units'
-import { distNm } from '../../shared/utils/geo'
-import type { AircraftState, MarkerOutput, NavStation } from '../../shared/types'
+import { AIRPORT_ELEV_FT, NM_TO_FT } from '#shared/utils/units'
+import { distNm } from '#shared/utils/geo'
+import type { AircraftState, MarkerOutput, NavStation } from '#shared/types'
 
 /** A marker is heard inside its vertical cone: radius = max(0.05, 0.7 × height) NM (CONTRACTS §6). */
 export function markerActive(st: { x: number; y: number }, ac: AircraftState, elevFt = AIRPORT_ELEV_FT): boolean {

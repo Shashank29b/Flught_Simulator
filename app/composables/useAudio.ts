@@ -1,5 +1,5 @@
 import { onMounted, onUnmounted, ref, watch, type Ref } from 'vue'
-import type { MarkerOutput } from '../../shared/types'
+import type { MarkerOutput } from '#shared/types'
 import { callouts } from '../nav/radioAlt'
 
 /** On/off patterns in 125 ms slots: OM dashes, MM dot-dash, IM dots. */

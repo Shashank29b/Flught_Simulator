@@ -2,8 +2,8 @@
 import 'leaflet/dist/leaflet.css'
 import { onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
 import type * as Leaflet from 'leaflet'
-import { toLatLon } from '../../../shared/utils/geo'
-import { NM_TO_M, deg2rad } from '../../../shared/utils/units'
+import { toLatLon } from '#shared/utils/geo'
+import { NM_TO_M, deg2rad } from '#shared/utils/units'
 import type { AirportRow, RunwayRow, StationRow } from '../../composables/useNavData'
 import { navPositions, type World } from '../../sim/engine'
 

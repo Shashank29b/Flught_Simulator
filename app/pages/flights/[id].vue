@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { REF } from '../../../shared/utils/geo'
+import { REF } from '#shared/utils/geo'
 import { runwaysToLocal, type AirportRow } from '../../composables/useNavData'
 import TrackPlot from '../../components/views/TrackPlot.vue'
 import LineChart from '../../components/views/LineChart.vue'

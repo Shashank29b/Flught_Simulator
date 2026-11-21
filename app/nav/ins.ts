@@ -3,7 +3,7 @@
  * gives INS position = true position + error, where the error obeys err̈ = bias + σ·n. Modelling the error directly
  * keeps it independent of the (re-centring) local frame. Metres and seconds.
  */
-import { gaussian } from '../../shared/utils/random'
+import { gaussian } from '#shared/utils/random'
 
 export interface InsState { errX: number; errY: number; errVx: number; errVy: number; bias: [number, number]; sigma: number }
 

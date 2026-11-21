@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { bearingDeg } from '../../../shared/utils/geo'
-import { wrap180 } from '../../../shared/utils/units'
+import { bearingDeg } from '#shared/utils/geo'
+import { wrap180 } from '#shared/utils/units'
 import type { World } from '../../sim/engine'
 import { useCanvas } from '../../composables/useCanvas'
 

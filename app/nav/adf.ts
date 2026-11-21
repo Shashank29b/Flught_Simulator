@@ -1,6 +1,6 @@
-import { wrap360 } from '../../shared/utils/units'
-import { bearingDeg } from '../../shared/utils/geo'
-import type { AdfOutput, AircraftState, NavStation } from '../../shared/types'
+import { wrap360 } from '#shared/utils/units'
+import { bearingDeg } from '#shared/utils/geo'
+import type { AdfOutput, AircraftState, NavStation } from '#shared/types'
 import { findNearest, inRange } from './range'
 
 export function adfReceive(stations: NavStation[], adfKHz: number, ac: AircraftState, elevFt?: number): AdfOutput {

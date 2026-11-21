@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import type { World } from '../../sim/engine'
-import { toLocal } from '../../../shared/utils/geo'
-import { NM_TO_M, deg2rad } from '../../../shared/utils/units'
+import { toLocal } from '#shared/utils/geo'
+import { NM_TO_M, deg2rad } from '#shared/utils/units'
 import { useCanvas } from '../../composables/useCanvas'
 import { ndProject } from './ndProject'
 

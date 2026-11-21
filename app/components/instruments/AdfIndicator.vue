@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import type { AdfOutput } from '../../../shared/types'
+import type { AdfOutput } from '#shared/types'
 import { useCanvas } from '../../composables/useCanvas'
 import { dial, label, needle, tick, title } from './dial'
 

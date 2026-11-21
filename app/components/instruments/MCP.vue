@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { wrap360 } from '../../../shared/utils/units'
+import { wrap360 } from '#shared/utils/units'
 import { useSimStore } from '../../stores/sim'
 import { apFromAircraft, fma, type ApState } from '../../systems/autopilot'
 

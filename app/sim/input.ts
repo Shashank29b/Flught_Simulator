@@ -1,5 +1,5 @@
-import { clamp } from '../../shared/utils/units'
-import type { Controls } from '../../shared/types'
+import { clamp } from '#shared/utils/units'
+import type { Controls } from '#shared/types'
 
 /**
  * Keyboard flight controls:

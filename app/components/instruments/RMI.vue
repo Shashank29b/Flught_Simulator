@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { wrap360 } from '../../../shared/utils/units'
-import type { AdfOutput, VorOutput } from '../../../shared/types'
+import { wrap360 } from '#shared/utils/units'
+import type { AdfOutput, VorOutput } from '#shared/types'
 import { useCanvas } from '../../composables/useCanvas'
 import { dial, label, needle, tick, title } from './dial'
 

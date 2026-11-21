@@ -43,7 +43,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | P4 | W5-T28 | INS model (drift) | P3-CHK | DONE |
 | P4 | W5-T29 | GPS + INS/GPS blend | T28 | DONE |
 | P4 | W5-T31 | INS/GPS/blended positions on the map, nav source selector | T29 | DONE |
-| P5 | W6-T35 | Dockerfile + compose app service (one-command run) | – | TODO |
+| P5 | W6-T35 | Dockerfile + compose app service (one-command run) | – | DONE |
 | P5 | FINAL | Final regression, demo script, tag v1.0 | P1–P5 | TODO |
 | Optional | W3-T19 | Approach profile (side) view | T17 | TODO |
 | Optional | W4-T25 | Alerts, EICAS, Master Caution/Warning | – | TODO |
@@ -56,6 +56,11 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W6-T35 · DONE · 2026-11-21
+- Dockerfile (node:22-slim + openssl/curl, npm ci, prisma generate, nuxt build; CMD migrate deploy + node .output); compose app service (env_file .env, DATABASE_URL → db, APP_PORT, ./data mounted).
+- Bug fixed: deep relative imports into shared/ broke the clean production build (hidden by the cache) → all app/server code uses #shared/… (AGENTS.md updated).
+- Verified: container on :3001, smoke + both browser suites pass.
 
 ### W5-T31 · DONE · 2026-11-21
 - engine: World.insgps stepped every tick (INS), GPS fix + blend every 1 s sim time, seeded RNG kept in state (serialisable); navPositions(w).

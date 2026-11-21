@@ -1,4 +1,4 @@
-import type { FlightResult } from '../../shared/types'
+import type { FlightResult } from '#shared/types'
 
 export interface LandingData { lateralM: number; vsFpm: number; meanAbsLocFrac: number }
 

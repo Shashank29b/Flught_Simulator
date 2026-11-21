@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client'
 import { createError } from 'h3'
-import type { ScenarioConfig, ScenarioDTO } from '../../shared/types'
+import type { ScenarioConfig, ScenarioDTO } from '#shared/types'
 
 export function listScenarios(prisma: PrismaClient) {
   return prisma.scenario.findMany({ orderBy: [{ week: 'asc' }, { id: 'asc' }], select: { id: true, title: true, description: true, week: true } })

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, toRef } from 'vue'
 import { useSimStore } from '../../stores/sim'
-import { indicatedAltitudeFt } from '../../../shared/utils/isa'
+import { indicatedAltitudeFt } from '#shared/utils/isa'
 import OsmMap from './OsmMap.vue'
 import MapView from './MapView.vue'
 import ControlPanel from './ControlPanel.vue'

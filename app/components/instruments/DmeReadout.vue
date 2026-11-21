@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DmeOutput } from '../../../shared/types'
+import type { DmeOutput } from '#shared/types'
 
 defineProps<{ dme: DmeOutput | undefined; gsKt: number }>()
 </script>

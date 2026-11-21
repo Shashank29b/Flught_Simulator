@@ -1,5 +1,5 @@
-import { NM_TO_M, deg2rad } from '../../shared/utils/units'
-import type { AircraftState, RunwayInfo } from '../../shared/types'
+import { NM_TO_M, deg2rad } from '#shared/utils/units'
+import type { AircraftState, RunwayInfo } from '#shared/types'
 
 export interface Touchdown {
   result: 'LANDED' | 'CRASHED'

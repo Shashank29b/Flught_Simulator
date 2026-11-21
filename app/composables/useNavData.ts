@@ -1,6 +1,6 @@
 import { computed, type Ref } from 'vue'
-import { toLocal, type LatLon } from '../../shared/utils/geo'
-import type { AirportInfo, NavStation, RunwayInfo, StationType } from '../../shared/types'
+import { toLocal, type LatLon } from '#shared/utils/geo'
+import type { AirportInfo, NavStation, RunwayInfo, StationType } from '#shared/types'
 
 export interface StationRow { id: number; type: StationType; ident: string; name: string; frequency: number; lat: number; lon: number; rangeNm: number; runwayId: number | null }
 export interface RunwayRow { id: number; ident: string; headingDeg: number; thresholdLat: number; thresholdLon: number; lengthM: number; widthM: number }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { AircraftState, Atmosphere } from '../../../shared/types'
-import { atmosphereAt, densityAltitudeFt, pressureAltitudeFt, staticPressurePa } from '../../../shared/utils/isa'
+import type { AircraftState, Atmosphere } from '#shared/types'
+import { atmosphereAt, densityAltitudeFt, pressureAltitudeFt, staticPressurePa } from '#shared/utils/isa'
 
 const props = defineProps<{ ac: AircraftState; atmo: Atmosphere; baroHpa: number }>()
 const emit = defineEmits<{ baro: [hpa: number] }>()

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { shallowRef, ref } from 'vue'
 import { REBASE_NM, newInsGps, createWorld, groundElevation, rebaseWorld, simStep, type Radios, type World } from '../sim/engine'
-import { REF, toLatLon, type LatLon } from '../../shared/utils/geo'
+import { REF, toLatLon, type LatLon } from '#shared/utils/geo'
 import { airportsToLocal, runwaysToLocal, stationsToLocal, type NavDataRaw } from '../composables/useNavData'
 import { keysToControls, manualInput } from '../sim/input'
 import type { Journey } from '../sim/autoflight'

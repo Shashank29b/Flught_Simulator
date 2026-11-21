@@ -1,5 +1,5 @@
-import { AIRPORT_ELEV_FT } from '../../shared/utils/units'
-import type { AircraftState } from '../../shared/types'
+import { AIRPORT_ELEV_FT } from '#shared/utils/units'
+import type { AircraftState } from '#shared/types'
 
 export const RA_MAX_FT = 2500
 export const CALLOUTS = [1000, 500, 100, 50] as const

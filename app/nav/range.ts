@@ -1,6 +1,6 @@
-import { AIRPORT_ELEV_FT } from '../../shared/utils/units'
-import { distNm } from '../../shared/utils/geo'
-import type { AircraftState, NavStation } from '../../shared/types'
+import { AIRPORT_ELEV_FT } from '#shared/utils/units'
+import { distNm } from '#shared/utils/geo'
+import type { AircraftState, NavStation } from '#shared/types'
 
 export function losNm(altFt: number, elevFt = AIRPORT_ELEV_FT): number {
   return 1.23 * Math.sqrt(Math.max(altFt - elevFt, 100))

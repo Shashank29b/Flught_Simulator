@@ -1,5 +1,5 @@
-import { distNm } from '../../shared/utils/geo'
-import type { AircraftState, NavStation, Objective, VorOutput } from '../../shared/types'
+import { distNm } from '#shared/utils/geo'
+import type { AircraftState, NavStation, Objective, VorOutput } from '#shared/types'
 
 export interface ObjCtx { ac: AircraftState; vor1?: VorOutput; stations: NavStation[]; fmsComplete?: boolean }
 export interface ObjProgress { heldSec: number }

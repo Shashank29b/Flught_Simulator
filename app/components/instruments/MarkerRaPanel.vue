@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { MarkerOutput } from '../../../shared/types'
+import type { MarkerOutput } from '#shared/types'
 
 defineProps<{ markers: MarkerOutput | undefined; raFt: number | null | undefined; callout: string }>()
 const LAMPS = [

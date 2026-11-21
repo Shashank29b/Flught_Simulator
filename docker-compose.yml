@@ -14,5 +14,20 @@ services:
       interval: 3s
       timeout: 3s
       retries: 20
+
+  # Whole app: `docker compose up -d --build` (then seed once, see SETUP.md). Host port: APP_PORT (default 3000).
+  app:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://skynav:skynav@db:5432/skynav
+    ports: ["${APP_PORT:-3000}:3000"]
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   pgdata:

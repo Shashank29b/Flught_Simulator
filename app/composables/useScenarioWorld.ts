@@ -1,4 +1,4 @@
-import type { ScenarioDTO } from '../../shared/types'
+import type { ScenarioDTO } from '#shared/types'
 import { createWorld, type World } from '../sim/engine'
 import { TRAINER } from '../sim/aircraft'
 import { RUNWAY_START } from '../sim/presets'
