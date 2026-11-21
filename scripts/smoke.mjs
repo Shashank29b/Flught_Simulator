@@ -55,6 +55,32 @@ await check('stations ?type=NDB', async () => {
   assert(r.status === 200 && r.json?.length === 1, `len ${r.json?.length}`)
 })
 
+// ---- W2-T11 auth
+const email = `smoke${Date.now()}@test.local`
+ctx.email = email
+await check('register', async () => {
+  const r = await req('POST', '/api/auth/register', { name: 'Smoke', email, password: 'smokepass1' })
+  assert(r.status === 201 && r.json?.user?.email === email, `${r.status} ${r.text.slice(0, 120)}`)
+})
+await check('me after register', async () => {
+  const r = await req('GET', '/api/auth/me')
+  assert(r.status === 200, `status ${r.status}`)
+})
+await check('logout then me 401', async () => {
+  await req('POST', '/api/auth/logout')
+  const r = await req('GET', '/api/auth/me')
+  assert(r.status === 401, `status ${r.status}`)
+})
+await check('wrong password 401', async () => {
+  const r = await req('POST', '/api/auth/login', { email, password: 'wrongpass1' })
+  assert(r.status === 401, `status ${r.status}`)
+})
+await check('login', async () => {
+  const r = await req('POST', '/api/auth/login', { email, password: 'smokepass1' })
+  assert(r.status === 200, `status ${r.status}`)
+  assert((await req('GET', '/api/auth/me')).status === 200, 'me failed')
+})
+
 // ---- pages
 for (const page of ['/', '/fly/1']) {
   await check(`page ${page} 200`, async () => {

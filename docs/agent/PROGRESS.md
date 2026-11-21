@@ -16,7 +16,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | W1-T09 | Range, VOR, DME receivers | T04 | DONE |
 | W1-T10 | NavRadio, CDI, wire receivers into the loop | T07, T08, T09 | DONE |
 | W1-CHK | Week 1 checkpoint | T01–T10 | DONE |
-| W2-T11 | Auth API, guards, extend smoke | W1-CHK | TODO |
+| W2-T11 | Auth API, guards, extend smoke | W1-CHK | DONE |
 | W2-T12 | Login/register pages, route middleware, navbar | T11 | TODO |
 | W2-T13 | Scenarios + flights API (start/end/list) with integration tests | T11 | TODO |
 | W2-T14 | Scenarios page, cockpit loads scenario, flight start/end, objectives, flight log | T12, T13 | TODO |
@@ -51,6 +51,10 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W2-T11 · DONE · 2026-11-21
+- server/services/users.ts (bcryptjs), validators/auth.ts, api/auth/*, utils/auth.ts requireUser/requireAdmin.
+- shared/types/auth.d.ts augments #auth-utils User {id,name,email,role}.
 
 ### W1-CHK · DONE · 2026-11-21
 - check, int and smoke all green.
