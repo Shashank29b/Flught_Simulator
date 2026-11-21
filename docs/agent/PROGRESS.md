@@ -34,7 +34,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | P1 | W3-T20 | Touchdown judge + flight end on landing/crash | T17 | DONE |
 | P1 | W3-T21 | Browser flight recorder (5 Hz, batched) → server scoring (server side already done) | T20 | DONE |
 | P1 | W3-T22 | Replay page (track, altitude/LOC/GS graphs, score) | T21 | DONE |
-| P1 | P1-CHK | Checkpoint: ILS landing → score → replay works (lab minimum) | P1 | TODO |
+| P1 | P1-CHK | Checkpoint: ILS landing → score → replay works (lab minimum) | P1 | DONE |
 | P2 | W4-T26 | Autopilot modes HDG/ALT/VS/NAV/APP (closed-loop tests; reuse autoflight inner loops) | P1-CHK | TODO |
 | P2 | W4-T27 | MCP panel + AP wiring (classic/glass toggle after P3) | T26 | TODO |
 | P3 | W4-T23 | PFD | P2 | TODO |
