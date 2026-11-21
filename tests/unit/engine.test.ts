@@ -23,3 +23,15 @@ describe('engine', () => {
     expect(w.ac.onGround).toBe(false)
   })
 })
+
+describe('engine nav receivers', async () => {
+  const { SEED_STATIONS, air } = await import('./helpers/fixtures')
+  it('E3 inbound on the TRN 270 radial', () => {
+    const w = createWorld({ stations: SEED_STATIONS, ac: air({ x: -10, y: 6, altFt: 3900, hdgDeg: 90 }), radios: { nav1MHz: 113.5, obsDeg: 90, adfKHz: 350 } })
+    const e = simStep(w, { roll: 0, pitch: 0, throttle: 120 / 140 }, 1 / 60)
+    expect(e.nav.vor1?.valid).toBe(true)
+    expect(e.nav.vor1?.toFrom).toBe('TO')
+    expect(Math.abs(e.nav.vor1!.cdiDevDeg)).toBeLessThan(0.5)
+    expect(Math.abs(e.nav.dme1!.distNm - 12)).toBeLessThan(0.2)
+  })
+})

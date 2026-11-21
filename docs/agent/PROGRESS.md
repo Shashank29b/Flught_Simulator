@@ -12,7 +12,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | W1-T05 | Flight model, wind, loop helper | T04 | DONE |
 | W1-T06 | Sim store, useSimLoop, useKeyboard | T05 | DONE |
 | W1-T07 | Airports/stations API, cockpit page, MapView | T03, T06 | DONE |
-| W1-T08 | Gauge helpers + 5 basic instruments | T06 | TODO |
+| W1-T08 | Gauge helpers + 5 basic instruments | T06 | DONE |
 | W1-T09 | Range, VOR, DME receivers | T04 | DONE |
 | W1-T10 | NavRadio, CDI, wire receivers into the loop | T07, T08, T09 | TODO |
 | W1-CHK | Week 1 checkpoint | T01–T10 | TODO |
@@ -51,6 +51,9 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W1-T08 · DONE · 2026-11-21
+- gauges.ts (§11) + dial.ts helpers; Airspeed, Attitude, Altimeter, Heading, VerticalSpeed components.
 
 ### W1-T07 · DONE · 2026-11-21
 - server/services/navdata.ts; /api/airports, /api/stations(?type), /api/waypoints (added early); useNavData, useCanvas, MapView + mapDraw.ts; fly/[id].vue; layouts/cockpit.vue.
