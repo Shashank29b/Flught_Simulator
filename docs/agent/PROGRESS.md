@@ -13,7 +13,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | W1-T06 | Sim store, useSimLoop, useKeyboard | T05 | DONE |
 | W1-T07 | Airports/stations API, cockpit page, MapView | T03, T06 | TODO |
 | W1-T08 | Gauge helpers + 5 basic instruments | T06 | TODO |
-| W1-T09 | Range, VOR, DME receivers | T04 | TODO |
+| W1-T09 | Range, VOR, DME receivers | T04 | DONE |
 | W1-T10 | NavRadio, CDI, wire receivers into the loop | T07, T08, T09 | TODO |
 | W1-CHK | Week 1 checkpoint | T01–T10 | TODO |
 | W2-T11 | Auth API, guards, extend smoke | W1-CHK | TODO |
@@ -51,6 +51,10 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W1-T09 · DONE · 2026-11-21
+- app/nav/{range,vor,dme}.ts; V1–V3, C1–C5, R1–R2, D1 pass.
+- tests/unit/helpers/fixtures.ts: SEED_STATIONS (local NM), RWY09, air(), station() for later tests.
 
 ### W1-T06 · DONE · 2026-11-21
 - app/sim/{engine,input}.ts, app/stores/sim.ts (shallowRef world, trail 1 Hz/600 pts), composables useKeyboard/useSimLoop.
