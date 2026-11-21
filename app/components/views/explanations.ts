@@ -2,6 +2,20 @@
 export interface Explanation { title: string; what: string; read: string[]; how: string; controls?: string }
 
 export const EXPLANATIONS: Record<string, Explanation> = {
+  hsi: {
+    title: 'HSI (horizontal situation indicator)',
+    what: 'A heading indicator and a course indicator in one: where you are pointing, and where you are relative to the selected course.',
+    read: ['The card rotates with your heading (lubber line at the top); the yellow symbol is your aircraft.', 'VOR mode (magenta): the arrow is the OBS course; the centre bar shows the deviation (2 dots each side, 5° per dot); the white triangle shows TO/FROM.', 'LOC mode (green, NAV 1 on an ILS frequency): the arrow is set to the runway heading automatically; full scale is 2.5° (1.25° per dot).', 'Glide-slope diamond (right): diamond above centre = you are below the path, so fly up. Red NAV/GS flags = no signal.'],
+    how: 'Because the course bar sits on the rotating card, the picture matches the real geometry: when the bar is left of the aircraft symbol, the course line is to your left. The localiser compares two lobes (90/150 Hz) for left/right; the glide slope does the same vertically on a 3° path.',
+    controls: 'CRS ◀ ▶ sets the course in VOR mode (Shift = 10°). Tune NAV 1 to 110.30 (09L) or 109.90 (09R) at Bengaluru for the ILS.',
+  },
+  markers: {
+    title: 'Marker beacons and radio altimeter',
+    what: 'Marker lights show when you pass over the outer, middle and inner markers on an ILS approach; the radio altimeter shows your height above the ground.',
+    read: ['O (blue): outer marker, ≈4.5 NM out, where you normally join the glide slope.', 'M (amber): middle marker, ≈0.6 NM: near decision height.', 'I (white): inner marker, close to the threshold.', 'Radio alt: height above the ground in feet (shown below 2500 ft); amber below 500 ft; callouts at 1000, 500, 100 and 50 ft.'],
+    how: 'Markers are 75 MHz transmitters pointing straight up; the light (and tone, if sound is on) comes on only inside their narrow cone. The radio altimeter times a radio signal reflected off the ground, so unlike the barometric altimeter it shows height above the terrain directly below.',
+    controls: '🔊 Sound on/off enables the marker tones (OM 400 Hz dashes, MM 1300 Hz dot-dash, IM 3000 Hz dots) and spoken callouts.',
+  },
   airspeed: {
     title: 'Airspeed indicator (ASI)',
     what: 'Indicated airspeed (IAS) in knots, measured from the dynamic pressure in the pitot tube.',

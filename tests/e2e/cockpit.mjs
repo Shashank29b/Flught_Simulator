@@ -38,6 +38,14 @@ await check('triple-tap on the airspeed indicator explains it', async () => {
   await page.keyboard.press('Escape')
   await page.getByRole('dialog').waitFor({ state: 'detached', timeout: 3000 })
 })
+await check('ILS final preset: HSI in LOC mode, on localiser and glide slope', async () => {
+  await page.getByRole('button', { name: 'ILS 09L final (8 NM)' }).click()
+  await page.waitForTimeout(1000)
+  const ils = await page.evaluate(() => window.useNuxtApp().$pinia.state.value.sim.world.nav.ils)
+  if (!ils.locValid || !ils.gsValid || Math.abs(ils.locDevDeg) > 0.1 || Math.abs(ils.gsDevDeg) > 0.1) throw new Error(JSON.stringify(ils))
+  await page.getByRole('button', { name: 'Runway 09L (take-off)' }).click()
+  await page.waitForTimeout(500)
+})
 await check('throttle slider sets throttle', async () => {
   await page.locator('input[type=range]').fill('100')
   await waitFor(async () => (await num('THR')) === 100, 3000, 'THR 100')

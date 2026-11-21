@@ -24,7 +24,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | W2-T16 | DVOR visual, range flags, wind from scenario | T14, T15 | DONE |
 | W2-CHK | Week 2 checkpoint | T11–T16 | DONE |
 | W3-T17 | ILS, markers, radio altimeter logic | W2-CHK | DONE |
-| W3-T18 | HSI, marker lights, RA readout, audio callouts | T17 | TODO |
+| W3-T18 | HSI, marker lights, RA readout, audio callouts | T17 | DONE |
 | W3-T19 | ProfileView | T17 | TODO |
 | W3-T20 | Touchdown judge + flight end on landing/crash | T17 | TODO |
 | W3-T21 | Recorder, samples API, scoring service | T20 | TODO |
@@ -51,6 +51,11 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W3-T18 · DONE · 2026-11-21
+- HSI.vue + hsiMath.ts (auto VOR/LOC mode: LOC when NAV 1 is on a localiser frequency, course = runway heading), MarkerRaPanel.vue (O/M/I lamps, RA, callout text), useAudio (marker tones + spoken callouts; off until enabled).
+- Cockpit instruments grid is now 5 × 2; triple-tap cards for HSI and markers/RA. ILS preset sits on the 09L centreline (hdg 090.5).
+- e2e: ILS final preset check (11 browser checks).
 
 ### W3-T17 · DONE · 2026-11-21
 - app/nav/{ils,markers,radioAlt}.ts; engine sets nav.ils/markers/raFt using the ground elevation.
