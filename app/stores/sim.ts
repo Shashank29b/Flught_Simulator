@@ -6,6 +6,7 @@ import { airportsToLocal, runwaysToLocal, stationsToLocal, type NavDataRaw } fro
 import { keysToControls, manualInput } from '../sim/input'
 import type { Journey } from '../sim/autoflight'
 import { PROFILES } from '../sim/aircraft'
+import { apFromAircraft, type ApState } from '../systems/autopilot'
 import { DEFAULT_STATE } from '../sim/flightModel'
 import type { Preset } from '../sim/presets'
 
@@ -56,8 +57,8 @@ export const useSimStore = defineStore('sim', () => {
 
   function tick(dt: number): void {
     if (paused.value) return
-    if (world.value.auto && manualInput(keys)) {
-      world.value = { ...world.value, auto: null }
+    if ((world.value.auto || world.value.ap?.engaged) && manualInput(keys)) {
+      world.value = { ...world.value, auto: null, ap: world.value.ap ? { ...world.value.ap, engaged: false, athr: false } : null }
       autoMessage.value = 'Autopilot disengaged by manual input'
     }
     const c = keysToControls(keys, world.value.ac.throttle, dt)
@@ -164,6 +165,17 @@ export const useSimStore = defineStore('sim', () => {
     setThrottle((w.ac.throttle * p.maxIasKt + deltaKt) / p.maxIasKt)
   }
 
+  /** MCP: change targets/modes. Engaging with no AP state syncs targets to the current flight. */
+  function setAp(p: Partial<ApState>): void {
+    const cur = world.value.ap ?? { ...apFromAircraft(world.value.ac), engaged: false }
+    const next = { ...cur, ...p }
+    if (p.lateral && p.lateral !== cur.lateral) next.navCaptured = false
+    if (p.lateral && p.lateral !== 'APP') next.gsCaptured = false
+    if (p.vertical === 'VS' && cur.vertical !== 'VS' && p.vsFpm === undefined) next.vsFpm = Math.round(world.value.ac.vsFpm / 100) * 100
+    world.value = { ...world.value, ap: next }
+    if (p.engaged) autoMessage.value = ''
+  }
+
   function engageAuto(): void {
     if (!world.value.journey) return
     const ac = world.value.ac
@@ -182,5 +194,5 @@ export const useSimStore = defineStore('sim', () => {
     autoMessage.value = ''
   }
 
-  return { world, paused, timeScale, autoMessage, keys, trail, navCenter, setNavData, setProfile, stepTimeScale, changeSpeed, startJourney, engageAuto, disengageAuto, endJourney, load, reset, tick, toggleGear, cycleFlaps, setRadio, setThrottle, setFlaps, holdKey, applyPreset }
+  return { world, paused, timeScale, autoMessage, keys, trail, navCenter, setNavData, setProfile, stepTimeScale, changeSpeed, setAp, startJourney, engageAuto, disengageAuto, endJourney, load, reset, tick, toggleGear, cycleFlaps, setRadio, setThrottle, setFlaps, holdKey, applyPreset }
 })

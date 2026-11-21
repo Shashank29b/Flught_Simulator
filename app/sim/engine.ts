@@ -5,11 +5,12 @@ import { evaluateObjective, type ObjProgress } from './objectives'
 import { autoflightStep, journeyGroundElev, type AutoState, type Journey } from './autoflight'
 import { JET, type AircraftProfile } from './aircraft'
 import { judgeTouchdown, type Touchdown } from './landing'
+import { apStep, type ApState } from '../systems/autopilot'
+import { tunedLocaliser, ilsReceive } from '../nav/ils'
 import { DEFAULT_STATE, step } from './flightModel'
 import { vorReceive } from '../nav/vor'
 import { dmeReceive } from '../nav/dme'
 import { adfReceive } from '../nav/adf'
-import { ilsReceive } from '../nav/ils'
 import { markersReceive } from '../nav/markers'
 import { radioAltFt } from '../nav/radioAlt'
 
@@ -41,6 +42,8 @@ export interface World {
   profile: AircraftProfile
   /** Last touchdown result (shown in the cockpit; ends the flight in Test mode). */
   lastTouchdown: Touchdown | null
+  /** Mode autopilot (MCP). The journey autopilot, when active, takes precedence. */
+  ap: ApState | null
 }
 
 export const DEFAULT_RADIOS: Radios = { nav1MHz: 113.5, obsDeg: 90, adfKHz: 350, baroHpa: 1013.25 }
@@ -67,6 +70,7 @@ export function createWorld(init: Partial<Omit<World, 'ac' | 'radios'>> & { ac?:
     lastControls: init.lastControls ?? { roll: 0, pitch: 0, throttle: 0 },
     profile: init.profile ?? JET,
     lastTouchdown: init.lastTouchdown ?? null,
+    ap: init.ap ?? null,
   }
 }
 
@@ -84,6 +88,13 @@ export function simStep(w: World, c: Controls, dt: number): World {
     controls = o.controls
     ac0 = { ...ac0, gearDown: o.gearDown, flapsDeg: o.flapsDeg }
   }
+  let ap = w.ap
+  if (!(w.journey && auto) && ap?.engaged) {
+    const tuned = tunedLocaliser(w.stations, w.runways, w.radios.nav1MHz, ac0)
+    const o = apStep(ap, ac0, w.nav, { obsDeg: w.radios.obsDeg, rwyHdgDeg: tuned?.runway.headingDeg ?? null }, w.profile)
+    ap = o.ap
+    controls = { roll: o.roll, pitch: o.pitch, yaw: c.yaw ?? 0, throttle: o.throttle ?? c.throttle }
+  }
   const ac = step(ac0, controls, w.wind, dt, w.atmo, groundElevFt, w.profile)
   const r = w.radios
   const nav: Partial<NavOutputs> = {
@@ -95,7 +106,7 @@ export function simStep(w: World, c: Controls, dt: number): World {
     markers: markersReceive(w.stations, ac, groundElevFt),
     raFt: radioAltFt(ac, groundElevFt),
   }
-  let next: World = { ...w, ac, nav, auto, groundElevFt, lastControls: controls, simMs: w.simMs + dt * 1000 }
+  let next: World = { ...w, ac, nav, auto, ap, groundElevFt, lastControls: controls, simMs: w.simMs + dt * 1000 }
   if (!w.ac.onGround && ac.onGround) {
     const td = judgeTouchdown(ac0, ac, w.runways)
     next = { ...next, lastTouchdown: td }

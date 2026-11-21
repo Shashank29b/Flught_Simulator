@@ -35,7 +35,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | P1 | W3-T21 | Browser flight recorder (5 Hz, batched) → server scoring (server side already done) | T20 | DONE |
 | P1 | W3-T22 | Replay page (track, altitude/LOC/GS graphs, score) | T21 | DONE |
 | P1 | P1-CHK | Checkpoint: ILS landing → score → replay works (lab minimum) | P1 | DONE |
-| P2 | W4-T26 | Autopilot modes HDG/ALT/VS/NAV/APP (closed-loop tests; reuse autoflight inner loops) | P1-CHK | TODO |
+| P2 | W4-T26 | Autopilot modes HDG/ALT/VS/NAV/APP (closed-loop tests; reuse autoflight inner loops) | P1-CHK | DONE |
 | P2 | W4-T27 | MCP panel + AP wiring (classic/glass toggle after P3) | T26 | TODO |
 | P3 | W4-T23 | PFD | P2 | TODO |
 | P3 | W4-T24 | ND | T23 | TODO |
@@ -56,6 +56,10 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W4-T26 · DONE · 2026-11-21
+- app/systems/autopilot.ts apStep/apFromAircraft/fma; engine runs it when world.ap.engaged (journey autopilot takes precedence).
+- Tests AP1–AP4 + VS level-off, VOR NAV capture, A/THR, FMA (trainer, 120 kt).
 
 ### W3-T22 · DONE · 2026-11-21
 - pages/flights/[id].vue + TrackPlot.vue (track coloured by altitude over the VOBL runways, scrubber) + LineChart.vue (altitude, LOC, GS, IAS).

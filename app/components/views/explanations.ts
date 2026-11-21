@@ -2,6 +2,13 @@
 export interface Explanation { title: string; what: string; read: string[]; how: string; controls?: string }
 
 export const EXPLANATIONS: Record<string, Explanation> = {
+  mcp: {
+    title: 'Autopilot: mode control panel (MCP)',
+    what: 'Selects what the autopilot holds: a heading, a VOR course or the ILS laterally; an altitude, a vertical speed or the glide slope vertically; and optionally the speed (A/THR).',
+    read: ['Windows: CRS (course for NAV), HDG, SPD, ALT, V/S targets. «/» change in big steps, −/+ in small steps.', 'Buttons: lit green = active mode; cyan = armed (waiting to capture).', 'Black strip (FMA): thrust | lateral | vertical mode, e.g. "SPD 140 | LOC | G/S".'],
+    how: 'HDG banks toward the selected heading. NAV arms, captures the VOR course when the needle comes alive (< 90 % deflection), then tracks it. APP does the same with the localiser and also captures the glide slope (coupled ILS). V/S climbs or descends at the selected rate and levels off at the selected altitude; ALT holds it. A/THR moves the throttle to hold SPD. The autopilot moves the same stick you do; watch the stick box.',
+    controls: 'For a coupled ILS: tune NAV 1 to 110.30, set HDG to an intercept (≈ 30° off the runway), press APP, then AP ON. Any W/S/A/D/Q/E input disconnects the autopilot.',
+  },
   hsi: {
     title: 'HSI (horizontal situation indicator)',
     what: 'A heading indicator and a course indicator in one: where you are pointing, and where you are relative to the selected course.',

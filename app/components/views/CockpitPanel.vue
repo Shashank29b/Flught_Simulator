@@ -20,6 +20,7 @@ import NavRadio from '../radios/NavRadio.vue'
 import InfoTap from './InfoTap.vue'
 import HSI from '../instruments/HSI.vue'
 import MarkerRaPanel from '../instruments/MarkerRaPanel.vue'
+import MCP from '../instruments/MCP.vue'
 import { hsiInput } from '../instruments/hsiMath'
 import { useAudio } from '../../composables/useAudio'
 
@@ -63,6 +64,7 @@ const audio = useAudio(toRef(() => store.world.nav.markers), toRef(() => store.w
           <InfoTap id="adf"><AdfIndicator :adf="store.world.nav.adf" /></InfoTap>
           <InfoTap id="markers"><MarkerRaPanel :markers="store.world.nav.markers" :ra-ft="store.world.nav.raFt" :callout="audio.callout.value" /></InfoTap>
         </div>
+        <InfoTap id="mcp"><MCP /></InfoTap>
         <div class="grid grid-cols-2 gap-2">
           <InfoTap id="navRadio"><NavRadio :active="store.world.radios.nav1MHz" @tune="store.setRadio({ nav1MHz: $event })" /></InfoTap>
           <InfoTap id="adfRadio"><NavRadio label="ADF" :active="store.world.radios.adfKHz" :min="190" :max="1750" :fine="1" :coarse="10" :decimals="0" unit="kHz" @tune="store.setRadio({ adfKHz: $event })" /></InfoTap>
