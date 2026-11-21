@@ -14,6 +14,11 @@ const yoke = [
   { key: 'd', label: 'Roll R (D) ▶', cls: 'col-start-3' },
 ]
 const lc = computed(() => store.world.lastControls)
+const targetSpeed = computed(() => {
+  const w = store.world
+  if (w.journey && w.auto) return `CRZ ${(w.journey.cruiseIasKt ?? w.profile.speeds.cruise).toFixed(0)}`
+  return (w.ac.throttle * w.profile.maxIasKt).toFixed(0)
+})
 const hold = (k: string, d: boolean) => store.holdKey(k, d)
 </script>
 
@@ -53,6 +58,16 @@ v-for="b in yoke" :key="b.key" :class="b.cls" class="rounded bg-slate-800 px-1 p
         </div>
       </div>
       <div class="flex flex-col gap-1">
+        <div class="flex items-center gap-1" title="Aircraft speed: target airspeed (journey: cruise speed)">
+          <button class="rounded bg-slate-800 px-1.5 py-1" @click="store.changeSpeed(-10)">−10</button>
+          <span class="w-20 text-center font-mono">{{ targetSpeed }} kt</span>
+          <button class="rounded bg-slate-800 px-1.5 py-1" @click="store.changeSpeed(10)">+10</button>
+        </div>
+        <div class="flex items-center gap-1" title="Simulation speed (time acceleration)">
+          <button class="rounded bg-slate-800 px-2 py-1" @click="store.stepTimeScale(-1)">−</button>
+          <span class="w-20 text-center font-mono">sim ×{{ store.timeScale }}</span>
+          <button class="rounded bg-slate-800 px-2 py-1" @click="store.stepTimeScale(1)">+</button>
+        </div>
         <button class="rounded bg-slate-800 px-2 py-1" @click="store.paused = !store.paused">{{ store.paused ? '▶ Resume' : '❚❚ Pause' }}</button>
         <button class="rounded bg-slate-800 px-2 py-1" @click="store.reset()">↺ Reset</button>
       </div>

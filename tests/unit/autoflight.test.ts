@@ -46,3 +46,14 @@ describe('automatic journey', () => {
     expect(r.touchdown!.vsFpm).toBeGreaterThan(-500)
   })
 })
+
+describe('journey cruise speed override', () => {
+  it('uses cruiseIasKt in the cruise phase', async () => {
+    const { autoflightStep } = await import('../../app/sim/autoflight')
+    const { createWorld: cw } = await import('../../app/sim/engine')
+    const w = cw({ ac: { ...DEFAULT_STATE, onGround: false, gearDown: false, x: -60, y: 0, altFt: 20000, iasKt: 280, hdgDeg: 90 } })
+    const j: Journey = { from: VOBL, to: dest(200, 0, 90, 100), cruiseAltFt: 20000, cruiseIasKt: 320 }
+    const o = autoflightStep(j, { phase: 'CRUISE' }, w.ac, w.ref, 3000, w.profile)
+    expect(o.controls.throttle).toBeCloseTo(320 / 350, 6)
+  })
+})

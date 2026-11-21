@@ -52,6 +52,12 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 ## Handoff log
 Newest at the top. At most 5 lines per task.
 
+### FINAL CHECK · DONE · 2026-11-21
+- All green: check (93 unit), int (9), smoke, e2e (10 browser checks), production build (no warnings).
+- Fixed: presets during a journey kept the autopilot; time acceleration leaked into new flights; same-airport or short-runway journeys are now blocked with a message; duplicate Atmosphere type; Tailwind nesting warning.
+- Added: aircraft speed ±10 kt (journey: cruise speed override) and sim-speed ± in the control panel; SETUP.md; README rewritten.
+- Remaining from the original plan: ILS needles/HSI, landing judge + replay page, PFD/ND/EICAS, INS/GPS, TCAS/GPWS, admin page, Dockerfile.
+
 ### JOURNEY + JET + KEYS + INDIA FILTER (extra, user requests) · DONE · 2026-11-21
 - Journey mode (Cockpit → "Journey (autopilot)"): pick From/To airports + runways (search API), cruise altitude; app/sim/autoflight.ts flies take-off → climb → cruise → descent → approach → 3° final → flare → rollout → arrived; time ×1–64; disengage on manual input; tests JY1/JY2 (lands < 30 m from the centreline).
 - Aircraft profiles (app/sim/aircraft.ts): Jet (350 kt, rotate 145, cruise 280 KIAS at FL) default in the Cockpit; Trainer (140 kt) in Test mode. Airspeed gauge scales with the profile.

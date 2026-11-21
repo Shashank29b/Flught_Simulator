@@ -7,6 +7,7 @@
 | Integration | `tests/int/*.test.ts` | Vitest + Prisma | `npm run test:int` | Test DB `skynav_test` |
 | API smoke | `scripts/smoke.mjs` | Node `fetch` | `bash scripts/with-dev.sh npm run smoke` | Running dev server |
 | Page check | (inside smoke) | `fetch` → status 200 | same | Running dev server |
+| Browser (e2e) | `tests/e2e/cockpit.mjs` | playwright-core + system Chrome | `npm run test:e2e` | Running server (`npm run dev`) |
 | Visual | checklist below | Human | – | Browser |
 
 `npm run check` = `nuxi typecheck && eslint . && vitest run --reporter=dot` (unit only). It must pass at the end of every task.

@@ -1,3 +1,5 @@
+import type { Atmosphere } from '../types'
+
 /**
  * International Standard Atmosphere (ICAO Doc 7488), troposphere + lower stratosphere (< 20 km).
  * Altitudes in feet, temperatures in K or °C as named, pressures in Pa (hPa where named).
@@ -17,7 +19,6 @@ const T11 = 216.65
 const P11 = ISA_P0 * (T11 / ISA_T0) ** EXP
 export const A0_KT = Math.sqrt(GAMMA * R_AIR * ISA_T0) / KT // 661.48 kt
 
-export interface Atmosphere { qnhHpa: number; isaDevC: number }
 export const STANDARD_ATMOSPHERE: Atmosphere = { qnhHpa: 1013.25, isaDevC: 0 }
 
 export interface AtmoPoint { tempK: number; oatC: number; pressurePa: number; density: number; sigma: number; speedOfSoundKt: number }

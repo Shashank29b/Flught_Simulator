@@ -45,6 +45,8 @@ export const useSimStore = defineStore('sim', () => {
     trail.value = []
     trailLL.value = []
     paused.value = false
+    timeScale.value = 1
+    autoMessage.value = ''
     navCenter.value = w.ref
   }
 
@@ -118,7 +120,7 @@ export const useSimStore = defineStore('sim', () => {
     const prof = world.value.profile
     const speed = p.id === 'ils' ? prof.speeds.final : prof.speeds.cruise
     const ac = { ...DEFAULT_STATE, ...p.ac, ...(p.ac.onGround === false ? { iasKt: speed, throttle: speed / prof.maxIasKt } : {}) }
-    const w = { ...base, ac, groundElevFt: 3000, radios: { ...base.radios, ...(p.radios ?? {}) }, done: null, simMs: 0, objProgress: { heldSec: 0 } }
+    const w = { ...base, journey: null, auto: null, ac, groundElevFt: 3000, radios: { ...base.radios, ...(p.radios ?? {}) }, done: null, simMs: 0, objProgress: { heldSec: 0 } }
     load(w)
   }
 
@@ -136,12 +138,30 @@ export const useSimStore = defineStore('sim', () => {
       auto: { phase: 'TAKEOFF_ROLL' as const },
       objective: null, done: null, simMs: 0, objProgress: { heldSec: 0 },
     }
-    autoMessage.value = ''
     load(w)
   }
 
   function setProfile(id: 'jet' | 'trainer'): void {
     world.value = { ...world.value, profile: PROFILES[id] }
+  }
+
+  const TIME_SCALES = [1, 2, 4, 8, 16, 32, 64]
+  function stepTimeScale(dir: 1 | -1): void {
+    const i = TIME_SCALES.indexOf(timeScale.value)
+    timeScale.value = TIME_SCALES[Math.min(TIME_SCALES.length - 1, Math.max(0, (i < 0 ? 0 : i) + dir))]!
+  }
+
+  /** ±kt: in a journey changes the autopilot cruise speed, otherwise the throttle (target IAS). */
+  function changeSpeed(deltaKt: number): void {
+    const w = world.value
+    const p = w.profile
+    if (w.journey && w.auto) {
+      const cur = w.journey.cruiseIasKt ?? p.speeds.cruise
+      const next = Math.min(p.maxIasKt, Math.max(p.stallCleanKt + 20, cur + deltaKt))
+      world.value = { ...w, journey: { ...w.journey, cruiseIasKt: next } }
+      return
+    }
+    setThrottle((w.ac.throttle * p.maxIasKt + deltaKt) / p.maxIasKt)
   }
 
   function engageAuto(): void {
@@ -162,5 +182,5 @@ export const useSimStore = defineStore('sim', () => {
     autoMessage.value = ''
   }
 
-  return { world, paused, timeScale, autoMessage, keys, trail, navCenter, setNavData, setProfile, startJourney, engageAuto, disengageAuto, endJourney, load, reset, tick, toggleGear, cycleFlaps, setRadio, setThrottle, setFlaps, holdKey, applyPreset }
+  return { world, paused, timeScale, autoMessage, keys, trail, navCenter, setNavData, setProfile, stepTimeScale, changeSpeed, startJourney, engageAuto, disengageAuto, endJourney, load, reset, tick, toggleGear, cycleFlaps, setRadio, setThrottle, setFlaps, holdKey, applyPreset }
 })

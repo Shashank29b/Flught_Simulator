@@ -32,6 +32,15 @@ const plan = computed<Journey | null>(() => {
 })
 watch([from, to], () => { cruise.value = null })
 const distance = computed(() => (plan.value ? journeyDistanceNm(plan.value) : 0))
+const problem = computed(() => {
+  if (!from.value || !to.value) return 'pick both airports'
+  if (from.value.airport.ident === to.value.airport.ident) return 'choose a different destination'
+  const min = store.world.profile.minRunwayM
+  for (const [label, p] of [['departure', from.value], ['destination', to.value]] as const) {
+    if (p.runway.lengthM < min) return `${label} runway ${p.runway.ident} is ${p.runway.lengthM} m; the ${store.world.profile.id} needs ${min} m`
+  }
+  return ''
+})
 
 const active = computed(() => store.world.journey)
 const phase = computed(() => store.world.auto?.phase ?? null)
@@ -50,7 +59,7 @@ const elapsed = computed(() => {
 })
 
 function start(): void {
-  if (plan.value) store.startJourney(plan.value)
+  if (plan.value && !problem.value) store.startJourney(plan.value)
 }
 </script>
 
@@ -64,8 +73,8 @@ function start(): void {
         <span class="block text-[11px] uppercase tracking-wide text-slate-400">Cruise ft</span>
         <input type="number" step="500" min="2000" max="41000" class="w-24 rounded bg-slate-800 px-2 py-1" :value="plan?.cruiseAltFt ?? ''" @change="cruise = Number(($event.target as HTMLInputElement).value)">
       </label>
-      <div class="text-xs text-slate-400">{{ plan ? `${distance.toFixed(0)} NM` : 'pick both airports' }}</div>
-      <button class="rounded bg-sky-600 px-3 py-1.5 font-semibold hover:bg-sky-500 disabled:opacity-40" :disabled="!plan" @click="start">Start journey ▶</button>
+      <div class="text-xs" :class="problem ? 'text-amber-300' : 'text-slate-400'">{{ problem || `${distance.toFixed(0)} NM` }}</div>
+      <button class="rounded bg-sky-600 px-3 py-1.5 font-semibold hover:bg-sky-500 disabled:opacity-40" :disabled="!plan || !!problem" @click="start">Start journey ▶</button>
     </div>
     <div v-else class="space-y-1.5">
       <div class="flex flex-wrap items-center gap-3">

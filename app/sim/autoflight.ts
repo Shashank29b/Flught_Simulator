@@ -13,7 +13,8 @@ export interface JourneyEnd {
   elevationFt: number
   runway: { ident: string; headingDeg: number; lat: number; lon: number; lengthM: number }
 }
-export interface Journey { from: JourneyEnd; to: JourneyEnd; cruiseAltFt: number }
+/** cruiseIasKt overrides the aircraft's default cruise speed (adjustable in flight). */
+export interface Journey { from: JourneyEnd; to: JourneyEnd; cruiseAltFt: number; cruiseIasKt?: number }
 
 export type Phase = 'TAKEOFF_ROLL' | 'ROTATE' | 'CLIMB' | 'CRUISE' | 'DESCENT' | 'APPROACH' | 'FINAL' | 'FLARE' | 'ROLLOUT' | 'ARRIVED'
 export interface AutoState { phase: Phase }
@@ -128,7 +129,7 @@ export function autoflightStep(j: Journey, a: AutoState, ac: AircraftState, ref:
       break
   }
 
-  const ias = phaseSpeed(prof, phase)
+  const ias = phase === 'CRUISE' && j.cruiseIasKt ? clamp(j.cruiseIasKt, prof.stallCleanKt + 20, prof.maxIasKt) : phaseSpeed(prof, phase)
   const throttle = phase === 'FLARE' && agl < 20 ? 0 : clamp(ias / prof.maxIasKt, 0, 1)
   const bankCmd = ac.onGround ? 0 : clamp(2 * wrap180(hdgCmd - ac.hdgDeg), -maxBank, maxBank)
   const tas = Math.max(ac.tasKt || ac.iasKt, 40)
