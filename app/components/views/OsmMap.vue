@@ -4,7 +4,7 @@ import { onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
 import type * as Leaflet from 'leaflet'
 import { toLatLon } from '../../../shared/utils/geo'
 import { NM_TO_M, deg2rad } from '../../../shared/utils/units'
-import type { NavStation, RunwayInfo } from '../../../shared/types'
+import type { AirportInfo, NavStation, RunwayInfo } from '../../../shared/types'
 import type { World } from '../../sim/engine'
 
 const props = defineProps<{ world: World; trail: { x: number; y: number }[] }>()
@@ -14,7 +14,37 @@ let L: typeof Leaflet | null = null
 const map = shallowRef<Leaflet.Map | null>(null)
 let aircraft: Leaflet.Marker | null = null
 let trailLine: Leaflet.Polyline | null = null
-let navLayer: Leaflet.LayerGroup | null = null
+type LayerKey = 'airports' | 'runways' | 'ils' | 'vor' | 'ndb' | 'markers' | 'trail'
+const LAYER_KEYS: LayerKey[] = ['airports', 'runways', 'ils', 'vor', 'ndb', 'markers', 'trail']
+const groups: Partial<Record<LayerKey, Leaflet.LayerGroup>> = {}
+const visible = ref<Record<LayerKey, boolean>>(loadVisibility())
+
+function loadVisibility(): Record<LayerKey, boolean> {
+  const all = Object.fromEntries(LAYER_KEYS.map(k => [k, true])) as Record<LayerKey, boolean>
+  try {
+    const saved = JSON.parse(localStorage.getItem('skynav.mapLayers') ?? 'null') as Partial<Record<LayerKey, boolean>> | null
+    return { ...all, ...(saved ?? {}) }
+  }
+  catch {
+    return all
+  }
+}
+
+function applyVisibility(): void {
+  if (!map.value) return
+  for (const k of LAYER_KEYS) {
+    const g = groups[k]
+    if (!g) continue
+    if (visible.value[k] && !map.value.hasLayer(g)) g.addTo(map.value)
+    if (!visible.value[k] && map.value.hasLayer(g)) g.remove()
+  }
+  try { localStorage.setItem('skynav.mapLayers', JSON.stringify(visible.value)) }
+  catch { /* storage unavailable */ }
+}
+
+function setAll(on: boolean): void {
+  visible.value = Object.fromEntries(LAYER_KEYS.map(k => [k, on])) as Record<LayerKey, boolean>
+}
 let lastUpdate = 0
 
 const COLORS: Record<string, string> = { VOR: '#0284c7', DVOR: '#0284c7', NDB: '#9333ea', ILS_LOC: '#16a34a', ILS_GS: '#16a34a', MARKER_OM: '#2563eb', MARKER_MM: '#d97706', MARKER_IM: '#64748b' }
@@ -29,27 +59,44 @@ function planeIcon(hdg: number): Leaflet.DivIcon {
   })
 }
 
-function drawNav(stations: NavStation[], runways: RunwayInfo[]): void {
+const AIRPORT_STYLE: Record<string, { r: number; color: string }> = {
+  large_airport: { r: 7, color: '#dc2626' }, medium_airport: { r: 5, color: '#ea580c' }, small_airport: { r: 3.5, color: '#64748b' },
+}
+
+function drawNav(stations: NavStation[], runways: RunwayInfo[], airports: AirportInfo[]): void {
   if (!L || !map.value) return
-  navLayer?.remove()
-  navLayer = L.layerGroup().addTo(map.value)
+  for (const k of ['airports', 'runways', 'ils', 'vor', 'ndb', 'markers'] as const) {
+    groups[k]?.remove()
+    groups[k] = L.layerGroup()
+  }
+  for (const a of airports) {
+    const st = AIRPORT_STYLE[a.type] ?? AIRPORT_STYLE.small_airport!
+    const m = L.circleMarker(ll(a.x, a.y), { radius: st.r, color: st.color, weight: 2, fillColor: '#fff', fillOpacity: 0.9 })
+      .bindTooltip(`${a.ident}${a.iata ? ` / ${a.iata}` : ''} · ${a.name} · elev ${a.elevationFt} ft`, { direction: 'top' })
+    m.addTo(groups.airports!)
+    if (a.type !== 'small_airport') {
+      L.marker(ll(a.x, a.y), { icon: L.divIcon({ className: '', html: `<span style="font:600 10px ui-sans-serif;color:${st.color};text-shadow:0 0 3px #fff,0 0 3px #fff;white-space:nowrap">${a.ident}</span>`, iconAnchor: [-8, 6] }), interactive: false }).addTo(groups.airports!)
+    }
+  }
   for (const r of runways) {
     const h = deg2rad(r.headingDeg)
     const len = r.lengthM / NM_TO_M
     L.polyline([ll(r.x, r.y), ll(r.x + len * Math.sin(h), r.y + len * Math.cos(h))], { color: '#111827', weight: 6, opacity: 0.8 })
-      .bindTooltip(`RWY ${r.ident} · ${r.headingDeg.toFixed(0)}°T`).addTo(navLayer)
+      .bindTooltip(`RWY ${r.ident} · ${r.headingDeg.toFixed(0)}°T`).addTo(groups.runways!)
     if (stations.some(s => s.type === 'ILS_LOC' && s.runwayId === r.id)) {
-      L.polyline([ll(r.x, r.y), ll(r.x - 15 * Math.sin(h), r.y - 15 * Math.cos(h))], { color: '#16a34a', weight: 1.5, dashArray: '6 6' }).addTo(navLayer)
+      L.polyline([ll(r.x, r.y), ll(r.x - 15 * Math.sin(h), r.y - 15 * Math.cos(h))], { color: '#16a34a', weight: 1.5, dashArray: '6 6' }).addTo(groups.ils!)
     }
   }
   for (const s of stations) {
     if (s.type === 'DME' || s.type === 'ILS_GS') continue
     const isMarker = s.type.startsWith('MARKER')
     const freq = s.type === 'NDB' ? `${s.frequency.toFixed(0)} kHz` : `${s.frequency.toFixed(2)} MHz`
+    const group = isMarker ? groups.markers! : s.type === 'NDB' ? groups.ndb! : s.type === 'ILS_LOC' ? groups.ils! : groups.vor!
     L.circleMarker(ll(s.x, s.y), { radius: isMarker ? 4 : 7, color: COLORS[s.type] ?? '#000', weight: 2, fillOpacity: 0.25 })
       .bindTooltip(`${s.ident} · ${s.name}${isMarker ? '' : ` · ${freq}`}`, { direction: 'top' })
-      .addTo(navLayer)
+      .addTo(group)
   }
+  applyVisibility()
 }
 
 function update(force = false): void {
@@ -74,27 +121,27 @@ onMounted(async () => {
     maxZoom: 18,
     attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors · Nav data: <a href="https://ourairports.com/data/">OurAirports</a>',
   }).addTo(map.value)
-  trailLine = L.polyline([], { color: '#65a30d', weight: 2 }).addTo(map.value)
+  groups.trail = L.layerGroup()
+  trailLine = L.polyline([], { color: '#65a30d', weight: 2 }).addTo(groups.trail)
   aircraft = L.marker(ll(ac.x, ac.y), { icon: planeIcon(ac.hdgDeg), zIndexOffset: 1000 }).addTo(map.value)
   map.value.on('dragstart', () => { follow.value = false })
-  drawNav(props.world.stations, props.world.runways)
+  drawNav(props.world.stations, props.world.runways, props.world.airports)
   update(true)
 })
 onUnmounted(() => map.value?.remove())
 
-watch(() => [props.world.stations, props.world.runways] as const, ([s, r]) => drawNav(s, r))
+watch(() => [props.world.stations, props.world.runways, props.world.airports] as const, ([s, r, a]) => drawNav(s, r, a))
+watch(visible, applyVisibility, { deep: true })
 const legendOpen = ref(true)
-const LEGEND = [
-  { sym: 'circle', color: COLORS.VOR, label: 'VOR / VOR-DME (tune NAV 1, MHz)' },
-  { sym: 'circle', color: COLORS.NDB, label: 'NDB (tune ADF, kHz)' },
-  { sym: 'circle', color: COLORS.ILS_LOC, label: 'ILS localiser (training, VOBL)' },
-  { sym: 'dash', color: '#16a34a', label: 'ILS approach course' },
-  { sym: 'dot', color: COLORS.MARKER_OM, label: 'Outer marker' },
-  { sym: 'dot', color: COLORS.MARKER_MM, label: 'Middle marker' },
-  { sym: 'dot', color: COLORS.MARKER_IM, label: 'Inner marker' },
-  { sym: 'bar', color: '#111827', label: 'Runway' },
-  { sym: 'line', color: '#65a30d', label: 'Your flight path' },
-  { sym: 'plane', color: '#facc15', label: 'Your aircraft' },
+const LEGEND: { key: LayerKey | null; sym: string; color: string; label: string }[] = [
+  { key: 'airports', sym: 'apt', color: '#dc2626', label: 'Airport: large / medium / small' },
+  { key: 'runways', sym: 'bar', color: '#111827', label: 'Runway' },
+  { key: 'vor', sym: 'circle', color: COLORS.VOR!, label: 'VOR / VOR-DME (NAV 1, MHz)' },
+  { key: 'ndb', sym: 'circle', color: COLORS.NDB!, label: 'NDB (ADF, kHz)' },
+  { key: 'ils', sym: 'dash', color: '#16a34a', label: 'ILS localiser + approach course' },
+  { key: 'markers', sym: 'dot', color: COLORS.MARKER_MM!, label: 'Marker beacons (OM blue, MM amber, IM grey)' },
+  { key: 'trail', sym: 'line', color: '#65a30d', label: 'Your flight path' },
+  { key: null, sym: 'plane', color: '#facc15', label: 'Your aircraft' },
 ]
 watch(() => props.world, () => update())
 watch(follow, f => f && update(true))
@@ -104,11 +151,20 @@ watch(follow, f => f && update(true))
   <div class="relative h-full w-full">
     <div ref="el" class="h-full w-full" />
     <div class="absolute bottom-6 left-2 z-[1000] rounded bg-white/90 p-2 text-[11px] text-slate-800 shadow">
-      <button class="w-full text-left font-semibold" @click="legendOpen = !legendOpen">Legend {{ legendOpen ? '▾' : '▸' }}</button>
+      <div class="flex items-center gap-2">
+        <button class="font-semibold" @click="legendOpen = !legendOpen">Legend {{ legendOpen ? '▾' : '▸' }}</button>
+        <template v-if="legendOpen">
+          <button class="ml-auto rounded bg-slate-200 px-1.5 hover:bg-slate-300" @click="setAll(true)">Show all</button>
+          <button class="rounded bg-slate-200 px-1.5 hover:bg-slate-300" @click="setAll(false)">Hide all</button>
+        </template>
+      </div>
       <ul v-if="legendOpen" class="mt-1 space-y-0.5">
         <li v-for="l in LEGEND" :key="l.label" class="flex items-center gap-2">
+          <input v-if="l.key" v-model="visible[l.key]" type="checkbox" class="accent-sky-600" :aria-label="`Show ${l.label}`">
+          <span v-else class="inline-block w-[13px]" />
           <svg width="18" height="12" viewBox="0 0 18 12">
-            <circle v-if="l.sym === 'circle'" cx="9" cy="6" r="5" :stroke="l.color" stroke-width="2" :fill="l.color" fill-opacity="0.25" />
+            <g v-if="l.sym === 'apt'"><circle cx="4" cy="6" r="3.5" stroke="#dc2626" stroke-width="1.5" fill="#fff" /><circle cx="10" cy="6" r="2.5" stroke="#ea580c" stroke-width="1.5" fill="#fff" /><circle cx="15" cy="6" r="1.8" stroke="#64748b" stroke-width="1.5" fill="#fff" /></g>
+            <circle v-else-if="l.sym === 'circle'" cx="9" cy="6" r="5" :stroke="l.color" stroke-width="2" :fill="l.color" fill-opacity="0.25" />
             <circle v-else-if="l.sym === 'dot'" cx="9" cy="6" r="3" :stroke="l.color" stroke-width="2" :fill="l.color" fill-opacity="0.25" />
             <line v-else-if="l.sym === 'dash'" x1="1" y1="6" x2="17" y2="6" :stroke="l.color" stroke-width="2" stroke-dasharray="4 3" />
             <line v-else-if="l.sym === 'bar'" x1="1" y1="6" x2="17" y2="6" :stroke="l.color" stroke-width="5" />
