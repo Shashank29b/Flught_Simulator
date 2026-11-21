@@ -1,9 +1,10 @@
 import { prisma } from '../../utils/prisma'
 import { stationsQuery } from '../../validators/navdata'
-import { listStations } from '../../services/navdata'
+import { listStations, listStationsInBbox } from '../../services/navdata'
 
-/** ?near=lat,lon&radiusNm=200 for an area; without near, returns at most 500 rows (optionally ?type=). */
+/** ?bbox=s,w,n,e (map viewport) | ?near=lat,lon&radiusNm=200 (area) | neither: first 500 (optionally ?type=). */
 export default defineEventHandler(async (event) => {
   const q = await getValidatedQuery(event, stationsQuery.parse)
+  if (q.bbox) return listStationsInBbox(prisma, q.bbox)
   return listStations(prisma, { type: q.type, area: q.near ? { ...q.near, radiusNm: q.radiusNm } : undefined })
 })

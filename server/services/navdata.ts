@@ -73,3 +73,28 @@ export async function listStations(prisma: PrismaClient, opts: { type?: StationT
 export function listWaypoints(prisma: PrismaClient) {
   return prisma.waypoint.findMany({ orderBy: { id: 'asc' } })
 }
+
+export interface Bbox { south: number; west: number; north: number; east: number }
+
+function boxWhere(b: Bbox) {
+  const lon = b.west <= b.east ? { gte: b.west, lte: b.east } : undefined // antimeridian-crossing boxes: no lon filter
+  return { lat: { gte: b.south, lte: b.north }, ...(lon ? { lon } : {}) }
+}
+
+/** Airports in a map viewport, largest first ('large_airport' < 'medium_airport' < 'small_airport' alphabetically). */
+export function listAirportsInBbox(prisma: PrismaClient, b: Bbox, types: string[] | undefined, limit: number, withRunways: boolean) {
+  return prisma.airport.findMany({
+    where: { ...boxWhere(b), ...(types?.length ? { type: { in: types } } : {}) },
+    orderBy: [{ type: 'asc' }, { id: 'asc' }],
+    take: limit,
+    select: withRunways ? AIRPORT_SELECT : { ...AIRPORT_SELECT, runways: false },
+  })
+}
+
+export function listStationsInBbox(prisma: PrismaClient, b: Bbox, limit = 3000) {
+  return prisma.navStation.findMany({
+    where: boxWhere(b),
+    take: limit,
+    select: { id: true, type: true, ident: true, name: true, frequency: true, lat: true, lon: true, rangeNm: true, runwayId: true },
+  })
+}

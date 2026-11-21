@@ -4,7 +4,7 @@ import { onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
 import type * as Leaflet from 'leaflet'
 import { toLatLon } from '../../../shared/utils/geo'
 import { NM_TO_M, deg2rad } from '../../../shared/utils/units'
-import type { AirportInfo, NavStation, RunwayInfo } from '../../../shared/types'
+import type { AirportRow, RunwayRow, StationRow } from '../../composables/useNavData'
 import type { World } from '../../sim/engine'
 
 const props = defineProps<{ world: World; trail: { x: number; y: number }[] }>()
@@ -62,29 +62,67 @@ function planeIcon(hdg: number): Leaflet.DivIcon {
 const AIRPORT_STYLE: Record<string, { r: number; color: string }> = {
   large_airport: { r: 7, color: '#dc2626' }, medium_airport: { r: 5, color: '#ea580c' }, small_airport: { r: 3.5, color: '#64748b' },
 }
+const viewInfo = ref('')
+let viewSeq = 0
+let viewTimer: ReturnType<typeof setTimeout> | null = null
+let loaded: { bounds: Leaflet.LatLngBounds; zoom: number } | null = null
 
-function drawNav(stations: NavStation[], runways: RunwayInfo[], airports: AirportInfo[]): void {
+/** Loads airports and nav aids for the visible map area (worldwide), detail by zoom level. */
+async function loadViewport(): Promise<void> {
+  if (!map.value) return
+  const seq = ++viewSeq
+  const z = map.value.getZoom()
+  const b = map.value.getBounds().pad(0.5)
+  loaded = { bounds: b, zoom: z }
+  const bbox = [b.getSouth(), b.getWest(), b.getNorth(), b.getEast()].map(v => v.toFixed(4)).join(',')
+  const types = z < 5 ? 'large_airport' : z < 7 ? 'large_airport,medium_airport' : 'large_airport,medium_airport,small_airport'
+  const limit = z >= 9 ? 600 : 3000
+  try {
+    const [airports, stations] = await Promise.all([
+      $fetch<AirportRow[]>('/api/airports', { query: { bbox, types, limit } }),
+      z >= 6 ? $fetch<StationRow[]>('/api/stations', { query: { bbox } }) : Promise.resolve([] as StationRow[]),
+    ])
+    if (seq !== viewSeq) return
+    drawNav(stations, airports)
+    viewInfo.value = `${airports.length} airports${z >= 6 ? ` · ${stations.length} nav aids` : ' · zoom in for nav aids'}${z < 7 ? ' · zoom in for smaller airports' : ''}`
+  }
+  catch {
+    viewInfo.value = 'Could not load map data'
+  }
+}
+
+/** Refetch only when the view leaves the padded area already loaded, or the zoom changes. */
+function scheduleViewport(): void {
+  if (!map.value) return
+  if (loaded && loaded.zoom === map.value.getZoom() && loaded.bounds.contains(map.value.getBounds())) return
+  if (viewTimer) clearTimeout(viewTimer)
+  viewTimer = setTimeout(() => void loadViewport(), 250)
+}
+
+function drawNav(stations: StationRow[], airports: AirportRow[]): void {
   if (!L || !map.value) return
   for (const k of ['airports', 'runways', 'ils', 'vor', 'ndb', 'markers'] as const) {
     groups[k]?.remove()
     groups[k] = L.layerGroup()
   }
+  const runwayById = new Map<number, RunwayRow>()
   for (const a of airports) {
     const st = AIRPORT_STYLE[a.type] ?? AIRPORT_STYLE.small_airport!
-    const m = L.circleMarker(ll(a.x, a.y), { radius: st.r, color: st.color, weight: 2, fillColor: '#fff', fillOpacity: 0.9 })
-      .bindTooltip(`${a.ident}${a.iata ? ` / ${a.iata}` : ''} · ${a.name} · elev ${a.elevationFt} ft`, { direction: 'top' })
-    m.addTo(groups.airports!)
-    if (a.type !== 'small_airport') {
-      L.marker(ll(a.x, a.y), { icon: L.divIcon({ className: '', html: `<span style="font:600 10px ui-sans-serif;color:${st.color};text-shadow:0 0 3px #fff,0 0 3px #fff;white-space:nowrap">${a.ident}</span>`, iconAnchor: [-8, 6] }), interactive: false }).addTo(groups.airports!)
+    L.circleMarker([a.lat, a.lon], { radius: st.r, color: st.color, weight: 2, fillColor: '#fff', fillOpacity: 0.9 })
+      .bindTooltip(`${a.ident}${a.iata ? ` / ${a.iata}` : ''} · ${a.name}${a.municipality ? `, ${a.municipality}` : ''}${a.country ? ` (${a.country})` : ''} · elev ${a.elevationFt} ft`, { direction: 'top' })
+      .addTo(groups.airports!)
+    const z = map.value.getZoom()
+    if ((a.type === 'large_airport' && z >= 5) || (a.type === 'medium_airport' && z >= 8)) {
+      L.marker([a.lat, a.lon], { icon: L.divIcon({ className: '', html: `<span style="font:600 10px ui-sans-serif;color:${st.color};text-shadow:0 0 3px #fff,0 0 3px #fff;white-space:nowrap">${a.ident}</span>`, iconAnchor: [-8, 6] }), interactive: false }).addTo(groups.airports!)
     }
-  }
-  for (const r of runways) {
-    const h = deg2rad(r.headingDeg)
-    const len = r.lengthM / NM_TO_M
-    L.polyline([ll(r.x, r.y), ll(r.x + len * Math.sin(h), r.y + len * Math.cos(h))], { color: '#111827', weight: 6, opacity: 0.8 })
-      .bindTooltip(`RWY ${r.ident} · ${r.headingDeg.toFixed(0)}°T`).addTo(groups.runways!)
-    if (stations.some(s => s.type === 'ILS_LOC' && s.runwayId === r.id)) {
-      L.polyline([ll(r.x, r.y), ll(r.x - 15 * Math.sin(h), r.y - 15 * Math.cos(h))], { color: '#16a34a', weight: 1.5, dashArray: '6 6' }).addTo(groups.ils!)
+    for (const r of a.runways ?? []) {
+      runwayById.set(r.id, r)
+      const h = deg2rad(r.headingDeg)
+      const len = r.lengthM / NM_TO_M
+      const thr = { lat: r.thresholdLat, lon: r.thresholdLon }
+      const end = toLatLon({ x: len * Math.sin(h), y: len * Math.cos(h) }, thr)
+      L.polyline([[thr.lat, thr.lon], [end.lat, end.lon]], { color: '#111827', weight: 6, opacity: 0.8 })
+        .bindTooltip(`${a.ident} RWY ${r.ident} · ${r.headingDeg.toFixed(0)}°T · ${r.lengthM} m`).addTo(groups.runways!)
     }
   }
   for (const s of stations) {
@@ -92,9 +130,16 @@ function drawNav(stations: NavStation[], runways: RunwayInfo[], airports: Airpor
     const isMarker = s.type.startsWith('MARKER')
     const freq = s.type === 'NDB' ? `${s.frequency.toFixed(0)} kHz` : `${s.frequency.toFixed(2)} MHz`
     const group = isMarker ? groups.markers! : s.type === 'NDB' ? groups.ndb! : s.type === 'ILS_LOC' ? groups.ils! : groups.vor!
-    L.circleMarker(ll(s.x, s.y), { radius: isMarker ? 4 : 7, color: COLORS[s.type] ?? '#000', weight: 2, fillOpacity: 0.25 })
+    L.circleMarker([s.lat, s.lon], { radius: isMarker ? 4 : 7, color: COLORS[s.type] ?? '#000', weight: 2, fillOpacity: 0.25 })
       .bindTooltip(`${s.ident} · ${s.name}${isMarker ? '' : ` · ${freq}`}`, { direction: 'top' })
       .addTo(group)
+    const rw = s.type === 'ILS_LOC' && s.runwayId !== null ? runwayById.get(s.runwayId) : undefined
+    if (rw) {
+      const h = deg2rad(rw.headingDeg)
+      const thr = { lat: rw.thresholdLat, lon: rw.thresholdLon }
+      const far = toLatLon({ x: -15 * Math.sin(h), y: -15 * Math.cos(h) }, thr)
+      L.polyline([[thr.lat, thr.lon], [far.lat, far.lon]], { color: '#16a34a', weight: 1.5, dashArray: '6 6' }).addTo(groups.ils!)
+    }
   }
   applyVisibility()
 }
@@ -125,12 +170,15 @@ onMounted(async () => {
   trailLine = L.polyline([], { color: '#65a30d', weight: 2 }).addTo(groups.trail)
   aircraft = L.marker(ll(ac.x, ac.y), { icon: planeIcon(ac.hdgDeg), zIndexOffset: 1000 }).addTo(map.value)
   map.value.on('dragstart', () => { follow.value = false })
-  drawNav(props.world.stations, props.world.runways, props.world.airports)
+  map.value.on('moveend', scheduleViewport)
+  void loadViewport()
   update(true)
 })
-onUnmounted(() => map.value?.remove())
+onUnmounted(() => {
+  if (viewTimer) clearTimeout(viewTimer)
+  map.value?.remove()
+})
 
-watch(() => [props.world.stations, props.world.runways, props.world.airports] as const, ([s, r, a]) => drawNav(s, r, a))
 watch(visible, applyVisibility, { deep: true })
 const legendOpen = ref(true)
 const LEGEND: { key: LayerKey | null; sym: string; color: string; label: string }[] = [
@@ -175,6 +223,7 @@ watch(follow, f => f && update(true))
         </li>
       </ul>
     </div>
+    <div v-if="viewInfo" class="absolute right-2 top-2 z-[1000] rounded bg-white/85 px-2 py-0.5 text-[11px] text-slate-700 shadow">{{ viewInfo }}</div>
     <button class="absolute bottom-6 right-2 z-[1000] rounded px-2 py-1 text-xs font-semibold shadow" :class="follow ? 'bg-sky-600 text-white' : 'bg-white text-slate-800'" @click="follow = !follow">
       {{ follow ? 'Following aircraft' : 'Follow aircraft' }}
     </button>
