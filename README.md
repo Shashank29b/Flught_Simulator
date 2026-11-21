@@ -2,7 +2,7 @@
 
 A web-based flight simulator for learning aircraft navigation systems. It is a single full-stack application built with **Nuxt 4 (Vue 3)**, **PostgreSQL** and **Prisma**.
 
-**Setup: see [SETUP.md](SETUP.md).**
+**Setup: see [SETUP.md](SETUP.md)** · **Roadmap: [docs/PLAN.md](docs/PLAN.md)**
 
 ## Features
 - **One-screen cockpit:**

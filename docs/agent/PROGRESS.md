@@ -25,27 +25,32 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | W2-CHK | Week 2 checkpoint | T11–T16 | DONE |
 | W3-T17 | ILS, markers, radio altimeter logic | W2-CHK | DONE |
 | W3-T18 | HSI, marker lights, RA readout, audio callouts | T17 | DONE |
-| W3-T19 | ProfileView | T17 | TODO |
-| W3-T20 | Touchdown judge + flight end on landing/crash | T17 | TODO |
-| W3-T21 | Recorder, samples API, scoring service | T20 | TODO |
-| W3-T22 | Replay page | T21 | TODO |
-| W3-CHK | Week 3 checkpoint | T17–T22 | TODO |
-| W4-T23 | PFD | W3-CHK | TODO |
-| W4-T24 | ND | T23 | TODO |
-| W4-T25 | Alerts logic, EICAS, Master Caution/Warning | W3-CHK | TODO |
-| W4-T26 | Autopilot logic (closed-loop tests) | W3-CHK | TODO |
-| W4-T27 | MCP panel, AP wiring, classic/glass toggle | T23–T26 | TODO |
-| W4-CHK | Week 4 checkpoint | T23–T27 | TODO |
-| W5-T28 | INS model | W4-CHK | TODO |
-| W5-T29 | GPS + blend | T28 | TODO |
-| W5-T30 | Waypoints API, FMS logic, CDU, LNAV | W4-CHK | TODO |
-| W5-T31 | INS/GPS on map, nav source selector | T29, T30 | TODO |
-| W5-CHK | Week 5 checkpoint | T28–T31 | TODO |
-| W6-T32 | Transponder + TCAS | W5-CHK | TODO |
-| W6-T33 | GPWS + failure injection | W5-CHK | TODO |
-| W6-T34 | Admin stations page + API | W5-CHK | TODO |
-| W6-T35 | Dockerfile, compose app service, README | T32–T34 | TODO |
-| W6-CHK | Final regression + demo checklist | all | TODO |
+| *(remaining tasks: see Plan v2 below)* | | | |
+
+**Plan v2 (2026-11-21): remaining work in priority order.** See `docs/PLAN.md`. The task cards in `tasks/week-N.md` still apply; only the order changed. Work P1 → P5 first, then the Optional block.
+
+| Priority | ID | Task | Deps | Status |
+|---|---|---|---|---|
+| P1 | W3-T20 | Touchdown judge + flight end on landing/crash | T17 | TODO |
+| P1 | W3-T21 | Browser flight recorder (5 Hz, batched) → server scoring (server side already done) | T20 | TODO |
+| P1 | W3-T22 | Replay page (track, altitude/LOC/GS graphs, score) | T21 | TODO |
+| P1 | P1-CHK | Checkpoint: ILS landing → score → replay works (lab minimum) | P1 | TODO |
+| P2 | W4-T26 | Autopilot modes HDG/ALT/VS/NAV/APP (closed-loop tests; reuse autoflight inner loops) | P1-CHK | TODO |
+| P2 | W4-T27 | MCP panel + AP wiring (classic/glass toggle after P3) | T26 | TODO |
+| P3 | W4-T23 | PFD | P2 | TODO |
+| P3 | W4-T24 | ND | T23 | TODO |
+| P3 | P3-CHK | Checkpoint: coupled ILS on the glass cockpit | P2, P3 | TODO |
+| P4 | W5-T28 | INS model (drift) | P3-CHK | TODO |
+| P4 | W5-T29 | GPS + INS/GPS blend | T28 | TODO |
+| P4 | W5-T31 | INS/GPS/blended positions on the map, nav source selector | T29 | TODO |
+| P5 | W6-T35 | Dockerfile + compose app service (one-command run) | – | TODO |
+| P5 | FINAL | Final regression, demo script, tag v1.0 | P1–P5 | TODO |
+| Optional | W3-T19 | Approach profile (side) view | T17 | TODO |
+| Optional | W4-T25 | Alerts, EICAS, Master Caution/Warning | – | TODO |
+| Optional | W5-T30 | FMS route + CDU + LNAV (waypoints API done) | – | TODO |
+| Optional | W6-T32 | Transponder + TCAS | – | TODO |
+| Optional | W6-T33 | GPWS + failure injection | – | TODO |
+| Optional | W6-T34 | Admin stations page + API | – | TODO |
 
 ---
 
