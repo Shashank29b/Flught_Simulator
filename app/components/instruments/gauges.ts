@@ -1,6 +1,6 @@
 import { clamp } from '../../../shared/utils/units'
 
-export const airspeedNeedleDeg = (ias: number): number => (clamp(ias, 0, 200) / 200) * 320
+export const airspeedNeedleDeg = (ias: number, maxKt = 200): number => (clamp(ias, 0, maxKt) / maxKt) * 320
 
 export function altHands(alt: number): { hundredsDeg: number; thousandsDeg: number } {
   const a = Math.max(0, alt)

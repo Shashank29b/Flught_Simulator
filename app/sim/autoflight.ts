@@ -5,6 +5,7 @@
 import { KT_TO_FPM, NM_TO_FT, clamp, deg2rad, rad2deg, wrap180 } from '../../shared/utils/units'
 import { distNm, toLocal, type LatLon, type Vec2 } from '../../shared/utils/geo'
 import type { AircraftState, Controls } from '../../shared/types'
+import { JET, type AircraftProfile } from './aircraft'
 
 export interface JourneyEnd {
   ident: string
@@ -18,9 +19,11 @@ export type Phase = 'TAKEOFF_ROLL' | 'ROTATE' | 'CLIMB' | 'CRUISE' | 'DESCENT' |
 export interface AutoState { phase: Phase }
 export interface AutoOutput { auto: AutoState; controls: Controls; gearDown: boolean; flapsDeg: 0 | 10 | 20 | 30 }
 
-export const IF_NM = 12
 const TAN3 = Math.tan(deg2rad(3))
-const SPEEDS: Record<Phase, number> = { TAKEOFF_ROLL: 140, ROTATE: 140, CLIMB: 110, CRUISE: 125, DESCENT: 120, APPROACH: 100, FINAL: 85, FLARE: 75, ROLLOUT: 0, ARRIVED: 0 }
+function phaseSpeed(p: AircraftProfile, phase: Phase): number {
+  const s = p.speeds
+  return ({ TAKEOFF_ROLL: p.maxIasKt, ROTATE: p.maxIasKt, CLIMB: s.climb, CRUISE: s.cruise, DESCENT: s.descent, APPROACH: s.approach, FINAL: s.final, FLARE: s.flare, ROLLOUT: 0, ARRIVED: 0 } as const)[phase]
+}
 
 export interface RunwayRel { thr: Vec2; u: Vec2; hdgDeg: number; along: number; xte: number; distToThr: number }
 
@@ -43,10 +46,11 @@ export function glidePathAltFt(end: JourneyEnd, distToThrNm: number): number {
 const altHold = (target: number, alt: number) => clamp(4 * (target - alt), -1500, 1500)
 const courseLaw = (rel: RunwayRel, gain: number, max: number) => rel.hdgDeg - clamp(gain * rel.xte, -max, max)
 
-export function autoflightStep(j: Journey, a: AutoState, ac: AircraftState, ref: LatLon, groundElevFt: number): AutoOutput {
+export function autoflightStep(j: Journey, a: AutoState, ac: AircraftState, ref: LatLon, groundElevFt: number, prof: AircraftProfile = JET): AutoOutput {
+  const IF_NM = prof.ifNm
   const rel = runwayRel(j.to, ac, ref)
   const ifPt = { x: rel.thr.x - IF_NM * rel.u.x, y: rel.thr.y - IF_NM * rel.u.y }
-  const ifAlt = j.to.elevationFt + 3000
+  const ifAlt = j.to.elevationFt + prof.ifHeightFt
   const pathAlt = glidePathAltFt(j.to, rel.distToThr)
   const agl = ac.altFt - groundElevFt
   const directIf = () => {
@@ -56,7 +60,7 @@ export function autoflightStep(j: Journey, a: AutoState, ac: AircraftState, ref:
   const captured = () =>
     distNm(ac, ifPt) < 1.5
     || (rel.along <= -2 && rel.along >= -(IF_NM + 4) && Math.abs(rel.xte) < 2 && Math.abs(wrap180(ac.hdgDeg - rel.hdgDeg)) < 100)
-  const shouldDescend = () => distNm(ac, ifPt) <= ((ac.altFt - ifAlt) / 1000) * (Math.max(ac.gsKt, 80) / 60) + 3
+  const shouldDescend = () => distNm(ac, ifPt) <= ((ac.altFt - ifAlt) / prof.descentFpm) * (Math.max(ac.gsKt, 80) / 60) + 5
 
   let phase = a.phase
   let gearDown = ac.gearDown
@@ -70,7 +74,7 @@ export function autoflightStep(j: Journey, a: AutoState, ac: AircraftState, ref:
     case 'TAKEOFF_ROLL':
       flapsDeg = 10
       pitchOverride = 0
-      if (ac.iasKt >= 70) phase = 'ROTATE'
+      if (ac.iasKt >= prof.rotateKt + 5) phase = 'ROTATE'
       break
     case 'ROTATE':
       pitchOverride = 10
@@ -80,7 +84,7 @@ export function autoflightStep(j: Journey, a: AutoState, ac: AircraftState, ref:
       if (agl > 300) gearDown = false
       if (agl > 1000) flapsDeg = 0
       hdgCmd = agl > 500 ? directIf() : ac.hdgDeg
-      vsCmd = 1000
+      vsCmd = prof.climbFpm
       if (ac.altFt >= j.cruiseAltFt - 100) phase = 'CRUISE'
       if (agl > 1500 && shouldDescend()) phase = 'DESCENT'
       break
@@ -92,14 +96,14 @@ export function autoflightStep(j: Journey, a: AutoState, ac: AircraftState, ref:
       break
     case 'DESCENT':
       hdgCmd = directIf()
-      vsCmd = ac.altFt > ifAlt + 150 ? -1000 : altHold(ifAlt, ac.altFt)
+      vsCmd = ac.altFt > ifAlt + 150 ? -prof.descentFpm : altHold(ifAlt, ac.altFt)
       if (captured()) phase = 'APPROACH'
       break
     case 'APPROACH':
       gearDown = true
       flapsDeg = 20
       hdgCmd = courseLaw(rel, 25, 40)
-      vsCmd = ac.altFt > ifAlt + 150 ? -1000 : altHold(Math.min(ifAlt, ac.altFt + 1), ac.altFt)
+      vsCmd = ac.altFt > ifAlt + 150 ? -prof.descentFpm : altHold(Math.min(ifAlt, ac.altFt + 1), ac.altFt)
       if (rel.distToThr < IF_NM + 2 && ac.altFt >= pathAlt - 20 && Math.abs(rel.xte) < 0.5) phase = 'FINAL'
       break
     case 'FINAL':
@@ -124,8 +128,8 @@ export function autoflightStep(j: Journey, a: AutoState, ac: AircraftState, ref:
       break
   }
 
-  const ias = SPEEDS[phase]
-  const throttle = phase === 'FLARE' && agl < 20 ? 0 : clamp(ias / 140, 0, 1)
+  const ias = phaseSpeed(prof, phase)
+  const throttle = phase === 'FLARE' && agl < 20 ? 0 : clamp(ias / prof.maxIasKt, 0, 1)
   const bankCmd = ac.onGround ? 0 : clamp(2 * wrap180(hdgCmd - ac.hdgDeg), -maxBank, maxBank)
   const tas = Math.max(ac.tasKt || ac.iasKt, 40)
   const pitchCmd = pitchOverride ?? rad2deg(Math.asin(clamp(vsCmd / (tas * KT_TO_FPM), -1, 1)))

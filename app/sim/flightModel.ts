@@ -2,6 +2,7 @@ import { AIRPORT_ELEV_FT, G, KT_TO_FPM, KT_TO_MPS, clamp, deg2rad, rad2deg, wrap
 import type { AircraftState, Atmosphere, Controls, Wind } from '../../shared/types'
 import { STANDARD_ATMOSPHERE, casToTas } from '../../shared/utils/isa'
 import { applyWind } from './wind'
+import { TRAINER, type AircraftProfile } from './aircraft'
 
 export const ROTATE_KT = 65
 
@@ -11,34 +12,37 @@ export const DEFAULT_STATE: AircraftState = {
 }
 
 /** One fixed step of the point-mass model (CONTRACTS §3). IAS is flown; TAS (ISA) moves the aircraft. Pure. */
-export function step(s: AircraftState, c: Controls, wind: Wind | null, dt: number, atmo: Atmosphere = STANDARD_ATMOSPHERE, elevFt = AIRPORT_ELEV_FT): AircraftState {
+export function step(s: AircraftState, c: Controls, wind: Wind | null, dt: number, atmo: Atmosphere = STANDARD_ATMOSPHERE, elevFt = AIRPORT_ELEV_FT, profile: AircraftProfile = TRAINER): AircraftState {
   const throttle = s.fuelPct <= 0 ? 0 : clamp(c.throttle, 0, 1)
   let bank = clamp(s.bankDeg + c.roll * 15 * dt, -35, 35)
   let pitch = clamp(s.pitchDeg + c.pitch * 5 * dt, -15, 20)
 
-  const target = 140 * throttle
-  const maxDelta = 3 * dt
-  const ias = clamp(s.iasKt + clamp(target - s.iasKt, -maxDelta, maxDelta), 0, 200)
+  const target = profile.maxIasKt * throttle
+  const ias = clamp(s.iasKt + clamp(target - s.iasKt, -profile.decelKtPerSec * dt, profile.accelKtPerSec * dt), 0, profile.maxIasKt + 20)
 
   let onGround = s.onGround
   if (onGround) {
     bank = 0
     pitch = Math.max(0, pitch)
-    if (ias < ROTATE_KT) pitch = 0
+    if (ias < profile.rotateKt) pitch = 0
   }
 
   const { tasKt: tas, mach } = casToTas(ias, s.altFt, atmo)
   let hdg = s.hdgDeg
+  const yaw = clamp(c.yaw ?? 0, -1, 1)
   if (!onGround) {
     const turnRad = (G * Math.tan(deg2rad(bank))) / Math.max(tas * KT_TO_MPS, 1)
-    hdg = wrap360(hdg + rad2deg(turnRad) * dt)
+    hdg = wrap360(hdg + (rad2deg(turnRad) + yaw * 3) * dt) // rudder adds up to 3°/s of yaw
+  }
+  else if (ias > 1) {
+    hdg = wrap360(hdg + yaw * 20 * Math.min(1, ias / 15) * dt) // nosewheel steering
   }
 
   let vs = tas * KT_TO_FPM * Math.sin(deg2rad(pitch))
   let alt = s.altFt + (vs * dt) / 60
 
   if (onGround) {
-    if (ias >= ROTATE_KT && pitch > 0) onGround = false
+    if (ias >= profile.rotateKt && pitch > 0) onGround = false
     else {
       alt = elevFt
       vs = 0

@@ -63,6 +63,18 @@ const AIRPORT_STYLE: Record<string, { r: number; color: string }> = {
   large_airport: { r: 7, color: '#dc2626' }, medium_airport: { r: 5, color: '#ea580c' }, small_airport: { r: 3.5, color: '#64748b' },
 }
 const viewInfo = ref('')
+/** Default: India only. The toggle loads the whole world. */
+const worldData = ref(loadFlag('skynav.worldData'))
+function loadFlag(key: string): boolean {
+  try { return localStorage.getItem(key) === '1' }
+  catch { return false }
+}
+watch(worldData, (v) => {
+  try { localStorage.setItem('skynav.worldData', v ? '1' : '0') }
+  catch { /* storage unavailable */ }
+  loaded = null
+  void loadViewport()
+})
 let viewSeq = 0
 let viewTimer: ReturnType<typeof setTimeout> | null = null
 let loaded: { bounds: Leaflet.LatLngBounds; zoom: number } | null = null
@@ -79,12 +91,12 @@ async function loadViewport(): Promise<void> {
   const limit = z >= 9 ? 600 : 3000
   try {
     const [airports, stations] = await Promise.all([
-      $fetch<AirportRow[]>('/api/airports', { query: { bbox, types, limit } }),
-      z >= 6 ? $fetch<StationRow[]>('/api/stations', { query: { bbox } }) : Promise.resolve([] as StationRow[]),
+      $fetch<AirportRow[]>('/api/airports', { query: { bbox, types, limit, ...(worldData.value ? {} : { country: 'IN' }) } }),
+      z >= 6 ? $fetch<StationRow[]>('/api/stations', { query: { bbox, ...(worldData.value ? {} : { country: 'IN' }) } }) : Promise.resolve([] as StationRow[]),
     ])
     if (seq !== viewSeq) return
     drawNav(stations, airports)
-    viewInfo.value = `${airports.length} airports${z >= 6 ? ` · ${stations.length} nav aids` : ' · zoom in for nav aids'}${z < 7 ? ' · zoom in for smaller airports' : ''}`
+    viewInfo.value = `${worldData.value ? 'World' : 'India'} · in this view: ${airports.length} airports${z >= 6 ? `, ${stations.length} nav aids` : ' (zoom in for nav aids)'}${z < 7 ? ' · large/medium only, zoom in for small' : ' · zoom out to see more'}`
   }
   catch {
     viewInfo.value = 'Could not load map data'
@@ -223,7 +235,10 @@ watch(follow, f => f && update(true))
         </li>
       </ul>
     </div>
-    <div v-if="viewInfo" class="absolute right-2 top-2 z-[1000] rounded bg-white/85 px-2 py-0.5 text-[11px] text-slate-700 shadow">{{ viewInfo }}</div>
+    <div class="absolute right-2 top-2 z-[1000] flex items-center gap-2 rounded bg-white/90 px-2 py-0.5 text-[11px] text-slate-700 shadow">
+      <label class="flex cursor-pointer items-center gap-1 font-semibold"><input v-model="worldData" type="checkbox" class="accent-sky-600"> Whole world</label>
+      <span v-if="viewInfo">{{ viewInfo }}</span>
+    </div>
     <button class="absolute bottom-6 right-2 z-[1000] rounded px-2 py-1 text-xs font-semibold shadow" :class="follow ? 'bg-sky-600 text-white' : 'bg-white text-slate-800'" @click="follow = !follow">
       {{ follow ? 'Following aircraft' : 'Follow aircraft' }}
     </button>

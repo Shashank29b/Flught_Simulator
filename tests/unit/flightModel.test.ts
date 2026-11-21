@@ -62,6 +62,12 @@ describe('flight model', () => {
     expect(hot.tasKt).toBeGreaterThan(std.tasKt + 3)
     expect(hot.mach).toBeGreaterThan(0)
   })
+  it('F10 rudder yaws in the air and steers on the ground', () => {
+    const air = runFor(AIR, { roll: 0, pitch: 0, throttle: 120 / 140, yaw: 1 }, null, 2)
+    expect(air.hdgDeg).toBeCloseTo(96, 1)
+    const g = runFor({ ...DEFAULT_STATE, iasKt: 20, throttle: 20 / 140 }, { roll: 0, pitch: 0, throttle: 20 / 140, yaw: -1 }, null, 1)
+    expect(g.hdgDeg).toBeLessThan(DEFAULT_STATE.hdgDeg - 15)
+  })
   it('takes off at full throttle with back pressure', () => {
     let s = runFor(DEFAULT_STATE, hold(1), null, 25)
     s = runFor(s, { roll: 0, pitch: 1, throttle: 1 }, null, 2)

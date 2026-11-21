@@ -18,7 +18,8 @@ export interface AircraftState {
   onGround: boolean
 }
 
-export interface Controls { roll: number; pitch: number; throttle: number }
+/** roll/pitch/yaw −1..1 (yaw = rudder, also nosewheel steering on the ground), throttle 0..1. */
+export interface Controls { roll: number; pitch: number; throttle: number; yaw?: number }
 export interface Wind { fromDeg: number; speedKt: number }
 export interface Atmosphere { qnhHpa: number; isaDevC: number }
 

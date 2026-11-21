@@ -52,6 +52,12 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 ## Handoff log
 Newest at the top. At most 5 lines per task.
 
+### JOURNEY + JET + KEYS + INDIA FILTER (extra, user requests) · DONE · 2026-11-21
+- Journey mode (Cockpit → "Journey (autopilot)"): pick From/To airports + runways (search API), cruise altitude; app/sim/autoflight.ts flies take-off → climb → cruise → descent → approach → 3° final → flare → rollout → arrived; time ×1–64; disengage on manual input; tests JY1/JY2 (lands < 30 m from the centreline).
+- Aircraft profiles (app/sim/aircraft.ts): Jet (350 kt, rotate 145, cruise 280 KIAS at FL) default in the Cockpit; Trainer (140 kt) in Test mode. Airspeed gauge scales with the profile.
+- Keys: W/S stick fwd/back, A/D roll, Q/E yaw (rudder; nosewheel steering on the ground), ↑/↓ or +/− throttle. Live stick/rudder deflection display.
+- Map: viewport (bbox) loading worldwide; default India only (country=IN), "Whole world" toggle; airport symbols, per-layer legend toggles.
+
 ### WORLD DATA + LEGEND (extra, user request) · DONE · 2026-11-21
 - `bash scripts/data/download.sh` → data/ourairports (gitignored); seed imports 48,082 airports, 28,708 runway ends, 13,831 navaids (prisma/world.ts + csv.ts), else falls back to VOBL only. VOBL training ILS always added.
 - Migration world_data (Airport ident/iata/type/country/municipality, lat/lon indexes), applied via `migrate diff` + `migrate deploy` (migrate dev is interactive).

@@ -3,7 +3,9 @@ import { shallowRef, ref } from 'vue'
 import { REBASE_NM, createWorld, groundElevation, rebaseWorld, simStep, type Radios, type World } from '../sim/engine'
 import { REF, toLatLon, type LatLon } from '../../shared/utils/geo'
 import { airportsToLocal, runwaysToLocal, stationsToLocal, type NavDataRaw } from '../composables/useNavData'
-import { keysToControls } from '../sim/input'
+import { keysToControls, manualInput } from '../sim/input'
+import type { Journey } from '../sim/autoflight'
+import { PROFILES } from '../sim/aircraft'
 import { DEFAULT_STATE } from '../sim/flightModel'
 import type { Preset } from '../sim/presets'
 
@@ -11,6 +13,9 @@ export const useSimStore = defineStore('sim', () => {
   const world = shallowRef<World>(createWorld())
   const initial = shallowRef<World>(world.value)
   const paused = ref(false)
+  /** Simulation speed multiplier (time acceleration). */
+  const timeScale = ref(1)
+  const autoMessage = ref('')
   const keys = new Set<string>()
   /** Trail stored in lat/lon so it survives re-centring. */
   const trailLL = shallowRef<LatLon[]>([])
@@ -49,6 +54,10 @@ export const useSimStore = defineStore('sim', () => {
 
   function tick(dt: number): void {
     if (paused.value) return
+    if (world.value.auto && manualInput(keys)) {
+      world.value = { ...world.value, auto: null }
+      autoMessage.value = 'Autopilot disengaged by manual input'
+    }
     const c = keysToControls(keys, world.value.ac.throttle, dt)
     world.value = simStep(world.value, c, dt)
     const ac = world.value.ac
@@ -106,9 +115,52 @@ export const useSimStore = defineStore('sim', () => {
   function applyPreset(p: Preset): void {
     const atRef = world.value.ref.lat === REF.lat && world.value.ref.lon === REF.lon
     const base = atRef ? world.value : { ...world.value, ref: REF, stations: [], runways: [], airports: [] }
-    const w = { ...base, ac: { ...DEFAULT_STATE, ...p.ac }, groundElevFt: 3000, radios: { ...base.radios, ...(p.radios ?? {}) }, done: null, simMs: 0, objProgress: { heldSec: 0 } }
+    const prof = world.value.profile
+    const speed = p.id === 'ils' ? prof.speeds.final : prof.speeds.cruise
+    const ac = { ...DEFAULT_STATE, ...p.ac, ...(p.ac.onGround === false ? { iasKt: speed, throttle: speed / prof.maxIasKt } : {}) }
+    const w = { ...base, ac, groundElevFt: 3000, radios: { ...base.radios, ...(p.radios ?? {}) }, done: null, simMs: 0, objProgress: { heldSec: 0 } }
     load(w)
   }
 
-  return { world, paused, keys, trail, navCenter, setNavData, load, reset, tick, toggleGear, cycleFlaps, setRadio, setThrottle, setFlaps, holdKey, applyPreset }
+  /** Places the aircraft on the departure runway and engages the automatic journey. */
+  function startJourney(j: Journey): void {
+    const ref = { lat: j.from.runway.lat, lon: j.from.runway.lon }
+    const h = (j.from.runway.headingDeg * Math.PI) / 180
+    const w = {
+      ...world.value,
+      ref,
+      stations: [], runways: [], airports: [],
+      ac: { ...DEFAULT_STATE, x: 0.05 * Math.sin(h), y: 0.05 * Math.cos(h), hdgDeg: j.from.runway.headingDeg, trackDeg: j.from.runway.headingDeg, altFt: j.from.elevationFt },
+      groundElevFt: j.from.elevationFt,
+      journey: j,
+      auto: { phase: 'TAKEOFF_ROLL' as const },
+      objective: null, done: null, simMs: 0, objProgress: { heldSec: 0 },
+    }
+    autoMessage.value = ''
+    load(w)
+  }
+
+  function setProfile(id: 'jet' | 'trainer'): void {
+    world.value = { ...world.value, profile: PROFILES[id] }
+  }
+
+  function engageAuto(): void {
+    if (!world.value.journey) return
+    const ac = world.value.ac
+    autoMessage.value = ''
+    world.value = { ...world.value, auto: { phase: ac.onGround ? (ac.iasKt < 3 ? 'TAKEOFF_ROLL' : 'ROLLOUT') : 'CRUISE' } }
+  }
+
+  function disengageAuto(): void {
+    world.value = { ...world.value, auto: null }
+    autoMessage.value = 'Autopilot off: you have control'
+  }
+
+  function endJourney(): void {
+    world.value = { ...world.value, journey: null, auto: null }
+    timeScale.value = 1
+    autoMessage.value = ''
+  }
+
+  return { world, paused, timeScale, autoMessage, keys, trail, navCenter, setNavData, setProfile, startJourney, engageAuto, disengageAuto, endJourney, load, reset, tick, toggleGear, cycleFlaps, setRadio, setThrottle, setFlaps, holdKey, applyPreset }
 })

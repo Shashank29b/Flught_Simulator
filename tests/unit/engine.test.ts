@@ -16,8 +16,8 @@ describe('engine', () => {
     expect(e.ac.y).toBe(w.ac.y)
     expect(e.simMs).toBeCloseTo(5000, 3)
   })
-  it('E2 full throttle then rotate becomes airborne', () => {
-    let w = run(createWorld(), { roll: 0, pitch: 0, throttle: 1 }, 25)
+  it('E2 full throttle then rotate becomes airborne (jet rotates at 145 kt)', () => {
+    let w = run(createWorld(), { roll: 0, pitch: 0, throttle: 1 }, 35)
     w = run(w, { roll: 0, pitch: 1, throttle: 1 }, 3)
     w = run(w, { roll: 0, pitch: 0, throttle: 1 }, 12)
     expect(w.ac.onGround).toBe(false)

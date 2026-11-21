@@ -8,6 +8,7 @@ import { useNavData } from '../composables/useNavData'
 import { useKeyboard } from '../composables/useKeyboard'
 import { useSimLoop } from '../composables/useSimLoop'
 import CockpitPanel from '../components/views/CockpitPanel.vue'
+import JourneyPanel from '../components/views/JourneyPanel.vue'
 
 definePageMeta({ layout: 'cockpit' })
 
@@ -29,6 +30,7 @@ useSimLoop()
       <span class="text-xs text-slate-500">All instruments, radios and controls in one view. Scoring is in Test mode.</span>
       <NuxtLink to="/scenarios" class="ml-auto rounded bg-slate-800 px-2 py-0.5 text-xs hover:bg-slate-700">Test mode →</NuxtLink>
     </div>
+    <ClientOnly><JourneyPanel /></ClientOnly>
     <CockpitPanel />
   </div>
 </template>

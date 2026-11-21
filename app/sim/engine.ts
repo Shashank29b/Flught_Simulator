@@ -3,6 +3,7 @@ import { REF, distNm, toLatLon, toLocal, type LatLon } from '../../shared/utils/
 import type { AirportInfo, AircraftState, Atmosphere, Controls, FlightResult, NavOutputs, NavStation, Objective, RunwayInfo, Wind } from '../../shared/types'
 import { evaluateObjective, type ObjProgress } from './objectives'
 import { autoflightStep, journeyGroundElev, type AutoState, type Journey } from './autoflight'
+import { JET, type AircraftProfile } from './aircraft'
 import { DEFAULT_STATE, step } from './flightModel'
 import { vorReceive } from '../nav/vor'
 import { dmeReceive } from '../nav/dme'
@@ -33,6 +34,7 @@ export interface World {
   auto: AutoState | null
   /** The controls applied in the last step (shown on the yoke/throttle display). */
   lastControls: Controls
+  profile: AircraftProfile
 }
 
 export const DEFAULT_RADIOS: Radios = { nav1MHz: 113.5, obsDeg: 90, adfKHz: 350, baroHpa: 1013.25 }
@@ -57,6 +59,7 @@ export function createWorld(init: Partial<Omit<World, 'ac' | 'radios'>> & { ac?:
     journey: init.journey ?? null,
     auto: init.auto ?? null,
     lastControls: init.lastControls ?? { roll: 0, pitch: 0, throttle: 0 },
+    profile: init.profile ?? JET,
   }
 }
 
@@ -69,12 +72,12 @@ export function simStep(w: World, c: Controls, dt: number): World {
   let groundElevFt = w.groundElevFt
   if (w.journey && auto) {
     groundElevFt = journeyGroundElev(w.journey, ac0, w.ref, groundElevFt)
-    const o = autoflightStep(w.journey, auto, ac0, w.ref, groundElevFt)
+    const o = autoflightStep(w.journey, auto, ac0, w.ref, groundElevFt, w.profile)
     auto = o.auto
     controls = o.controls
     ac0 = { ...ac0, gearDown: o.gearDown, flapsDeg: o.flapsDeg }
   }
-  const ac = step(ac0, controls, w.wind, dt, w.atmo, groundElevFt)
+  const ac = step(ac0, controls, w.wind, dt, w.atmo, groundElevFt, w.profile)
   const r = w.radios
   const nav: Partial<NavOutputs> = {
     ...w.nav,

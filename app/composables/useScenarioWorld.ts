@@ -1,5 +1,6 @@
 import type { ScenarioDTO } from '../../shared/types'
 import { createWorld, type World } from '../sim/engine'
+import { TRAINER } from '../sim/aircraft'
 
 /** Builds the initial world for a scenario (VOBL frame); nav data is added by store.setNavData. */
 export function buildScenarioWorld(sc: ScenarioDTO): World {
@@ -12,5 +13,6 @@ export function buildScenarioWorld(sc: ScenarioDTO): World {
       baroHpa: sc.radios.baroHpa ?? sc.atmosphere?.qnhHpa ?? 1013.25,
     },
     objective: sc.target,
+    profile: TRAINER,
   })
 }

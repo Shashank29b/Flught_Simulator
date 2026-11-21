@@ -1,7 +1,7 @@
 import { onMounted, onUnmounted } from 'vue'
 import { useSimStore } from '../stores/sim'
 
-const PREVENT = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '])
+const PREVENT = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', '+', '-', '='])
 
 export function useKeyboard(): void {
   const store = useSimStore()

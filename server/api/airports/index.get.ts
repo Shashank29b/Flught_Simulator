@@ -10,7 +10,7 @@ import { listAirportsInBbox, listAirportsNear, searchAirports } from '../../serv
 export default defineEventHandler(async (event) => {
   const q = await getValidatedQuery(event, airportsQuery.parse)
   if (q.q) return searchAirports(prisma, q.q, Math.min(q.limit, 50))
-  if (q.bbox) return listAirportsInBbox(prisma, q.bbox, q.types?.split(',').filter(Boolean), q.limit, q.limit <= 600)
+  if (q.bbox) return listAirportsInBbox(prisma, q.bbox, q.types?.split(',').filter(Boolean), q.limit, q.limit <= 600, q.country)
   const near = q.near ?? { lat: 13.1979, lon: 77.706299 }
   return listAirportsNear(prisma, { ...near, radiusNm: q.radiusNm }, Math.min(q.limit, 500))
 })

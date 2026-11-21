@@ -15,7 +15,8 @@ export function useSimLoop(onFrame?: () => void): void {
     last = t
     const r = advance(acc, dt, STEP)
     acc = r.acc
-    for (let i = 0; i < r.steps; i++) store.tick(STEP)
+    const n = r.steps * store.timeScale
+    for (let i = 0; i < n; i++) store.tick(STEP)
     onFrame?.()
     raf = requestAnimationFrame(frame)
   }

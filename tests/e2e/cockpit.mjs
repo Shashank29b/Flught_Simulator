@@ -26,25 +26,27 @@ await check('cockpit loads on the runway', async () => {
   const s = await status()
   if (!s.includes('ON GROUND')) throw new Error(s)
 })
-await check('map shows VOBL nav aids', async () => {
-  await waitFor(async () => (await page.locator('.leaflet-interactive').count()) > 10, 10000, 'nav aid layers')
+await check('map shows India airports and nav aids', async () => {
+  await waitFor(async () => (await page.locator('.leaflet-interactive').count()) > 10, 15000, 'nav aid layers')
+  const info = await page.locator('text=/India · in this view: \\d+ airports/').innerText()
+  if (!/India · in this view: \d+ airports/.test(info)) throw new Error(info)
 })
 await check('throttle slider sets throttle', async () => {
   await page.locator('input[type=range]').fill('100')
   await waitFor(async () => (await num('THR')) === 100, 3000, 'THR 100')
 })
-await check('accelerates and takes off with ↓ (pitch up)', async () => {
-  await waitFor(async () => (await num('IAS')) >= 70, 45000, 'IAS 70')
+await check('jet accelerates and takes off with S (stick back)', async () => {
+  await waitFor(async () => (await num('IAS')) >= 150, 60000, 'IAS 150')
   await page.mouse.click(800, 980)
-  await page.keyboard.down('ArrowDown')
+  await page.keyboard.down('s')
   await page.waitForTimeout(2500)
-  await page.keyboard.up('ArrowDown')
+  await page.keyboard.up('s')
   await waitFor(async () => (await status()).includes('AIRBORNE'), 10000, 'airborne')
 })
-await check('keyboard roll right banks the aircraft', async () => {
-  await page.keyboard.down('ArrowRight')
+await check('keyboard D rolls right', async () => {
+  await page.keyboard.down('d')
   await page.waitForTimeout(1000)
-  await page.keyboard.up('ArrowRight')
+  await page.keyboard.up('d')
   if (!((await num('BANK')) > 8)) throw new Error(await status())
 })
 await check('preset "Airborne 6000 ft"', async () => {
@@ -54,12 +56,21 @@ await check('preset "Airborne 6000 ft"', async () => {
   if (!(Math.abs(alt - 6000) < 50 && (await status()).includes('AIRBORNE'))) throw new Error(await status())
 })
 await check('on-screen Roll L button banks left', async () => {
-  const b = page.getByRole('button', { name: '◀ Roll L' })
+  const b = page.getByRole('button', { name: '◀ Roll L (A)' })
   await b.hover()
   await page.mouse.down()
   await page.waitForTimeout(1000)
   await page.mouse.up()
   if (!((await num('BANK')) < -8)) throw new Error(await status())
+})
+await check('journey VOBL → VOMM: auto take-off and climb at 64×', async () => {
+  const to = page.getByPlaceholder('ICAO, IATA, name or city').nth(1)
+  await to.fill('VOMM')
+  await page.getByRole('button', { name: /^VOMM/ }).first().click()
+  await page.getByRole('button', { name: 'Start journey ▶' }).click()
+  await page.getByRole('button', { name: '64', exact: true }).click()
+  await waitFor(async () => (await status()).includes('AIRBORNE'), 20000, 'auto take-off')
+  await waitFor(async () => (await page.locator('.bg-green-600', { hasText: /Climb|Cruise|Descent/ }).count()) > 0, 20000, 'climb phase')
 })
 await check('no page errors', async () => {
   if (errors.length) throw new Error(errors.slice(0, 3).join(' | '))

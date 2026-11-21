@@ -40,7 +40,7 @@ const mapTab = ref<'osm' | 'nav'>('osm')
     <div class="flex min-h-0 flex-col gap-2 overflow-y-auto">
       <ClientOnly>
         <div class="grid grid-cols-4 gap-2 rounded border border-slate-800 bg-slate-950 p-2">
-          <AirspeedIndicator :ias-kt="store.world.ac.iasKt" />
+          <AirspeedIndicator :ias-kt="store.world.ac.iasKt" :max-kt="store.world.profile.gaugeMaxKt" :stall-kt="store.world.profile.stallCleanKt" :flap-stall-kt="store.world.profile.stallCleanKt * 0.7" :vne-kt="store.world.profile.maxIasKt" />
           <AttitudeIndicator :pitch-deg="store.world.ac.pitchDeg" :bank-deg="store.world.ac.bankDeg" />
           <Altimeter :alt-ft="indicatedAltitudeFt(store.world.ac.altFt, store.world.radios.baroHpa, store.world.atmo)" />
           <VerticalSpeed :vs-fpm="store.world.ac.vsFpm" />

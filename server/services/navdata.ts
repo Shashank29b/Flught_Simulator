@@ -82,18 +82,18 @@ function boxWhere(b: Bbox) {
 }
 
 /** Airports in a map viewport, largest first ('large_airport' < 'medium_airport' < 'small_airport' alphabetically). */
-export function listAirportsInBbox(prisma: PrismaClient, b: Bbox, types: string[] | undefined, limit: number, withRunways: boolean) {
+export function listAirportsInBbox(prisma: PrismaClient, b: Bbox, types: string[] | undefined, limit: number, withRunways: boolean, country?: string) {
   return prisma.airport.findMany({
-    where: { ...boxWhere(b), ...(types?.length ? { type: { in: types } } : {}) },
+    where: { ...boxWhere(b), ...(types?.length ? { type: { in: types } } : {}), ...(country ? { country } : {}) },
     orderBy: [{ type: 'asc' }, { id: 'asc' }],
     take: limit,
     select: withRunways ? AIRPORT_SELECT : { ...AIRPORT_SELECT, runways: false },
   })
 }
 
-export function listStationsInBbox(prisma: PrismaClient, b: Bbox, limit = 3000) {
+export function listStationsInBbox(prisma: PrismaClient, b: Bbox, limit = 3000, country?: string) {
   return prisma.navStation.findMany({
-    where: boxWhere(b),
+    where: { ...boxWhere(b), ...(country ? { country } : {}) },
     take: limit,
     select: { id: true, type: true, ident: true, name: true, frequency: true, lat: true, lon: true, rangeNm: true, runwayId: true },
   })

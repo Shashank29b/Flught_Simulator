@@ -12,6 +12,7 @@ const bboxStr = z.string().regex(/^-?\d+(\.\d+)?(,-?\d+(\.\d+)?){3}$/).transform
 
 export const airportsQuery = z.object({
   bbox: bboxStr.optional(),
+  country: z.string().regex(/^[A-Z]{2}$/).optional(),
   types: z.string().regex(/^[a-z_,]+$/).optional(),
   q: z.string().trim().min(2).max(60).optional(),
   near: latLon.optional(),
@@ -21,6 +22,7 @@ export const airportsQuery = z.object({
 
 export const stationsQuery = z.object({
   bbox: bboxStr.optional(),
+  country: z.string().regex(/^[A-Z]{2}$/).optional(),
   type: z.enum(['VOR', 'DVOR', 'DME', 'NDB', 'ILS_LOC', 'ILS_GS', 'MARKER_OM', 'MARKER_MM', 'MARKER_IM']).optional(),
   near: latLon.optional(),
   radiusNm: z.coerce.number().min(1).max(400).default(200),
