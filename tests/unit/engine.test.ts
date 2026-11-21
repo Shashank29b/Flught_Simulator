@@ -113,3 +113,16 @@ describe('engine touchdown', async () => {
     expect(e.lastTouchdown?.result).toBe('CRASHED')
   })
 })
+
+describe('engine INS/GPS', async () => {
+  const { navPositions } = await import('../../app/sim/engine')
+  const { air } = await import('./helpers/fixtures')
+  it('E10 after 5 min the INS has drifted but the blended position stays close', () => {
+    const e = run(createWorld({ ac: air({ hdgDeg: 90 }) }), { roll: 0, pitch: 0, throttle: 120 / 350 }, 300, 0.1)
+    const p = navPositions(e)
+    const insM = Math.hypot(p.ins.x - p.truth.x, p.ins.y - p.truth.y) * 1852
+    const blendM = Math.hypot(p.blend.x - p.truth.x, p.blend.y - p.truth.y) * 1852
+    expect(insM).toBeGreaterThan(100)
+    expect(blendM).toBeLessThan(30)
+  })
+})

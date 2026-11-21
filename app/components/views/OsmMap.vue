@@ -5,7 +5,7 @@ import type * as Leaflet from 'leaflet'
 import { toLatLon } from '../../../shared/utils/geo'
 import { NM_TO_M, deg2rad } from '../../../shared/utils/units'
 import type { AirportRow, RunwayRow, StationRow } from '../../composables/useNavData'
-import type { World } from '../../sim/engine'
+import { navPositions, type World } from '../../sim/engine'
 
 const props = defineProps<{ world: World; trail: { x: number; y: number }[] }>()
 const el = ref<HTMLDivElement | null>(null)
@@ -14,8 +14,10 @@ let L: typeof Leaflet | null = null
 const map = shallowRef<Leaflet.Map | null>(null)
 let aircraft: Leaflet.Marker | null = null
 let trailLine: Leaflet.Polyline | null = null
-type LayerKey = 'airports' | 'runways' | 'ils' | 'vor' | 'ndb' | 'markers' | 'trail'
-const LAYER_KEYS: LayerKey[] = ['airports', 'runways', 'ils', 'vor', 'ndb', 'markers', 'trail']
+let insMarker: Leaflet.CircleMarker | null = null
+let blendMarker: Leaflet.CircleMarker | null = null
+type LayerKey = 'airports' | 'runways' | 'ils' | 'vor' | 'ndb' | 'markers' | 'trail' | 'insgps'
+const LAYER_KEYS: LayerKey[] = ['airports', 'runways', 'ils', 'vor', 'ndb', 'markers', 'trail', 'insgps']
 const groups: Partial<Record<LayerKey, Leaflet.LayerGroup>> = {}
 const visible = ref<Record<LayerKey, boolean>>(loadVisibility())
 
@@ -165,6 +167,9 @@ function update(force = false): void {
   const pos = ll(ac.x, ac.y)
   aircraft.setLatLng(pos)
   aircraft.setIcon(planeIcon(ac.hdgDeg))
+  const np = navPositions(props.world)
+  insMarker?.setLatLng(ll(np.ins.x, np.ins.y))
+  blendMarker?.setLatLng(ll(np.blend.x, np.blend.y))
   trailLine?.setLatLngs([...props.trail.map(p => ll(p.x, p.y)), pos])
   if (follow.value) map.value.panTo(pos, { animate: false })
 }
@@ -178,6 +183,9 @@ onMounted(async () => {
     maxZoom: 18,
     attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors · Nav data: <a href="https://ourairports.com/data/">OurAirports</a>',
   }).addTo(map.value)
+  groups.insgps = L.layerGroup()
+  insMarker = L.circleMarker(ll(ac.x, ac.y), { radius: 6, color: '#f97316', weight: 3, fill: false }).bindTooltip('INS position (drifting)').addTo(groups.insgps)
+  blendMarker = L.circleMarker(ll(ac.x, ac.y), { radius: 4, color: '#16a34a', weight: 3, fill: false }).bindTooltip('INS + GPS blended position').addTo(groups.insgps)
   groups.trail = L.layerGroup()
   trailLine = L.polyline([], { color: '#65a30d', weight: 2 }).addTo(groups.trail)
   aircraft = L.marker(ll(ac.x, ac.y), { icon: planeIcon(ac.hdgDeg), zIndexOffset: 1000 }).addTo(map.value)
@@ -201,6 +209,7 @@ const LEGEND: { key: LayerKey | null; sym: string; color: string; label: string 
   { key: 'ils', sym: 'dash', color: '#16a34a', label: 'ILS localiser + approach course' },
   { key: 'markers', sym: 'dot', color: COLORS.MARKER_MM!, label: 'Marker beacons (OM blue, MM amber, IM grey)' },
   { key: 'trail', sym: 'line', color: '#65a30d', label: 'Your flight path' },
+  { key: 'insgps', sym: 'ring', color: '#f97316', label: 'INS position (orange) · INS+GPS (green)' },
   { key: null, sym: 'plane', color: '#facc15', label: 'Your aircraft' },
 ]
 watch(() => props.world, () => update())
@@ -228,6 +237,7 @@ watch(follow, f => f && update(true))
             <circle v-else-if="l.sym === 'dot'" cx="9" cy="6" r="3" :stroke="l.color" stroke-width="2" :fill="l.color" fill-opacity="0.25" />
             <line v-else-if="l.sym === 'dash'" x1="1" y1="6" x2="17" y2="6" :stroke="l.color" stroke-width="2" stroke-dasharray="4 3" />
             <line v-else-if="l.sym === 'bar'" x1="1" y1="6" x2="17" y2="6" :stroke="l.color" stroke-width="5" />
+            <g v-else-if="l.sym === 'ring'"><circle cx="5" cy="6" r="4" stroke="#f97316" stroke-width="2" fill="none" /><circle cx="13" cy="6" r="3" stroke="#16a34a" stroke-width="2" fill="none" /></g>
             <line v-else-if="l.sym === 'line'" x1="1" y1="6" x2="17" y2="6" :stroke="l.color" stroke-width="2" />
             <path v-else d="M9,0 L10.4,4 L17,7 L17,8.5 L10.4,7 L10,10 L12,12 L6,12 L8,10 L7.6,7 L1,8.5 L1,7 L7.6,4 Z" :fill="l.color" stroke="#000" stroke-width="0.5" />
           </svg>

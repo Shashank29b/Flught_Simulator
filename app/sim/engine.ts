@@ -1,4 +1,5 @@
-import { AIRPORT_ELEV_FT } from '../../shared/utils/units'
+import { AIRPORT_ELEV_FT, NM_TO_M } from '../../shared/utils/units'
+import { mulberry32 } from '../../shared/utils/random'
 import { REF, distNm, toLatLon, toLocal, type LatLon } from '../../shared/utils/geo'
 import type { AirportInfo, AircraftState, Atmosphere, Controls, FlightResult, NavOutputs, NavStation, Objective, RunwayInfo, Wind } from '../../shared/types'
 import { evaluateObjective, type ObjProgress } from './objectives'
@@ -7,6 +8,9 @@ import { JET, type AircraftProfile } from './aircraft'
 import { judgeTouchdown, type Touchdown } from './landing'
 import { apStep, type ApState } from '../systems/autopilot'
 import { tunedLocaliser, ilsReceive } from '../nav/ils'
+import { insInit, insStep, type InsState } from '../nav/ins'
+import { gpsFix } from '../nav/gps'
+import { blendStep } from '../nav/blend'
 import { DEFAULT_STATE, step } from './flightModel'
 import { vorReceive } from '../nav/vor'
 import { dmeReceive } from '../nav/dme'
@@ -44,6 +48,39 @@ export interface World {
   lastTouchdown: Touchdown | null
   /** Mode autopilot (MCP). The journey autopilot, when active, takes precedence. */
   ap: ApState | null
+  /** INS error state, GPS measurement error and the blended estimate of the INS error (metres). */
+  insgps: InsGps
+}
+
+export interface InsGps { ins: InsState; est: [number, number]; gps: [number, number] | null; outage: boolean; seed: number; nextFixMs: number }
+
+/** Sensor quality chosen so the drift is visible within minutes (≈ 1 km after 10 min). */
+export function newInsGps(seed = 42): InsGps {
+  return { ins: insInit({ bias: [0.004, -0.003], sigma: 0.002 }), est: [0, 0], gps: null, outage: false, seed, nextFixMs: 1000 }
+}
+
+/** True, INS, GPS and blended positions in the local frame (NM). */
+export function navPositions(w: World): { truth: { x: number; y: number }; ins: { x: number; y: number }; gps: { x: number; y: number } | null; blend: { x: number; y: number } } {
+  const g = w.insgps
+  const at = (ex: number, ey: number) => ({ x: w.ac.x + ex / NM_TO_M, y: w.ac.y + ey / NM_TO_M })
+  return {
+    truth: { x: w.ac.x, y: w.ac.y },
+    ins: at(g.ins.errX, g.ins.errY),
+    gps: g.gps ? at(g.gps[0], g.gps[1]) : null,
+    blend: at(g.ins.errX - g.est[0], g.ins.errY - g.est[1]),
+  }
+}
+
+function stepInsGps(g: InsGps, simMs: number, dt: number): InsGps {
+  const rng = mulberry32(g.seed)
+  const ins = insStep(g.ins, dt, rng)
+  let { est, gps, nextFixMs } = g
+  if (simMs >= nextFixMs) {
+    gps = gpsFix(rng, { outage: g.outage })
+    est = blendStep(est, [ins.errX, ins.errY], gps)
+    nextFixMs = simMs + 1000
+  }
+  return { ...g, ins, est, gps, nextFixMs, seed: Math.floor(rng() * 4294967296) }
 }
 
 export const DEFAULT_RADIOS: Radios = { nav1MHz: 113.5, obsDeg: 90, adfKHz: 350, baroHpa: 1013.25 }
@@ -71,6 +108,7 @@ export function createWorld(init: Partial<Omit<World, 'ac' | 'radios'>> & { ac?:
     profile: init.profile ?? JET,
     lastTouchdown: init.lastTouchdown ?? null,
     ap: init.ap ?? null,
+    insgps: init.insgps ?? newInsGps(),
   }
 }
 
@@ -106,7 +144,7 @@ export function simStep(w: World, c: Controls, dt: number): World {
     markers: markersReceive(w.stations, ac, groundElevFt),
     raFt: radioAltFt(ac, groundElevFt),
   }
-  let next: World = { ...w, ac, nav, auto, ap, groundElevFt, lastControls: controls, simMs: w.simMs + dt * 1000 }
+  let next: World = { ...w, ac, nav, auto, ap, insgps: stepInsGps(w.insgps, w.simMs + dt * 1000, dt), groundElevFt, lastControls: controls, simMs: w.simMs + dt * 1000 }
   if (!w.ac.onGround && ac.onGround) {
     const td = judgeTouchdown(ac0, ac, w.runways)
     next = { ...next, lastTouchdown: td }

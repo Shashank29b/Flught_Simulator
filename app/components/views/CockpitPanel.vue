@@ -21,6 +21,7 @@ import InfoTap from './InfoTap.vue'
 import HSI from '../instruments/HSI.vue'
 import MarkerRaPanel from '../instruments/MarkerRaPanel.vue'
 import MCP from '../instruments/MCP.vue'
+import InsGpsPanel from './InsGpsPanel.vue'
 import PFD from '../instruments/PFD.vue'
 import ND from '../instruments/ND.vue'
 import { hsiInput } from '../instruments/hsiMath'
@@ -93,6 +94,7 @@ const audio = useAudio(toRef(() => store.world.nav.markers), toRef(() => store.w
           <InfoTap id="adfRadio"><NavRadio label="ADF" :active="store.world.radios.adfKHz" :min="190" :max="1750" :fine="1" :coarse="10" :decimals="0" unit="kHz" @tune="store.setRadio({ adfKHz: $event })" /></InfoTap>
           <InfoTap id="dme"><DmeReadout :dme="store.world.nav.dme1" :gs-kt="store.world.ac.gsKt" /></InfoTap>
           <InfoTap id="airData"><AirDataPanel :ac="store.world.ac" :atmo="store.world.atmo" :baro-hpa="store.world.radios.baroHpa" @baro="store.setRadio({ baroHpa: $event })" /></InfoTap>
+          <InfoTap id="insgps"><InsGpsPanel /></InfoTap>
           <InfoTap id="vor"><VorDiagram :world="store.world" /></InfoTap>
         </div>
       </ClientOnly>

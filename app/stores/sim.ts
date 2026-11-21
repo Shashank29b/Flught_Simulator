@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { shallowRef, ref } from 'vue'
-import { REBASE_NM, createWorld, groundElevation, rebaseWorld, simStep, type Radios, type World } from '../sim/engine'
+import { REBASE_NM, newInsGps, createWorld, groundElevation, rebaseWorld, simStep, type Radios, type World } from '../sim/engine'
 import { REF, toLatLon, type LatLon } from '../../shared/utils/geo'
 import { airportsToLocal, runwaysToLocal, stationsToLocal, type NavDataRaw } from '../composables/useNavData'
 import { keysToControls, manualInput } from '../sim/input'
@@ -177,6 +177,15 @@ export const useSimStore = defineStore('sim', () => {
     if (p.engaged) autoMessage.value = ''
   }
 
+  function setGpsOutage(on: boolean): void {
+    world.value = { ...world.value, insgps: { ...world.value.insgps, outage: on, gps: on ? null : world.value.insgps.gps } }
+  }
+
+  /** Re-aligns the INS: errors back to zero (as after a ground alignment). */
+  function realignIns(): void {
+    world.value = { ...world.value, insgps: newInsGps(world.value.insgps.seed) }
+  }
+
   function engageAuto(): void {
     if (!world.value.journey) return
     const ac = world.value.ac
@@ -195,5 +204,5 @@ export const useSimStore = defineStore('sim', () => {
     autoMessage.value = ''
   }
 
-  return { world, paused, timeScale, autoMessage, keys, trail, navCenter, setNavData, setProfile, stepTimeScale, changeSpeed, setAp, startJourney, engageAuto, disengageAuto, endJourney, load, reset, tick, toggleGear, cycleFlaps, setRadio, setThrottle, setFlaps, holdKey, applyPreset }
+  return { world, paused, timeScale, autoMessage, keys, trail, navCenter, setNavData, setProfile, stepTimeScale, changeSpeed, setAp, setGpsOutage, realignIns, startJourney, engageAuto, disengageAuto, endJourney, load, reset, tick, toggleGear, cycleFlaps, setRadio, setThrottle, setFlaps, holdKey, applyPreset }
 })

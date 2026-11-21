@@ -2,6 +2,13 @@
 export interface Explanation { title: string; what: string; read: string[]; how: string; controls?: string }
 
 export const EXPLANATIONS: Record<string, Explanation> = {
+  insgps: {
+    title: 'INS and GPS',
+    what: 'Two ways the aircraft knows where it is without ground stations: the inertial navigation system (INS) and satellite navigation (GPS), and their combination.',
+    read: ['INS (orange, also an orange ring on the map): error from the true position. It grows over time.', 'GPS fix (blue): error of the latest fix (about 5 m), once per second. "0 SATS" = no GPS.', 'INS+GPS blended (green ring on the map): what modern aircraft actually use; stays close to the truth while GPS works.'],
+    how: 'An INS measures acceleration (accelerometers) and rotation (gyros) and integrates twice to get position. A tiny sensor bias integrated twice grows with time², so the INS slowly drifts. GPS is accurate but can be lost (jamming, outages). The blend (a simplified Kalman-style filter) uses GPS to estimate and remove the INS error; during a GPS outage it keeps the last estimate and the blended position starts drifting with the INS.',
+    controls: 'Simulate GPS outage / Restore GPS · Re-align INS (sets the INS error back to zero, as after an alignment on the ground). Use sim speed × to see the drift faster.',
+  },
   pfd: {
     title: 'PFD (primary flight display)',
     what: 'The glass-cockpit replacement for the six classic gauges: attitude, speed, altitude, vertical speed and heading on one screen.',

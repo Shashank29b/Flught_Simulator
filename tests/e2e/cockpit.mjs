@@ -99,6 +99,17 @@ await check('glass cockpit shows the PFD and ND, classic switches back', async (
   await page.getByRole('button', { name: 'Classic gauges' }).click()
   await page.locator('[data-info=airspeed]').waitFor({ timeout: 3000 })
 })
+await check('INS drifts, GPS keeps the blend close, outage switch works', async () => {
+  await page.getByRole('button', { name: 'Airborne 6000 ft' }).click()
+  await page.evaluate(() => { window.useNuxtApp().$pinia._s.get('sim').timeScale = 64 })
+  await page.waitForTimeout(5000)
+  const g = await page.evaluate(() => { const w = window.useNuxtApp().$pinia.state.value.sim.world.insgps; return { ins: Math.hypot(w.ins.errX, w.ins.errY), blend: Math.hypot(w.ins.errX - w.est[0], w.ins.errY - w.est[1]) } })
+  if (!(g.ins > 50 && g.blend < g.ins / 3)) throw new Error(JSON.stringify(g))
+  await page.getByRole('button', { name: 'Simulate GPS outage' }).click()
+  await page.getByText('GPS 0 SATS').waitFor({ timeout: 2000 })
+  await page.getByRole('button', { name: 'Restore GPS' }).click()
+  await page.getByRole('button', { name: 'Runway 09L (take-off)' }).click()
+})
 await check('journey VOBL → VOMM: auto take-off and climb at 64×', async () => {
   const to = page.getByPlaceholder('ICAO, IATA, name or city').nth(1)
   await to.fill('VOMM')
