@@ -7,7 +7,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 |---|---|---|---|
 | W1-T01 | Scaffold Nuxt app, modules, Vitest, lint, folders | – | DONE |
 | W1-T02 | Docker Postgres, Prisma schema, migration, health API, with-dev.sh | T01 | DONE |
-| W1-T03 | Seed data | T02, T04 | TODO |
+| W1-T03 | Seed data | T02, T04 | DONE |
 | W1-T04 | Shared units, geo, random, types | T01 | DONE |
 | W1-T05 | Flight model, wind, loop helper | T04 | TODO |
 | W1-T06 | Sim store, useSimLoop, useKeyboard | T05 | TODO |
@@ -51,6 +51,10 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W1-T03 · DONE · 2026-11-21
+- prisma/seedData.ts (pure, local NM → lat/lon) + prisma/seed.ts (idempotent transaction, bcryptjs).
+- Seed verified twice; 10 stations. Users admin@skynav.local/admin1234, student@skynav.local/student1234.
 
 ### W1-T02 · DONE · 2026-11-21
 - docker-compose db (postgres 17) + skynav_test via initdb; prisma 6 schema per §12; /api/health.
