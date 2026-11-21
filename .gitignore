@@ -18,8 +18,7 @@ logs
 .fleet
 .idea
 
-# Local env files
-.env
+# Local env files (.env itself is committed on purpose: open-source dev defaults)
 .env.*
 !.env.example
 
