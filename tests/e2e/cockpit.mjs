@@ -92,6 +92,13 @@ await check('MCP: coupled ILS (APP + AP) captures LOC and G/S and descends on th
   await page.getByRole('button', { name: /^AP ON$/ }).click()
   await page.getByRole('button', { name: 'Runway 09L (take-off)' }).click()
 })
+await check('glass cockpit shows the PFD and ND, classic switches back', async () => {
+  await page.getByRole('button', { name: 'Glass (PFD + ND)' }).click()
+  await page.locator('[data-info=pfd] canvas').waitFor({ timeout: 3000 })
+  await page.locator('[data-info=nd] canvas').waitFor({ timeout: 3000 })
+  await page.getByRole('button', { name: 'Classic gauges' }).click()
+  await page.locator('[data-info=airspeed]').waitFor({ timeout: 3000 })
+})
 await check('journey VOBL → VOMM: auto take-off and climb at 64×', async () => {
   const to = page.getByPlaceholder('ICAO, IATA, name or city').nth(1)
   await to.fill('VOMM')

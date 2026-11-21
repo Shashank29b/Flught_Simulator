@@ -21,11 +21,23 @@ import InfoTap from './InfoTap.vue'
 import HSI from '../instruments/HSI.vue'
 import MarkerRaPanel from '../instruments/MarkerRaPanel.vue'
 import MCP from '../instruments/MCP.vue'
+import PFD from '../instruments/PFD.vue'
+import ND from '../instruments/ND.vue'
 import { hsiInput } from '../instruments/hsiMath'
 import { useAudio } from '../../composables/useAudio'
 
 const store = useSimStore()
 const mapTab = ref<'osm' | 'nav'>('osm')
+const layout = ref<'classic' | 'glass'>('classic')
+if (import.meta.client) {
+  try { if (localStorage.getItem('skynav.layout') === 'glass') layout.value = 'glass' }
+  catch { /* storage unavailable */ }
+}
+function setLayout(l: 'classic' | 'glass'): void {
+  layout.value = l
+  try { localStorage.setItem('skynav.layout', l) }
+  catch { /* storage unavailable */ }
+}
 const hsi = computed(() => {
   const w = store.world
   return hsiInput(w.stations, w.runways, w.radios.nav1MHz, w.radios.obsDeg, w.ac, w.nav.vor1, w.nav.ils)
@@ -51,7 +63,18 @@ const audio = useAudio(toRef(() => store.world.nav.markers), toRef(() => store.w
     </div>
     <div class="flex min-h-0 flex-col gap-2 overflow-y-auto">
       <ClientOnly>
-        <div class="relative grid grid-cols-5 gap-2 rounded border border-slate-800 bg-slate-950 p-2">
+        <div class="flex items-center gap-1 text-xs">
+          <span class="text-slate-400">Instruments:</span>
+          <button class="rounded px-2 py-0.5" :class="layout === 'classic' ? 'bg-sky-700' : 'bg-slate-800 hover:bg-slate-700'" @click="setLayout('classic')">Classic gauges</button>
+          <button class="rounded px-2 py-0.5" :class="layout === 'glass' ? 'bg-sky-700' : 'bg-slate-800 hover:bg-slate-700'" @click="setLayout('glass')">Glass (PFD + ND)</button>
+        </div>
+        <div v-if="layout === 'glass'" class="relative grid grid-cols-[1fr_1fr_auto] gap-2 rounded border border-slate-800 bg-slate-950 p-2">
+          <button class="absolute right-2 top-1 z-10 rounded bg-slate-800 px-2 py-0.5 text-[11px] hover:bg-slate-700" @click="audio.toggle()">{{ audio.enabled.value ? '🔊 Sound on' : '🔇 Sound off' }}</button>
+          <InfoTap id="pfd"><PFD :world="store.world" /></InfoTap>
+          <InfoTap id="nd"><ND :world="store.world" :trail="store.trail" /></InfoTap>
+          <InfoTap id="markers" class="w-28"><MarkerRaPanel :markers="store.world.nav.markers" :ra-ft="store.world.nav.raFt" :callout="audio.callout.value" /></InfoTap>
+        </div>
+        <div v-else class="relative grid grid-cols-5 gap-2 rounded border border-slate-800 bg-slate-950 p-2">
           <button class="absolute right-2 top-1 z-10 rounded bg-slate-800 px-2 py-0.5 text-[11px] hover:bg-slate-700" :title="audio.enabled.value ? 'Mute marker tones and callouts' : 'Enable marker tones and altitude callouts'" @click="audio.toggle()">{{ audio.enabled.value ? '🔊 Sound on' : '🔇 Sound off' }}</button>
           <InfoTap id="airspeed"><AirspeedIndicator :ias-kt="store.world.ac.iasKt" :max-kt="store.world.profile.gaugeMaxKt" :stall-kt="store.world.profile.stallCleanKt" :flap-stall-kt="store.world.profile.stallCleanKt * 0.7" :vne-kt="store.world.profile.maxIasKt" /></InfoTap>
           <InfoTap id="attitude"><AttitudeIndicator :pitch-deg="store.world.ac.pitchDeg" :bank-deg="store.world.ac.bankDeg" /></InfoTap>

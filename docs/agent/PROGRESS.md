@@ -37,7 +37,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | P1 | P1-CHK | Checkpoint: ILS landing → score → replay works (lab minimum) | P1 | DONE |
 | P2 | W4-T26 | Autopilot modes HDG/ALT/VS/NAV/APP (closed-loop tests; reuse autoflight inner loops) | P1-CHK | DONE |
 | P2 | W4-T27 | MCP panel + AP wiring (classic/glass toggle after P3) | T26 | DONE |
-| P3 | W4-T23 | PFD | P2 | TODO |
+| P3 | W4-T23 | PFD | P2 | DONE |
 | P3 | W4-T24 | ND | T23 | TODO |
 | P3 | P3-CHK | Checkpoint: coupled ILS on the glass cockpit | P2, P3 | TODO |
 | P4 | W5-T28 | INS model (drift) | P3-CHK | TODO |
@@ -56,6 +56,10 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W4-T23 · DONE · 2026-11-21
+- PFD.vue + pfdDraw.ts (attitude, speed tape with stall band + A/THR bug, baro altitude tape + ALT bug, VSI, heading tape + HDG bug, ILS diamonds, RA, FMA).
+- Note: contract said tapeTicks(3450,100,400) = 3000…3900; correct range is 3100…3800 (test uses that).
 
 ### W4-T27 · DONE · 2026-11-21
 - MCP.vue: CRS/HDG/SPD/ALT/V-S windows, AP, A/THR, HDG/NAV/APP/ALT/V-S buttons (green active, cyan armed), FMA strip; store.setAp; manual stick input disconnects.

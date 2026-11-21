@@ -2,6 +2,18 @@
 export interface Explanation { title: string; what: string; read: string[]; how: string; controls?: string }
 
 export const EXPLANATIONS: Record<string, Explanation> = {
+  pfd: {
+    title: 'PFD (primary flight display)',
+    what: 'The glass-cockpit replacement for the six classic gauges: attitude, speed, altitude, vertical speed and heading on one screen.',
+    read: ['Centre: attitude (sky/ground, pitch ladder, bank pointer); yellow symbol = your aircraft.', 'Left tape: indicated airspeed; red band = stall region (depends on flaps); magenta bug = A/THR speed.', 'Right tape: altitude with the baro setting (QNH/STD shown below); magenta bug = autopilot altitude. Far right: vertical speed.', 'Bottom: heading tape with the autopilot heading bug. Magenta diamonds: ILS localiser (bottom) and glide slope (right).', 'Top strip (FMA): thrust | lateral | vertical autopilot modes; cyan = armed. RA = radio altitude below 2500 ft.'],
+    how: 'Each tape scrolls behind a fixed readout box, so trends are easy to see. It is driven by the same air data (ISA), attitude and nav receivers as the classic gauges.',
+  },
+  nd: {
+    title: 'ND (navigation display)',
+    what: 'A heading-up moving map in front of the aircraft.',
+    read: ['Arc with heading marks; your aircraft at the bottom centre.', 'Range rings at half and full range; choose 10–160 NM bottom right.', 'Cyan circles: airports; cyan hexagons: VORs; purple circles: NDBs; white lines: runways.', 'Magenta dashed line: the course set on the tuned VOR; green line: journey destination; green trail: where you have been.', 'Top left: groundspeed, TAS and wind.'],
+    how: 'Positions come from the same area data as the map, rotated so your heading points up, like a real airliner ND in ARC/MAP mode.',
+  },
   mcp: {
     title: 'Autopilot: mode control panel (MCP)',
     what: 'Selects what the autopilot holds: a heading, a VOR course or the ILS laterally; an altitude, a vertical speed or the glide slope vertically; and optionally the speed (A/THR).',
