@@ -31,7 +31,7 @@ The repository includes a ready-to-use `.env` for local development, so nothing 
 | `NUXT_APP_SECRET` | encrypts the login session cookie |
 
 > **Deploying publicly?** The committed `NUXT_APP_SECRET` is public, so generate your own for any real server:
-> `sed -i "s|^NUXT_APP_SECRET=.*|NUXT_APP_SECRET=$(openssl rand -base64 32 \| tr -d '/+=')|" .env`
+> `sed -i "s|^NUXT_APP_SECRET=.*|NUXT_APP_SECRET=$(openssl rand -base64 32 | tr -d '/+=')|" .env`
 > Also change the database password, both in `docker-compose.yml` and in `DATABASE_URL`.
 
 ## 4. Start PostgreSQL
