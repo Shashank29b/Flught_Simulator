@@ -47,6 +47,17 @@ describe('automatic journey', () => {
   })
 })
 
+describe('long-haul journey', () => {
+  it('JY3 Bengaluru (VOBL 09L) → Paris CDG (LFPG 08L), 4300 NM, arrives with fuel left', () => {
+    const cdg: JourneyEnd = { ident: 'LFPG', name: 'Paris CDG', elevationFt: 392, runway: { ident: '08L', headingDeg: 85.3, lat: 48.99570083618164, lon: 2.552740097045898, lengthM: 4215 } }
+    const r = fly({ from: VOBL, to: cdg, cruiseAltFt: 35000 }, 16 * 3600, 0.25)
+    expect(r.phases.at(-1)).toBe('ARRIVED')
+    expect(r.world.ac.fuelPct).toBeGreaterThan(20)
+    expect(Math.abs(r.touchdown!.xteM)).toBeLessThan(30)
+    expect(r.seconds / 3600).toBeLessThan(11)
+  })
+})
+
 describe('journey cruise speed override', () => {
   it('uses cruiseIasKt in the cruise phase', async () => {
     const { autoflightStep } = await import('../../app/sim/autoflight')

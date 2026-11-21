@@ -15,6 +15,8 @@ export interface AircraftProfile {
   ifNm: number
   ifHeightFt: number
   minRunwayM: number
+  /** Hours of fuel at full throttle (burn scales with throttle). */
+  enduranceHrs: number
 }
 
 export const JET: AircraftProfile = {
@@ -22,7 +24,7 @@ export const JET: AircraftProfile = {
   maxIasKt: 350, accelKtPerSec: 5, decelKtPerSec: 4, rotateKt: 145, stallCleanKt: 125, gaugeMaxKt: 400,
   climbFpm: 2500, descentFpm: 2000,
   speeds: { climb: 250, cruise: 280, descent: 250, approach: 180, final: 140, flare: 135 },
-  ifNm: 15, ifHeightFt: 4000, minRunwayM: 1800,
+  ifNm: 15, ifHeightFt: 4000, minRunwayM: 1800, enduranceHrs: 14,
 }
 
 export const TRAINER: AircraftProfile = {
@@ -30,10 +32,15 @@ export const TRAINER: AircraftProfile = {
   maxIasKt: 140, accelKtPerSec: 3, decelKtPerSec: 3, rotateKt: 65, stallCleanKt: 55, gaugeMaxKt: 200,
   climbFpm: 1000, descentFpm: 1000,
   speeds: { climb: 110, cruise: 125, descent: 120, approach: 100, final: 85, flare: 75 },
-  ifNm: 12, ifHeightFt: 3000, minRunwayM: 600,
+  ifNm: 12, ifHeightFt: 3000, minRunwayM: 600, enduranceHrs: 6,
 }
 
 export const PROFILES = { jet: JET, trainer: TRAINER } as const
+
+/** Hours of flight left at a given throttle. */
+export function hoursLeft(p: AircraftProfile, fuelPct: number, throttle: number): number {
+  return throttle <= 0 ? Infinity : (fuelPct / 100) * p.enduranceHrs / throttle
+}
 
 export function stallKt(p: AircraftProfile, flapsDeg: number): number {
   return p.stallCleanKt * (1 - 0.3 * Math.min(1, flapsDeg / 30))

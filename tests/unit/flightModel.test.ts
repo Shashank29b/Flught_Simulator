@@ -68,6 +68,19 @@ describe('flight model', () => {
     const g = runFor({ ...DEFAULT_STATE, iasKt: 20, throttle: 20 / 140 }, { roll: 0, pitch: 0, throttle: 20 / 140, yaw: -1 }, null, 1)
     expect(g.hdgDeg).toBeLessThan(DEFAULT_STATE.hdgDeg - 15)
   })
+  it('F11 fuel: the jet burns 100 % / 14 h at full throttle (≈ 5.7 % per hour at 80 %)', async () => {
+    const { JET } = await import('../../app/sim/aircraft')
+    let st = { ...AIR, iasKt: 280, throttle: 0.8, altFt: 35000 }
+    for (let i = 0; i < 3600; i++) st = step(st, hold(0.8), null, 1, undefined, AIRPORT_ELEV_FT, JET)
+    expect(100 - st.fuelPct).toBeCloseTo((0.8 * 100) / 14, 1)
+  })
+  it('F12 no thrust in the air: speed stops at the stall limit and the aircraft glides down (never freezes)', () => {
+    let st = { ...AIR, iasKt: 120, throttle: 0, fuelPct: 0 }
+    for (let i = 0; i < 60 * 60; i++) st = step(st, hold(0), null, 1 / 60)
+    expect(st.iasKt).toBeGreaterThan(45)
+    expect(st.vsFpm).toBeLessThan(-300)
+    expect(st.altFt).toBeLessThan(AIR.altFt - 300)
+  })
   it('takes off at full throttle with back pressure', () => {
     let s = runFor(DEFAULT_STATE, hold(1), null, 25)
     s = runFor(s, { roll: 0, pitch: 1, throttle: 1 }, null, 2)

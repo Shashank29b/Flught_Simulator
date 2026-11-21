@@ -50,6 +50,8 @@ export interface World {
   ap: ApState | null
   /** INS error state, GPS measurement error and the blended estimate of the INS error (metres). */
   insgps: InsGps
+  /** Refill the tanks automatically when fuel drops below 15 % (default on). */
+  autoRefuel: boolean
 }
 
 export interface InsGps { ins: InsState; est: [number, number]; gps: [number, number] | null; outage: boolean; seed: number; nextFixMs: number }
@@ -109,6 +111,7 @@ export function createWorld(init: Partial<Omit<World, 'ac' | 'radios'>> & { ac?:
     lastTouchdown: init.lastTouchdown ?? null,
     ap: init.ap ?? null,
     insgps: init.insgps ?? newInsGps(),
+    autoRefuel: init.autoRefuel ?? true,
   }
 }
 
@@ -133,7 +136,8 @@ export function simStep(w: World, c: Controls, dt: number): World {
     ap = o.ap
     controls = { roll: o.roll, pitch: o.pitch, yaw: c.yaw ?? 0, throttle: o.throttle ?? c.throttle }
   }
-  const ac = step(ac0, controls, w.wind, dt, w.atmo, groundElevFt, w.profile)
+  const stepped = step(ac0, controls, w.wind, dt, w.atmo, groundElevFt, w.profile)
+  const ac = w.autoRefuel && stepped.fuelPct < 15 ? { ...stepped, fuelPct: 100 } : stepped
   const r = w.radios
   const nav: Partial<NavOutputs> = {
     ...w.nav,

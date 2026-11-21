@@ -35,6 +35,10 @@ const distance = computed(() => (plan.value ? journeyDistanceNm(plan.value) : 0)
 const problem = computed(() => {
   if (!from.value || !to.value) return 'pick both airports'
   if (from.value.airport.ident === to.value.airport.ident) return 'choose a different destination'
+  const prof = store.world.profile
+  const hours = distance.value / (prof.id === 'jet' ? 430 : 125) + 0.5
+  const available = (store.world.ac.fuelPct / 100) * prof.enduranceHrs / (prof.speeds.cruise / prof.maxIasKt)
+  if (!store.world.autoRefuel && hours > available) return `not enough fuel: about ${hours.toFixed(1)} h needed, ${available.toFixed(1)} h available (Refuel, or pick a closer airport)`
   const min = store.world.profile.minRunwayM
   for (const [label, p] of [['departure', from.value], ['destination', to.value]] as const) {
     if (p.runway.lengthM < min) return `${label} runway ${p.runway.ident} is ${p.runway.lengthM} m; the ${store.world.profile.id} needs ${min} m`

@@ -139,7 +139,7 @@ export const EXPLANATIONS: Record<string, Explanation> = {
     what: 'Everything you use to fly: stick, rudder, throttle, flaps, gear and start positions.',
     read: ['Stick box: blue dot = stick position (yours or the autopilot\'s); orange bar = rudder.', 'Throttle %: sets the target airspeed; the status line shows IAS, altitude, heading, pitch and bank.'],
     how: 'Take-off: full throttle, wait for the rotate speed, then pull back (S). Land by flying a 3° approach and reducing power just before touchdown.',
-    controls: 'W/S stick fwd/back · A/D roll · Q/E yaw · ↑/↓ or +/− throttle · G gear · F flaps · P pause · R reset.',
+    controls: 'W/S stick fwd/back · A/D roll · Q/E yaw · ↑/↓ or +/− throttle · G gear · F flaps · P pause · R reset · ⛽ Refuel. FUEL shows the time left at the current throttle (jet ≈ 14 h at full power, trainer ≈ 6 h). Below the stall speed the nose drops and the aircraft glides down (STALL).',
   },
   journey: {
     title: 'Journey (automatic flight)',

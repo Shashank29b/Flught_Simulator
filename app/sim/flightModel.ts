@@ -2,7 +2,7 @@ import { AIRPORT_ELEV_FT, G, KT_TO_FPM, KT_TO_MPS, clamp, deg2rad, rad2deg, wrap
 import type { AircraftState, Atmosphere, Controls, Wind } from '#shared/types'
 import { STANDARD_ATMOSPHERE, casToTas } from '#shared/utils/isa'
 import { applyWind } from './wind'
-import { TRAINER, type AircraftProfile } from './aircraft'
+import { TRAINER, stallKt, type AircraftProfile } from './aircraft'
 
 export const ROTATE_KT = 65
 
@@ -18,7 +18,13 @@ export function step(s: AircraftState, c: Controls, wind: Wind | null, dt: numbe
   let pitch = clamp(s.pitchDeg + c.pitch * 5 * dt, -15, 20)
 
   const target = profile.maxIasKt * throttle
-  const ias = clamp(s.iasKt + clamp(target - s.iasKt, -profile.decelKtPerSec * dt, profile.accelKtPerSec * dt), 0, profile.maxIasKt + 20)
+  let ias = clamp(s.iasKt + clamp(target - s.iasKt, -profile.decelKtPerSec * dt, profile.accelKtPerSec * dt), 0, profile.maxIasKt + 20)
+  // Stall: airborne below 90 % of the stall speed the nose drops and the aircraft glides down at that speed
+  const minAirborne = 0.9 * stallKt(profile, s.flapsDeg)
+  if (!s.onGround && ias < minAirborne) {
+    ias = minAirborne
+    pitch = Math.max(-12, Math.min(pitch, s.pitchDeg) - 4 * dt)
+  }
 
   let onGround = s.onGround
   if (onGround) {
@@ -70,7 +76,7 @@ export function step(s: AircraftState, c: Controls, wind: Wind | null, dt: numbe
     gsKt: g.gsKt,
     trackDeg: g.trackDeg,
     throttle,
-    fuelPct: Math.max(0, s.fuelPct - 0.01 * throttle * dt),
+    fuelPct: Math.max(0, s.fuelPct - (100 / (profile.enduranceHrs * 3600)) * throttle * dt),
     onGround,
   }
 }

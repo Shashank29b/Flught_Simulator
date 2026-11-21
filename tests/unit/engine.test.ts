@@ -126,3 +126,13 @@ describe('engine INS/GPS', async () => {
     expect(blendM).toBeLessThan(30)
   })
 })
+
+describe('auto-refuel', async () => {
+  const { air } = await import('./helpers/fixtures')
+  it('refills to 100 % below 15 % when on, and not when off', () => {
+    const on = simStep(createWorld({ ac: air({ fuelPct: 14.99 }) }), { roll: 0, pitch: 0, throttle: 0.5 }, 1)
+    expect(on.ac.fuelPct).toBe(100)
+    const off = simStep(createWorld({ ac: air({ fuelPct: 14.99 }), autoRefuel: false }), { roll: 0, pitch: 0, throttle: 0.5 }, 1)
+    expect(off.ac.fuelPct).toBeLessThan(15)
+  })
+})

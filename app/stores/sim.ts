@@ -177,6 +177,14 @@ export const useSimStore = defineStore('sim', () => {
     if (p.engaged) autoMessage.value = ''
   }
 
+  function toggleAutoRefuel(): void {
+    world.value = { ...world.value, autoRefuel: !world.value.autoRefuel }
+  }
+
+  function refuel(): void {
+    world.value = { ...world.value, ac: { ...world.value.ac, fuelPct: 100 } }
+  }
+
   function setGpsOutage(on: boolean): void {
     world.value = { ...world.value, insgps: { ...world.value.insgps, outage: on, gps: on ? null : world.value.insgps.gps } }
   }
@@ -204,5 +212,5 @@ export const useSimStore = defineStore('sim', () => {
     autoMessage.value = ''
   }
 
-  return { world, paused, timeScale, autoMessage, keys, trail, navCenter, setNavData, setProfile, stepTimeScale, changeSpeed, setAp, setGpsOutage, realignIns, startJourney, engageAuto, disengageAuto, endJourney, load, reset, tick, toggleGear, cycleFlaps, setRadio, setThrottle, setFlaps, holdKey, applyPreset }
+  return { world, paused, timeScale, autoMessage, keys, trail, navCenter, setNavData, setProfile, stepTimeScale, changeSpeed, setAp, setGpsOutage, realignIns, refuel, toggleAutoRefuel, startJourney, engageAuto, disengageAuto, endJourney, load, reset, tick, toggleGear, cycleFlaps, setRadio, setThrottle, setFlaps, holdKey, applyPreset }
 })
