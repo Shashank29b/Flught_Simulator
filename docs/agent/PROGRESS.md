@@ -36,7 +36,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | P1 | W3-T22 | Replay page (track, altitude/LOC/GS graphs, score) | T21 | DONE |
 | P1 | P1-CHK | Checkpoint: ILS landing → score → replay works (lab minimum) | P1 | DONE |
 | P2 | W4-T26 | Autopilot modes HDG/ALT/VS/NAV/APP (closed-loop tests; reuse autoflight inner loops) | P1-CHK | DONE |
-| P2 | W4-T27 | MCP panel + AP wiring (classic/glass toggle after P3) | T26 | TODO |
+| P2 | W4-T27 | MCP panel + AP wiring (classic/glass toggle after P3) | T26 | DONE |
 | P3 | W4-T23 | PFD | P2 | TODO |
 | P3 | W4-T24 | ND | T23 | TODO |
 | P3 | P3-CHK | Checkpoint: coupled ILS on the glass cockpit | P2, P3 | TODO |
@@ -56,6 +56,11 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W4-T27 · DONE · 2026-11-21
+- MCP.vue: CRS/HDG/SPD/ALT/V-S windows, AP, A/THR, HDG/NAV/APP/ALT/V-S buttons (green active, cyan armed), FMA strip; store.setAp; manual stick input disconnects.
+- e2e: coupled ILS from the 8 NM final captures LOC + G/S and descends.
+- Classic/glass toggle comes with P3.
 
 ### W4-T26 · DONE · 2026-11-21
 - app/systems/autopilot.ts apStep/apFromAircraft/fma; engine runs it when world.ap.engaged (journey autopilot takes precedence).
