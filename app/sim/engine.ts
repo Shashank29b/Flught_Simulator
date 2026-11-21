@@ -1,16 +1,17 @@
-import type { AircraftState, Controls, FlightResult, NavOutputs, NavStation, Objective, RunwayInfo, Wind } from '../../shared/types'
+import type { AircraftState, Atmosphere, Controls, FlightResult, NavOutputs, NavStation, Objective, RunwayInfo, Wind } from '../../shared/types'
 import { evaluateObjective, type ObjProgress } from './objectives'
 import { DEFAULT_STATE, step } from './flightModel'
 import { vorReceive } from '../nav/vor'
 import { dmeReceive } from '../nav/dme'
 import { adfReceive } from '../nav/adf'
 
-export interface Radios { nav1MHz: number; obsDeg: number; adfKHz: number }
+export interface Radios { nav1MHz: number; obsDeg: number; adfKHz: number; baroHpa: number }
 
 export interface World {
   ac: AircraftState
   simMs: number
   wind: Wind | null
+  atmo: Atmosphere
   stations: NavStation[]
   runways: RunwayInfo[]
   radios: Radios
@@ -21,13 +22,14 @@ export interface World {
   fmsComplete: boolean
 }
 
-export const DEFAULT_RADIOS: Radios = { nav1MHz: 113.5, obsDeg: 90, adfKHz: 350 }
+export const DEFAULT_RADIOS: Radios = { nav1MHz: 113.5, obsDeg: 90, adfKHz: 350, baroHpa: 1013.25 }
 
-export function createWorld(init: Partial<Omit<World, 'ac'>> & { ac?: Partial<AircraftState> } = {}): World {
+export function createWorld(init: Partial<Omit<World, 'ac' | 'radios'>> & { ac?: Partial<AircraftState>; radios?: Partial<Radios> } = {}): World {
   return {
     ac: { ...DEFAULT_STATE, ...(init.ac ?? {}) },
     simMs: init.simMs ?? 0,
     wind: init.wind ?? null,
+    atmo: init.atmo ?? { qnhHpa: 1013.25, isaDevC: 0 },
     stations: init.stations ?? [],
     runways: init.runways ?? [],
     radios: { ...DEFAULT_RADIOS, ...(init.radios ?? {}) },
@@ -42,7 +44,7 @@ export function createWorld(init: Partial<Omit<World, 'ac'>> & { ac?: Partial<Ai
 /** Advances the whole simulated world by dt seconds. Pure. */
 export function simStep(w: World, c: Controls, dt: number): World {
   if (w.done) return w
-  const ac = step(w.ac, c, w.wind, dt)
+  const ac = step(w.ac, c, w.wind, dt, w.atmo)
   const r = w.radios
   const nav: Partial<NavOutputs> = {
     ...w.nav,

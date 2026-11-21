@@ -52,6 +52,12 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 ## Handoff log
 Newest at the top. At most 5 lines per task.
 
+### ISA-ATMO (extra, user request) · DONE · 2026-11-21
+- shared/utils/isa.ts: ICAO ISA (troposphere + stratosphere), QNH + ISA deviation, CAS↔TAS (compressible), Mach, indicated/pressure/density altitude; 15 tests.
+- Flight model moves with TAS; IAS for limits; altimeter shows indicated altitude with the baro setting; AirDataPanel (IAS/TAS/Mach/OAT/σ/PA/DA, baro ±/STD/QNH).
+- World.atmo, radios.baroHpa, ScenarioConfig.atmosphere; seed: NDB homing ISA+15/QNH 1003, VOR to VOR ISA−10/QNH 1022.
+- CONTRACTS §1b added; §3 F1–F4 updated to TAS values; §8 pitchCmd uses TAS.
+
 ### W2-CHK · DONE · 2026-11-21
 - Unit 63, int 9, smoke all green.
 - Human visual check pending (Week 2 list in TESTING.md): register/login, scenarios, NDB homing with the ADF/RMI, wind drift, flight log.

@@ -20,6 +20,8 @@ import NavRadio from '../../components/radios/NavRadio.vue'
 import RMI from '../../components/instruments/RMI.vue'
 import AdfIndicator from '../../components/instruments/AdfIndicator.vue'
 import VorDiagram from '../../components/views/VorDiagram.vue'
+import AirDataPanel from '../../components/instruments/AirDataPanel.vue'
+import { indicatedAltitudeFt } from '../../../shared/utils/isa'
 
 definePageMeta({ layout: 'cockpit', middleware: 'auth' })
 
@@ -62,7 +64,7 @@ useSimLoop()
         <div class="grid grid-cols-3 gap-2 rounded border border-slate-800 bg-slate-950 p-2">
           <AirspeedIndicator :ias-kt="store.world.ac.iasKt" />
           <AttitudeIndicator :pitch-deg="store.world.ac.pitchDeg" :bank-deg="store.world.ac.bankDeg" />
-          <Altimeter :alt-ft="store.world.ac.altFt" />
+          <Altimeter :alt-ft="indicatedAltitudeFt(store.world.ac.altFt, store.world.radios.baroHpa, store.world.atmo)" />
           <VerticalSpeed :vs-fpm="store.world.ac.vsFpm" />
           <HeadingIndicator :hdg-deg="store.world.ac.hdgDeg" />
           <CDI :vor="store.world.nav.vor1" :obs-deg="store.world.radios.obsDeg" @obs="store.setRadio({ obsDeg: $event })" />
@@ -72,6 +74,7 @@ useSimLoop()
         <div class="grid grid-cols-2 gap-2">
           <NavRadio :active="store.world.radios.nav1MHz" @tune="store.setRadio({ nav1MHz: $event })" />
           <DmeReadout :dme="store.world.nav.dme1" :gs-kt="store.world.ac.gsKt" />
+          <AirDataPanel :ac="store.world.ac" :atmo="store.world.atmo" :baro-hpa="store.world.radios.baroHpa" @baro="store.setRadio({ baroHpa: $event })" />
           <VorDiagram :world="store.world" />
           <NavRadio label="ADF" :active="store.world.radios.adfKHz" :min="190" :max="1750" :fine="1" :coarse="10" :decimals="0" unit="kHz" @tune="store.setRadio({ adfKHz: $event })" />
         </div>

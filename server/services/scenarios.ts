@@ -14,5 +14,6 @@ export async function getScenario(prisma: PrismaClient, id: number): Promise<Sce
     id: s.id, title: s.title, description: s.description, week: s.week,
     startState: c.startState ?? {}, target: c.target, wind: c.wind ?? null,
     failures: c.failures ?? [], traffic: c.traffic ?? [], radios: c.radios ?? {},
+    atmosphere: c.atmosphere ?? { qnhHpa: 1013.25, isaDevC: 0 },
   }
 }

@@ -12,26 +12,28 @@ function runFor(s: AircraftState, c: Controls, wind: Wind | null, seconds: numbe
 }
 
 describe('flight model', () => {
-  it('F1 straight and level 60 s at 120 kt', () => {
+  it('F1 straight and level 60 s at 120 kt IAS (TAS 127.07 kt at 3900 ft ISA)', () => {
     const e = runFor(AIR, hold(120 / 140), null, 60)
-    expect(e.x - AIR.x).toBeCloseTo(2, 1)
-    expect(Math.abs(e.x - AIR.x - 2)).toBeLessThan(0.01)
+    expect(Math.abs(e.x - AIR.x - 127.066 / 60)).toBeLessThan(0.01)
+    expect(e.tasKt).toBeCloseTo(127.066, 2)
     expect(Math.abs(e.y - AIR.y)).toBeLessThan(0.01)
     expect(Math.abs(e.altFt - AIR.altFt)).toBeLessThan(1)
   })
   it('F2 standard-rate turn', () => {
     const s = { ...AIR, iasKt: 100, throttle: 100 / 140, bankDeg: 15, hdgDeg: 0 }
     const e = runFor(s, hold(100 / 140), null, 1)
-    expect(Math.abs(e.hdgDeg - 2.93)).toBeLessThan(0.05)
+    expect(Math.abs(e.hdgDeg - 2.763)).toBeLessThan(0.05) // TAS 105.9 kt at 3900 ft
+    const sl = runFor({ ...s, altFt: 1000 }, hold(100 / 140), null, 1)
+    expect(sl.hdgDeg).toBeGreaterThan(e.hdgDeg) // lower altitude → lower TAS → faster turn
   })
   it('F3 climb rate from pitch', () => {
     const e = step({ ...AIR, pitchDeg: 5 }, hold(120 / 140), null, 1 / 60)
-    expect(Math.abs(e.vsFpm - 1059)).toBeLessThan(5)
+    expect(Math.abs(e.vsFpm - 1121.5)).toBeLessThan(5) // 127.07 kt TAS × sin 5°
   })
   it('F4 wind triangle', () => {
     const e = step({ ...AIR, hdgDeg: 0, iasKt: 100 }, hold(100 / 140), { fromDeg: 270, speedKt: 20 }, 1 / 60)
-    expect(Math.abs(e.trackDeg - 11.31)).toBeLessThan(0.1)
-    expect(Math.abs(e.gsKt - 101.98)).toBeLessThan(0.1)
+    expect(Math.abs(e.trackDeg - 10.694)).toBeLessThan(0.1) // TAS 105.91 kt
+    expect(Math.abs(e.gsKt - 107.78)).toBeLessThan(0.1)
   })
   it('F5 no rotation below 65 kt', () => {
     const s = { ...DEFAULT_STATE, iasKt: 50, throttle: 50 / 140 }
@@ -52,6 +54,12 @@ describe('flight model', () => {
     const e = runFor(s, hold(100 / 140), null, 2)
     expect(e.onGround).toBe(true)
     expect(e.altFt).toBe(900)
+  })
+  it('F9 hot day (ISA+20) gives a higher TAS for the same IAS', () => {
+    const std = step(AIR, hold(120 / 140), null, 1 / 60)
+    const hot = step(AIR, hold(120 / 140), null, 1 / 60, { qnhHpa: 1013.25, isaDevC: 20 })
+    expect(hot.tasKt).toBeGreaterThan(std.tasKt + 3)
+    expect(hot.mach).toBeGreaterThan(0)
   })
   it('takes off at full throttle with back pressure', () => {
     let s = runFor(DEFAULT_STATE, hold(1), null, 25)

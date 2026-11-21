@@ -3,7 +3,9 @@ export interface AircraftState {
   y: number
   altFt: number
   hdgDeg: number
-  iasKt: number
+  iasKt: number              // indicated (= calibrated) airspeed
+  tasKt: number              // true airspeed from ISA (CONTRACTS §1b)
+  mach: number
   pitchDeg: number
   bankDeg: number
   vsFpm: number
@@ -18,6 +20,7 @@ export interface AircraftState {
 
 export interface Controls { roll: number; pitch: number; throttle: number }
 export interface Wind { fromDeg: number; speedKt: number }
+export interface Atmosphere { qnhHpa: number; isaDevC: number }
 
 export type StationType =
   | 'VOR' | 'DVOR' | 'DME' | 'NDB' | 'ILS_LOC' | 'ILS_GS' | 'MARKER_OM' | 'MARKER_MM' | 'MARKER_IM'
@@ -77,7 +80,8 @@ export interface ScenarioConfig {
   wind: Wind | null
   failures: { type: FailureType; atSec: number }[]
   traffic: Intruder[]
-  radios: { nav1MHz?: number; adfKHz?: number; obsDeg?: number }
+  radios: { nav1MHz?: number; adfKHz?: number; obsDeg?: number; baroHpa?: number }
+  atmosphere?: Atmosphere
 }
 
 export interface ScenarioDTO extends ScenarioConfig {

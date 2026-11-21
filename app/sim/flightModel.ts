@@ -1,16 +1,17 @@
 import { AIRPORT_ELEV_FT, G, KT_TO_FPM, KT_TO_MPS, clamp, deg2rad, rad2deg, wrap360 } from '../../shared/utils/units'
-import type { AircraftState, Controls, Wind } from '../../shared/types'
+import type { AircraftState, Atmosphere, Controls, Wind } from '../../shared/types'
+import { STANDARD_ATMOSPHERE, casToTas } from '../../shared/utils/isa'
 import { applyWind } from './wind'
 
 export const ROTATE_KT = 65
 
 export const DEFAULT_STATE: AircraftState = {
-  x: -0.2, y: 0, altFt: AIRPORT_ELEV_FT, hdgDeg: 90, iasKt: 0, pitchDeg: 0, bankDeg: 0, vsFpm: 0,
+  x: -0.2, y: 0, altFt: AIRPORT_ELEV_FT, hdgDeg: 90, iasKt: 0, tasKt: 0, mach: 0, pitchDeg: 0, bankDeg: 0, vsFpm: 0,
   gsKt: 0, trackDeg: 90, throttle: 0, fuelPct: 100, gearDown: true, flapsDeg: 0, onGround: true,
 }
 
-/** One fixed step of the point-mass model (CONTRACTS §3). Pure. */
-export function step(s: AircraftState, c: Controls, wind: Wind | null, dt: number): AircraftState {
+/** One fixed step of the point-mass model (CONTRACTS §3). IAS is flown; TAS (ISA) moves the aircraft. Pure. */
+export function step(s: AircraftState, c: Controls, wind: Wind | null, dt: number, atmo: Atmosphere = STANDARD_ATMOSPHERE): AircraftState {
   const throttle = s.fuelPct <= 0 ? 0 : clamp(c.throttle, 0, 1)
   let bank = clamp(s.bankDeg + c.roll * 15 * dt, -35, 35)
   let pitch = clamp(s.pitchDeg + c.pitch * 5 * dt, -15, 20)
@@ -26,13 +27,14 @@ export function step(s: AircraftState, c: Controls, wind: Wind | null, dt: numbe
     if (ias < ROTATE_KT) pitch = 0
   }
 
+  const { tasKt: tas, mach } = casToTas(ias, s.altFt, atmo)
   let hdg = s.hdgDeg
   if (!onGround) {
-    const turnRad = (G * Math.tan(deg2rad(bank))) / Math.max(ias * KT_TO_MPS, 1)
+    const turnRad = (G * Math.tan(deg2rad(bank))) / Math.max(tas * KT_TO_MPS, 1)
     hdg = wrap360(hdg + rad2deg(turnRad) * dt)
   }
 
-  let vs = ias * KT_TO_FPM * Math.sin(deg2rad(pitch))
+  let vs = tas * KT_TO_FPM * Math.sin(deg2rad(pitch))
   let alt = s.altFt + (vs * dt) / 60
 
   if (onGround) {
@@ -48,7 +50,7 @@ export function step(s: AircraftState, c: Controls, wind: Wind | null, dt: numbe
     onGround = true
   }
 
-  const g = applyWind(hdg, ias, onGround && ias < 1 ? null : wind)
+  const g = applyWind(hdg, tas, onGround && ias < 1 ? null : wind)
   return {
     ...s,
     x: s.x + (g.vxKt * dt) / 3600,
@@ -56,6 +58,8 @@ export function step(s: AircraftState, c: Controls, wind: Wind | null, dt: numbe
     altFt: alt,
     hdgDeg: hdg,
     iasKt: ias,
+    tasKt: tas,
+    mach,
     pitchDeg: pitch,
     bankDeg: bank,
     vsFpm: vs,

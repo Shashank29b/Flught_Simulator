@@ -60,6 +60,34 @@ gaussian(rng: () => number): number      // Box-Muller, mean 0, sd 1
 
 ---
 
+## §1b ISA atmosphere (`shared/utils/isa.ts`). Used for all air data
+ICAO Standard Atmosphere: T0 288.15 K, P0 101325 Pa, ρ0 1.225 kg/m³, lapse 0.0065 K/m up to 11 km, then isothermal at 216.65 K.
+A scenario may set `atmosphere: { qnhHpa, isaDevC }` (default 1013.25 / 0).
+```ts
+isaPressure(pressureAltFt) / pressureAltitudeFt(pa) / isaTempK(pressureAltFt)
+staticPressurePa(altFt, atmo)          // ISA pressure at true alt scaled by QNH/1013.25
+atmosphereAt(altFt, atmo) → { tempK, oatC, pressurePa, density, sigma, speedOfSoundKt }   // T = ISA(PA) + isaDevC
+casToTas(casKt, altFt, atmo) → { tasKt, mach }   // compressible (qc via P0/a0, then Mach at local p, a)
+tasToCas(tasKt, altFt, atmo)
+indicatedAltitudeFt(altFt, baroHpa, atmo)        // altimeter with the Kollsman setting; temperature error ignored
+densityAltitudeFt(altFt, atmo)
+```
+**Rule:** IAS (= CAS) is what the pilot flies and what the airspeed limits use (stall 55, overspeed 180, rotate 65). **TAS** is used for all motion: turn rate, vertical speed, groundspeed and position. The **altimeter** shows `indicatedAltitudeFt` (baro set in `radios.baroHpa`). Geometry (GS angle, DME slant, LOS, radio altimeter) uses the **true** altitude.
+
+**Tests** (`tests/unit/isa.test.ts`)
+| ID | Case | Expected |
+|---|---|---|
+| IS1 | sea level | 288.15 K, 101325 Pa, 1.225 kg/m³, a = 661.48 kt |
+| IS2 | 5000 ft | 278.244 K, 84307.3 Pa, 1.05555 |
+| IS3 | 10000 ft | 268.338 K, 69681.6 Pa, 0.904637, OAT −4.81 °C |
+| IS4 | 36089 / 40000 ft | 216.65 K; 18753.9 Pa, 0.301558 |
+| IS6 | 10000 ft ISA+15 | ρ 0.856745 |
+| AS1–AS4 | CAS→TAS | 120@0 → 120; 120@3900 → 127.066; 100@3900 → 105.908; 120@10000 → 139.384 (M 0.2184); 250@30000 → 393.73 (M 0.668); 120@10000 ISA+15 → 143.226 |
+| AL1 | 3000 ft true, QNH 1003, baro 1013.25 | indicated 3275.3 |
+| AL2 | baro = QNH | indicated = true altitude |
+
+---
+
 ## §2 Shared types (`shared/types/index.ts`)
 
 ```ts
@@ -67,7 +95,8 @@ export interface AircraftState {
   x: number; y: number            // NM, local frame
   altFt: number                   // MSL
   hdgDeg: number                  // true heading
-  iasKt: number                   // = TAS (no density model)
+  iasKt: number                   // indicated (= calibrated) airspeed
+  tasKt: number; mach: number     // from ISA (§1b)
   pitchDeg: number; bankDeg: number
   vsFpm: number
   gsKt: number; trackDeg: number  // over the ground (after wind)
@@ -142,11 +171,12 @@ step(s: AircraftState, c: Controls, wind: Wind | null, dt: number): AircraftStat
 Rules, applied in this order each step:
 1. `bank += c.roll * 15 * dt`, clamped to ±35. `pitch += c.pitch * 5 * dt`, clamped to −15..+20. `throttle = c.throttle`.
 2. Speed: `target = 140 * throttle`; `ias` moves toward the target by at most `3 * dt` kt; clamp `ias` to 0..200.
-3. Turn: `hdg += rad2deg(G * tan(deg2rad(bank)) / max(ias*KT_TO_MPS, 1)) * dt`, then wrap360. No turning on the ground.
-4. `vsFpm = ias * KT_TO_FPM * sin(deg2rad(pitch))`; `alt += vsFpm * dt / 60`.
+2b. `{ tasKt, mach } = casToTas(ias, alt, atmo)` (§1b). `step(s, c, wind, dt, atmo = STANDARD)`.
+3. Turn: `hdg += rad2deg(G * tan(deg2rad(bank)) / max(tas*KT_TO_MPS, 1)) * dt`, then wrap360. No turning on the ground.
+4. `vsFpm = tas * KT_TO_FPM * sin(deg2rad(pitch))`; `alt += vsFpm * dt / 60`.
 5. Ground (`onGround`): bank is 0; pitch is clamped to ≥ 0, and pitch is 0 when `ias < 65`. Lift-off happens when `ias ≥ 65 && pitch > 0`, which sets `onGround = false`.
 6. Touchdown: airborne and `alt ≤ AIRPORT_ELEV_FT` sets `alt = elev`, `onGround = true`, `vs = 0`. The landing judge (§7) checks this transition.
-7. Wind (`wind.ts`): air velocity = ias along hdg. The wind vector points **toward** `fromDeg + 180`. Ground velocity = air + wind, which gives `gsKt` and `trackDeg`.
+7. Wind (`wind.ts`): air velocity = **tas** along hdg. The wind vector points **toward** `fromDeg + 180`. Ground velocity = air + wind, which gives `gsKt` and `trackDeg`.
 8. `x += gs·sin(track)·dt/3600`, `y += gs·cos(track)·dt/3600`.
 9. `fuelPct -= 0.01 * throttle * dt` (minimum 0). When fuel is 0, the throttle is forced to 0.
 
@@ -156,10 +186,11 @@ Rules, applied in this order each step:
 **Tests**
 | ID | Setup | Expected |
 |---|---|---|
-| F1 | airborne, hdg 90, ias 120, throttle 120/140, no wind, 60 s at dt 1/60 | Δx = 2.000 ±0.01, Δy ±0.01, Δalt ±1 |
-| F2 | airborne, ias 100, bank 15, controls 0 | turn rate 2.93 ±0.05 °/s |
-| F3 | airborne, ias 120, pitch 5 | vsFpm 1059 ±5 |
-| F4 | hdg 0, ias 100, wind from 270 at 20 kt | trackDeg 11.31 ±0.1, gsKt 101.98 ±0.1 |
+| F1 | airborne at 3900 ft, hdg 90, ias 120 (TAS 127.066), no wind, 60 s | Δx = 127.066/60 ±0.01 NM, Δy ±0.01, Δalt ±1 |
+| F2 | 3900 ft, ias 100 (TAS 105.9), bank 15 | turn rate 2.763 ±0.05 °/s |
+| F3 | 3900 ft, ias 120, pitch 5 | vsFpm 1121.5 ±5 |
+| F4 | 3900 ft, hdg 0, ias 100, wind from 270 at 20 kt | trackDeg 10.694 ±0.1, gsKt 107.78 ±0.1 |
+| F9 | same IAS, ISA+20 | TAS higher by > 3 kt |
 | F5 | onGround, ias 50, pitch input +1 for 2 s | still onGround, pitch 0 |
 | F6 | roll input +1 for 5 s | bank 35 (clamped) |
 | F7 | ias 50, throttle 0.5, 10 s | ias 70 ±0.1 |
@@ -315,7 +346,7 @@ Gains are *(tunable)*:
 - APP: LOC captured when `locValid && |locFrac| < 0.9`, then `h = rwyHdg + clamp(12 * locDevDeg, -30, 30)`. GS is captured when `gsValid && |gsDevDeg| < 0.15` and switches the vertical mode to GS.
 - LNAV: `h = lnavHdgDeg` (§10).
 - Vertical: ALT `vsCmd = clamp(4*(altFt - alt), -1500, 1500)`; VS `vsCmd = ap.vsFpm`, which switches to ALT when `|altFt - alt| < 200`. GS: `vsCmd = -gs*KT_TO_FPM*tan(3°) + 400*gsDevDeg`.
-- `pitchCmd = rad2deg(asin(clamp(vsCmd / (ias*KT_TO_FPM), -1, 1)))`.
+- `pitchCmd = rad2deg(asin(clamp(vsCmd / (tas*KT_TO_FPM), -1, 1)))` (TAS from §1b).
 
 **Tests**: closed loop with §3 `step`, dt 1/20, no wind, ias 120, throttle 120/140
 | ID | Setup | Expected |
