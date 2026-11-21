@@ -19,7 +19,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | W2-T11 | Auth API, guards, extend smoke | W1-CHK | DONE |
 | W2-T12 | Login/register pages, route middleware, navbar | T11 | DONE |
 | W2-T13 | Scenarios + flights API (start/end/list) with integration tests | T11 | DONE |
-| W2-T14 | Scenarios page, cockpit loads scenario, flight start/end, objectives, flight log | T12, T13 | TODO |
+| W2-T14 | Scenarios page, cockpit loads scenario, flight start/end, objectives, flight log | T12, T13 | DONE |
 | W2-T15 | ADF receiver, AdfRadio, RMI | W1-CHK | TODO |
 | W2-T16 | DVOR visual, range flags, wind from scenario | T14, T15 | TODO |
 | W2-CHK | Week 2 checkpoint | T11–T16 | TODO |
@@ -51,6 +51,11 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W2-T14 · DONE · 2026-11-21
+- app/sim/objectives.ts (+text), World gains objective/objProgress/done/fmsComplete; done stops simStep.
+- useFlightSession (start/end once, beforeEnd hooks for the recorder), useScenarioWorld, FlightBanner, pages scenarios/index + flights/index.
+- createWorld accepts a Partial ac.
 
 ### W2-T13 · DONE · 2026-11-21
 - services/{scenarios,flights,scoring.logic,flights.logic}.ts; api scenarios/*, flights/* (incl. samples.post early, from T21).

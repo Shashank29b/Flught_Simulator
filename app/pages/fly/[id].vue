@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { watch } from 'vue'
+import type { ScenarioDTO } from '../../../shared/types'
 import { useSimStore } from '../../stores/sim'
-import { createWorld } from '../../sim/engine'
+import { buildScenarioWorld } from '../../composables/useScenarioWorld'
+import { useFlightSession } from '../../composables/useFlightSession'
+import FlightBanner from '../../components/views/FlightBanner.vue'
 import { useNavData } from '../../composables/useNavData'
 import { useKeyboard } from '../../composables/useKeyboard'
 import { useSimLoop } from '../../composables/useSimLoop'
@@ -17,12 +20,27 @@ import NavRadio from '../../components/radios/NavRadio.vue'
 
 definePageMeta({ layout: 'cockpit', middleware: 'auth' })
 
+const route = useRoute()
+const scenarioId = Number(route.params.id)
 const store = useSimStore()
 const nav = useNavData()
+const session = useFlightSession()
+const { data: scenario } = await useFetch<ScenarioDTO>(`/api/scenarios/${scenarioId}`)
 
-watch([nav.stations, nav.runways], ([stations, runways]) => {
-  if (stations.length) store.load(createWorld({ stations, runways }))
-}, { immediate: true })
+function begin(): void {
+  if (!scenario.value || !nav.stations.value.length) return
+  store.load(buildScenarioWorld(scenario.value, nav.stations.value, nav.runways.value))
+  if (import.meta.client) void session.start(scenarioId)
+}
+
+watch([scenario, nav.stations], begin, { immediate: true })
+watch(() => store.world.done, (d) => {
+  if (d) void session.end(d.result, d.landing)
+})
+
+async function abort(): Promise<void> {
+  store.world = { ...store.world, done: { result: 'ABORTED' } }
+}
 
 useKeyboard()
 useSimLoop()
@@ -30,8 +48,11 @@ useSimLoop()
 
 <template>
   <div class="grid h-[calc(100vh-37px)] grid-cols-1 gap-2 p-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-    <div class="min-h-[300px] overflow-hidden rounded border border-slate-800">
+    <div class="flex min-h-[300px] flex-col gap-2">
+      <FlightBanner :world="store.world" :title="scenario?.title ?? 'Flight'" :score-total="session.scoreTotal.value" :error="session.error.value" @abort="abort" @restart="begin" />
+      <div class="min-h-0 flex-1 overflow-hidden rounded border border-slate-800">
       <ClientOnly><MapView :world="store.world" :trail="store.trail" /></ClientOnly>
+      </div>
     </div>
     <div class="flex min-h-0 flex-col gap-2 overflow-y-auto">
       <ClientOnly>

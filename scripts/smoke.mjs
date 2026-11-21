@@ -105,7 +105,7 @@ await check('flights list', async () => {
 })
 
 // ---- pages
-for (const page of ['/', '/login', '/register', '/fly/1']) {
+for (const page of ['/', '/login', '/register', '/scenarios', '/flights', '/fly/1', '/fly/2']) {
   await check(`page ${page} 200`, async () => {
     const r = await req('GET', page)
     assert(r.status === 200, `status ${r.status}`)
