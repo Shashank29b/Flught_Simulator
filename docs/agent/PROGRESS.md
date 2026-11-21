@@ -6,7 +6,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | ID | Task | Deps | Status |
 |---|---|---|---|
 | W1-T01 | Scaffold Nuxt app, modules, Vitest, lint, folders | – | DONE |
-| W1-T02 | Docker Postgres, Prisma schema, migration, health API, with-dev.sh | T01 | TODO |
+| W1-T02 | Docker Postgres, Prisma schema, migration, health API, with-dev.sh | T01 | DONE |
 | W1-T03 | Seed data | T02, T04 | TODO |
 | W1-T04 | Shared units, geo, random, types | T01 | DONE |
 | W1-T05 | Flight model, wind, loop helper | T04 | TODO |
@@ -51,6 +51,12 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W1-T02 · DONE · 2026-11-21
+- docker-compose db (postgres 17) + skynav_test via initdb; prisma 6 schema per §12; /api/health.
+- Docker needs sudo on this machine (user not in docker group).
+- Deviation: int globalSetup uses 'prisma migrate deploy' + resetDb() (Prisma blocks migrate reset for AI agents).
+- Deviation: Prisma blocks/enums written multi-line (one-line form is invalid); CONTRACTS §12 fixed.
 
 <!-- template
 ### W1-T04 · DONE · 2026-11-18

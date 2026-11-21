@@ -418,12 +418,37 @@ cdiNeedlePx(frac, halfWidthPx) = frac * halfWidthPx
 
 This replaces the schema in FLIGHT_SIM_PLAN.md. Use Prisma **6**.
 ```prisma
-generator client { provider = "prisma-client-js" }
-datasource db { provider = "postgresql"  url = env("DATABASE_URL") }
+generator client {
+  provider = "prisma-client-js"
+}
 
-enum Role { STUDENT ADMIN }
-enum StationType { VOR DVOR DME NDB ILS_LOC ILS_GS MARKER_OM MARKER_MM MARKER_IM }
-enum FlightResult { IN_PROGRESS LANDED CRASHED COMPLETED ABORTED }
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+enum StationType {
+  VOR
+  DVOR
+  DME
+  NDB
+  ILS_LOC
+  ILS_GS
+  MARKER_OM
+  MARKER_MM
+  MARKER_IM
+}
+enum FlightResult {
+  IN_PROGRESS
+  LANDED
+  CRASHED
+  COMPLETED
+  ABORTED
+}
 
 model User {
   id           String   @id @default(uuid())

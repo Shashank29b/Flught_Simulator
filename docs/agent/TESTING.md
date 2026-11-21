@@ -16,7 +16,7 @@
   Aliases: `~~` → project root, `#shared` → `./shared`. Unit-tested code uses relative imports anyway.
 - `vitest.int.config.ts`: `include: ['tests/int/**/*.test.ts']`, `fileParallelism: false`,
   `globalSetup: 'tests/int/globalSetup.ts'`, which runs
-  `DATABASE_URL=$TEST_DATABASE_URL npx prisma migrate reset --force --skip-seed`.
+  `DATABASE_URL=$TEST_DATABASE_URL npx prisma migrate deploy` (non-destructive; Prisma blocks `migrate reset` from AI agents). Each test file calls `resetDb()` (TRUNCATE) in `beforeEach`.
 - `tests/int/helpers.ts`: exports a `prisma` client built on `TEST_DATABASE_URL`, plus `resetDb()`, which truncates every table.
 - `.env`: `DATABASE_URL`, `TEST_DATABASE_URL`, `NUXT_APP_SECRET`.
 - `docker/initdb/01-test-db.sql`: `CREATE DATABASE skynav_test;` (mounted into the Postgres container).

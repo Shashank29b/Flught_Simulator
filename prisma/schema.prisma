@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum StationType {
+  VOR
+  DVOR
+  DME
+  NDB
+  ILS_LOC
+  ILS_GS
+  MARKER_OM
+  MARKER_MM
+  MARKER_IM
+}
+
+enum FlightResult {
+  IN_PROGRESS
+  LANDED
+  CRASHED
+  COMPLETED
+  ABORTED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(STUDENT)
+  flights      Flight[]
+  createdAt    DateTime @default(now())
+}
+
+model Airport {
+  id          Int      @id @default(autoincrement())
+  icao        String   @unique
+  name        String
+  lat         Float
+  lon         Float
+  elevationFt Int
+  runways     Runway[]
+}
+
+model Runway {
+  id           Int          @id @default(autoincrement())
+  airport      Airport      @relation(fields: [airportId], references: [id])
+  airportId    Int
+  ident        String
+  headingDeg   Float
+  thresholdLat Float
+  thresholdLon Float
+  lengthM      Int
+  widthM       Int
+  stations     NavStation[]
+}
+
+model NavStation {
+  id        Int         @id @default(autoincrement())
+  type      StationType
+  ident     String
+  name      String
+  frequency Float
+  lat       Float
+  lon       Float
+  rangeNm   Int
+  runway    Runway?     @relation(fields: [runwayId], references: [id])
+  runwayId  Int?
+
+  @@index([frequency])
+}
+
+model Waypoint {
+  id    Int    @id @default(autoincrement())
+  ident String @unique
+  lat   Float
+  lon   Float
+}
+
+model Scenario {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  week        Int
+  config      Json // { startState, target, wind, failures, traffic, radios }; see §2 ScenarioDTO
+  flights     Flight[]
+}
+
+model Flight {
+  id         String         @id @default(uuid())
+  user       User           @relation(fields: [userId], references: [id])
+  userId     String
+  scenario   Scenario       @relation(fields: [scenarioId], references: [id])
+  scenarioId Int
+  startedAt  DateTime       @default(now())
+  endedAt    DateTime?
+  result     FlightResult   @default(IN_PROGRESS)
+  samples    FlightSample[]
+  score      Score?
+
+  @@index([userId])
+}
+
+model FlightSample {
+  id       Int    @id @default(autoincrement()) // Int, not BigInt (JSON-safe)
+  flight   Flight @relation(fields: [flightId], references: [id], onDelete: Cascade)
+  flightId String
+  tMs      Int
+  x        Float
+  y        Float
+  altFt    Float
+  hdgDeg   Float
+  iasKt    Float
+  vsFpm    Float
+  nav      Json
+
+  @@index([flightId, tMs])
+}
+
+model Score {
+  id       Int    @id @default(autoincrement())
+  flight   Flight @relation(fields: [flightId], references: [id], onDelete: Cascade)
+  flightId String @unique
+  total    Int
+  details  Json
+}

@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: skynav
+      POSTGRES_PASSWORD: skynav
+      POSTGRES_DB: skynav
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U skynav"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+volumes:
+  pgdata:
