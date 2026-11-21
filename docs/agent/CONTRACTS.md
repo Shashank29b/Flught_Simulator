@@ -400,7 +400,7 @@ identActive(identPressedMs: number | null, nowMs: number): boolean   // true for
 
 ## §10 INS, GPS, blend, FMS (`app/nav/ins.ts`, `gps.ts`, `blend.ts`, `fms.ts`)
 
-INS and GPS work in **metres** in the local frame. Convert to NM for display.
+INS and GPS work in **metres**. **Implementation note:** the INS is modelled as its error state (err̈ = bias + σ·n), which is mathematically the same as integrating measured acceleration, and is independent of the re-centring frame. `insStep(s, dt, rng)` therefore needs no true velocity. `gpsFix` returns the measurement error, and `blendStep(est, insErr, gpsErr | null, k)` estimates the INS error (blended position = INS − est).
 ```ts
 insInit(trueX_m, trueY_m, vx, vy, opts?: { bias?: [number, number]; sigma?: number }): InsState
   // default bias [0.002, -0.0015] m/s², sigma 0.001

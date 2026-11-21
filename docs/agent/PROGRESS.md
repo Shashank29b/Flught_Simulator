@@ -40,7 +40,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | P3 | W4-T23 | PFD | P2 | DONE |
 | P3 | W4-T24 | ND | T23 | DONE |
 | P3 | P3-CHK | Checkpoint: coupled ILS on the glass cockpit | P2, P3 | DONE |
-| P4 | W5-T28 | INS model (drift) | P3-CHK | TODO |
+| P4 | W5-T28 | INS model (drift) | P3-CHK | DONE |
 | P4 | W5-T29 | GPS + INS/GPS blend | T28 | TODO |
 | P4 | W5-T31 | INS/GPS/blended positions on the map, nav source selector | T29 | TODO |
 | P5 | W6-T35 | Dockerfile + compose app service (one-command run) | – | TODO |
@@ -56,6 +56,10 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W5-T28 · DONE · 2026-11-21
+- app/nav/ins.ts: error-state INS (bias + noise integrated twice), metres; IN1/IN2 + determinism tests.
+- CONTRACTS §10 note: error-state form, so insStep(s, dt, rng) needs no true velocity.
 
 ### TEST-MODE ZERO START (user request) · DONE · 2026-11-21
 - Every Test-mode scenario starts parked on VOBL 09L (RUNWAY_START in presets.ts): IAS 0, throttle 0, gear down, AP/journey off, time ×1, held keys cleared, trainer profile. Scenario startState in the DB is no longer used for the position.
