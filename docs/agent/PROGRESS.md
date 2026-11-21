@@ -14,7 +14,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | W1-T07 | Airports/stations API, cockpit page, MapView | T03, T06 | DONE |
 | W1-T08 | Gauge helpers + 5 basic instruments | T06 | DONE |
 | W1-T09 | Range, VOR, DME receivers | T04 | DONE |
-| W1-T10 | NavRadio, CDI, wire receivers into the loop | T07, T08, T09 | TODO |
+| W1-T10 | NavRadio, CDI, wire receivers into the loop | T07, T08, T09 | DONE |
 | W1-CHK | Week 1 checkpoint | T01–T10 | TODO |
 | W2-T11 | Auth API, guards, extend smoke | W1-CHK | TODO |
 | W2-T12 | Login/register pages, route middleware, navbar | T11 | TODO |
@@ -51,6 +51,10 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W1-T10 · DONE · 2026-11-21
+- engine.simStep computes nav.vor1/dme1; NavRadio (active/standby swap), CDI (OBS buttons, OFF flag), DmeReadout.
+- Cockpit: map left, instruments + radios right.
 
 ### W1-T08 · DONE · 2026-11-21
 - gauges.ts (§11) + dial.ts helpers; Airspeed, Attitude, Altimeter, Heading, VerticalSpeed components.
