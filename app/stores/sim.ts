@@ -46,6 +46,7 @@ export const useSimStore = defineStore('sim', () => {
     trail.value = []
     trailLL.value = []
     paused.value = false
+    keys.clear()
     timeScale.value = 1
     autoMessage.value = ''
     navCenter.value = w.ref

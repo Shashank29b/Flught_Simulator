@@ -1,11 +1,16 @@
 import type { ScenarioDTO } from '../../shared/types'
 import { createWorld, type World } from '../sim/engine'
 import { TRAINER } from '../sim/aircraft'
+import { RUNWAY_START } from '../sim/presets'
 
-/** Builds the initial world for a scenario (VOBL frame); nav data is added by store.setNavData. */
+/**
+ * Builds the initial world for a Test-mode scenario. Every test starts parked on VOBL runway 09L with everything
+ * at zero (speed, throttle, autopilot off); the pilot takes off and then flies the exercise. Nav data is added by
+ * store.setNavData. The scenario's stored startState is no longer used for the start position.
+ */
 export function buildScenarioWorld(sc: ScenarioDTO): World {
   return createWorld({
-    ac: sc.startState,
+    ac: { ...RUNWAY_START, iasKt: 0, throttle: 0, gearDown: true, flapsDeg: 0 },
     wind: sc.wind,
     atmo: sc.atmosphere ?? { qnhHpa: 1013.25, isaDevC: 0 },
     radios: {
@@ -14,5 +19,8 @@ export function buildScenarioWorld(sc: ScenarioDTO): World {
     },
     objective: sc.target,
     profile: TRAINER,
+    ap: null,
+    journey: null,
+    auto: null,
   })
 }

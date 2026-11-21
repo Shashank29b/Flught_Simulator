@@ -21,6 +21,7 @@ const t = computed(() => {
       <span class="ml-auto font-mono text-slate-500">{{ t }}</span>
       <button v-if="!done" class="rounded bg-red-900 px-2 py-0.5 hover:bg-red-800" @click="$emit('abort')">End flight</button>
     </div>
+    <p v-if="world.ac.onGround && world.simMs < 120000 && !done" class="text-xs text-slate-400">Start: parked on runway 09L, everything at zero. Throttle up (↑ or the slider), rotate with S at 65 kt, then fly the exercise.</p>
     <p v-if="error" class="text-xs text-red-400">{{ error }}</p>
     <div v-if="done" class="mt-2 rounded border p-3" :class="done.result === 'CRASHED' ? 'border-red-700 bg-red-950' : 'border-green-700 bg-green-950'">
       <div class="text-lg font-bold">{{ done.result }}</div>

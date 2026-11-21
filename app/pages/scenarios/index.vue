@@ -14,7 +14,7 @@ const byWeek = computed(() => {
   <section class="space-y-6">
     <div>
       <h1 class="text-2xl font-bold">Test mode</h1>
-      <p class="text-sm text-slate-400">Graded scenarios: your flight is recorded and scored. For free practice with every control, use the <NuxtLink to="/cockpit" class="text-sky-400">Cockpit</NuxtLink>.</p>
+      <p class="text-sm text-slate-400">Graded scenarios: your flight is recorded and scored. Every test starts parked on runway 09L at Bengaluru (VOBL) with speed and throttle at zero: take off, then fly the exercise. For free practice with every control, use the <NuxtLink to="/cockpit" class="text-sky-400">Cockpit</NuxtLink>.</p>
     </div>
     <div v-for="[week, rows] in byWeek" :key="week">
       <h2 class="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">Level {{ week }}</h2>

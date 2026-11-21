@@ -57,6 +57,10 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 ## Handoff log
 Newest at the top. At most 5 lines per task.
 
+### TEST-MODE ZERO START (user request) · DONE · 2026-11-21
+- Every Test-mode scenario starts parked on VOBL 09L (RUNWAY_START in presets.ts): IAS 0, throttle 0, gear down, AP/journey off, time ×1, held keys cleared, trainer profile. Scenario startState in the DB is no longer used for the position.
+- Verified in the browser after leaving the Cockpit airborne with AP on at 64×.
+
 ### W4-T24 · DONE · 2026-11-21
 - ND.vue + ndProject.ts: heading-up arc, range 10–160 NM, airports, runways, VOR/NDB, tuned VOR course (magenta), journey destination, trail, GS/TAS/wind.
 - Classic/Glass toggle in CockpitPanel (remembered); triple-tap cards for PFD and ND.
