@@ -41,8 +41,22 @@ await check('health db true', async () => {
   assert(r.status === 200 && r.json?.db === true, JSON.stringify(r.json))
 })
 
+// ---- W1-T07
+await check('airports has XTRN', async () => {
+  const r = await req('GET', '/api/airports')
+  assert(r.status === 200 && r.json?.some(a => a.icao === 'XTRN'), JSON.stringify(r.json).slice(0, 200))
+})
+await check('stations >= 10', async () => {
+  const r = await req('GET', '/api/stations')
+  assert(r.status === 200 && r.json?.length >= 10, `len ${r.json?.length}`)
+})
+await check('stations ?type=NDB', async () => {
+  const r = await req('GET', '/api/stations?type=NDB')
+  assert(r.status === 200 && r.json?.length === 1, `len ${r.json?.length}`)
+})
+
 // ---- pages
-for (const page of ['/']) {
+for (const page of ['/', '/fly/1']) {
   await check(`page ${page} 200`, async () => {
     const r = await req('GET', page)
     assert(r.status === 200, `status ${r.status}`)
