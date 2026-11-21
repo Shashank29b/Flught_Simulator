@@ -38,7 +38,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | P2 | W4-T26 | Autopilot modes HDG/ALT/VS/NAV/APP (closed-loop tests; reuse autoflight inner loops) | P1-CHK | DONE |
 | P2 | W4-T27 | MCP panel + AP wiring (classic/glass toggle after P3) | T26 | DONE |
 | P3 | W4-T23 | PFD | P2 | DONE |
-| P3 | W4-T24 | ND | T23 | TODO |
+| P3 | W4-T24 | ND | T23 | DONE |
 | P3 | P3-CHK | Checkpoint: coupled ILS on the glass cockpit | P2, P3 | TODO |
 | P4 | W5-T28 | INS model (drift) | P3-CHK | TODO |
 | P4 | W5-T29 | GPS + INS/GPS blend | T28 | TODO |
@@ -56,6 +56,10 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W4-T24 · DONE · 2026-11-21
+- ND.vue + ndProject.ts: heading-up arc, range 10–160 NM, airports, runways, VOR/NDB, tuned VOR course (magenta), journey destination, trail, GS/TAS/wind.
+- Classic/Glass toggle in CockpitPanel (remembered); triple-tap cards for PFD and ND.
 
 ### W4-T23 · DONE · 2026-11-21
 - PFD.vue + pfdDraw.ts (attitude, speed tape with stall band + A/THR bug, baro altitude tape + ALT bug, VSI, heading tape + HDG bug, ILS diamonds, RA, FMA).
