@@ -2,7 +2,7 @@
 
 A web-based flight simulator for learning aircraft navigation systems. It is a single full-stack application built with **Nuxt 4 (Vue 3)**, **PostgreSQL** and **Prisma**.
 
-**Quick start (Docker):** `docker compose up -d --build`, then `docker compose run --rm app node scripts/data/download.mjs` and `docker compose run --rm app npx prisma db seed`, then open http://localhost:3000 · **Full setup: [SETUP.md](SETUP.md)** · **Roadmap: [docs/PLAN.md](docs/PLAN.md)**
+**Quick start (Docker):** `docker compose up -d --build`, then `docker compose run --rm app node scripts/data/download.mjs` and `docker compose run --rm app npx prisma db seed`, then open http://localhost:3000 · **Docker guide: [DOCKER.md](DOCKER.md)** · **Full setup: [SETUP.md](SETUP.md)** · **Roadmap: [docs/PLAN.md](docs/PLAN.md)**
 
 ## Features
 - **One-screen cockpit:**
