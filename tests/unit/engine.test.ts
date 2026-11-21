@@ -35,3 +35,14 @@ describe('engine nav receivers', async () => {
     expect(Math.abs(e.nav.dme1!.distNm - 12)).toBeLessThan(0.2)
   })
 })
+
+describe('engine adf', async () => {
+  const { SEED_STATIONS, air } = await import('./helpers/fixtures')
+  it('E4 NDB dead ahead', () => {
+    const w = createWorld({ stations: SEED_STATIONS, ac: air({ x: -25, y: -2, hdgDeg: 180 }), radios: { nav1MHz: 113.5, obsDeg: 90, adfKHz: 350 } })
+    const e = simStep(w, { roll: 0, pitch: 0, throttle: 120 / 140 }, 1 / 60)
+    expect(e.nav.adf?.valid).toBe(true)
+    const r = e.nav.adf!.relBearingDeg
+    expect(Math.min(r, 360 - r)).toBeLessThan(0.5)
+  })
+})

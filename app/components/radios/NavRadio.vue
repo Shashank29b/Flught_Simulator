@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const props = withDefaults(defineProps<{ label?: string; active: number; min?: number; max?: number; fine?: number; decimals?: number; unit?: string }>(),
-  { label: 'NAV 1', min: 108, max: 117.95, fine: 0.05, decimals: 2, unit: 'MHz' })
+const props = withDefaults(defineProps<{ label?: string; active: number; min?: number; max?: number; fine?: number; coarse?: number; decimals?: number; unit?: string }>(),
+  { label: 'NAV 1', min: 108, max: 117.95, fine: 0.05, coarse: 1, decimals: 2, unit: 'MHz' })
 const emit = defineEmits<{ tune: [freq: number] }>()
 const standby = ref(props.active)
 
@@ -37,8 +37,8 @@ function swap(): void {
       <span class="text-slate-500">{{ unit }}</span>
     </div>
     <div class="mt-1 flex gap-1">
-      <button class="rounded bg-slate-800 px-2" @click="bump(-1)">−1</button>
-      <button class="rounded bg-slate-800 px-2" @click="bump(1)">+1</button>
+      <button class="rounded bg-slate-800 px-2" @click="bump(-coarse)">−{{ coarse }}</button>
+      <button class="rounded bg-slate-800 px-2" @click="bump(coarse)">+{{ coarse }}</button>
       <button class="rounded bg-slate-800 px-2" @click="bump(-fine)">−{{ fine }}</button>
       <button class="rounded bg-slate-800 px-2" @click="bump(fine)">+{{ fine }}</button>
     </div>

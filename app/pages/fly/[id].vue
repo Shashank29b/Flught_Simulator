@@ -17,6 +17,8 @@ import VerticalSpeed from '../../components/instruments/VerticalSpeed.vue'
 import CDI from '../../components/instruments/CDI.vue'
 import DmeReadout from '../../components/instruments/DmeReadout.vue'
 import NavRadio from '../../components/radios/NavRadio.vue'
+import RMI from '../../components/instruments/RMI.vue'
+import AdfIndicator from '../../components/instruments/AdfIndicator.vue'
 
 definePageMeta({ layout: 'cockpit', middleware: 'auth' })
 
@@ -63,10 +65,13 @@ useSimLoop()
           <VerticalSpeed :vs-fpm="store.world.ac.vsFpm" />
           <HeadingIndicator :hdg-deg="store.world.ac.hdgDeg" />
           <CDI :vor="store.world.nav.vor1" :obs-deg="store.world.radios.obsDeg" @obs="store.setRadio({ obsDeg: $event })" />
+          <RMI :hdg-deg="store.world.ac.hdgDeg" :vor="store.world.nav.vor1" :adf="store.world.nav.adf" />
+          <AdfIndicator :adf="store.world.nav.adf" />
         </div>
         <div class="grid grid-cols-2 gap-2">
           <NavRadio :active="store.world.radios.nav1MHz" @tune="store.setRadio({ nav1MHz: $event })" />
           <DmeReadout :dme="store.world.nav.dme1" :gs-kt="store.world.ac.gsKt" />
+          <NavRadio label="ADF" :active="store.world.radios.adfKHz" :min="190" :max="1750" :fine="1" :coarse="10" :decimals="0" unit="kHz" @tune="store.setRadio({ adfKHz: $event })" />
         </div>
       </ClientOnly>
       <div class="flex flex-wrap gap-4 rounded border border-slate-800 bg-slate-950 px-3 py-2 font-mono text-xs">

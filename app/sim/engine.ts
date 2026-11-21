@@ -3,6 +3,7 @@ import { evaluateObjective, type ObjProgress } from './objectives'
 import { DEFAULT_STATE, step } from './flightModel'
 import { vorReceive } from '../nav/vor'
 import { dmeReceive } from '../nav/dme'
+import { adfReceive } from '../nav/adf'
 
 export interface Radios { nav1MHz: number; obsDeg: number; adfKHz: number }
 
@@ -47,6 +48,7 @@ export function simStep(w: World, c: Controls, dt: number): World {
     ...w.nav,
     vor1: vorReceive(w.stations, r.nav1MHz, r.obsDeg, ac),
     dme1: dmeReceive(w.stations, r.nav1MHz, ac),
+    adf: adfReceive(w.stations, r.adfKHz, ac),
   }
   let next: World = { ...w, ac, nav, simMs: w.simMs + dt * 1000 }
   next = applyObjective(next, dt)
