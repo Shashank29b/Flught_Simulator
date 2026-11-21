@@ -14,7 +14,8 @@
     "typecheck": "nuxi typecheck",
     "check": "npm run typecheck && npm run lint && npm run test:unit",
     "smoke": "node scripts/smoke.mjs",
-    "test:e2e": "node tests/e2e/cockpit.mjs && node tests/e2e/testmode.mjs"
+    "test:e2e": "node tests/e2e/cockpit.mjs && node tests/e2e/testmode.mjs",
+    "data:download": "node scripts/data/download.mjs"
   },
   "dependencies": {
     "@nuxtjs/tailwindcss": "^6.14.0",

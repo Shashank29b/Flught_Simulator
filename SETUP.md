@@ -47,7 +47,7 @@ npx prisma migrate deploy
 
 ## 6. Download the world airport data (recommended)
 ```bash
-bash scripts/data/download.sh
+npm run data:download
 ```
 This downloads the free OurAirports dataset (airports, runways, nav aids, about 18 MB) into `data/ourairports/`. The folder is not committed to git.
 
@@ -114,12 +114,19 @@ npm run test:e2e
 ## 11. Run everything with Docker (no Node.js needed)
 ```bash
 docker compose up -d --build                                # database + app on http://localhost:3000
-docker compose run --rm app bash scripts/data/download.sh   # once: world airport data (optional)
+docker compose run --rm app node scripts/data/download.mjs  # once: world airport data (optional)
 docker compose run --rm app npx prisma db seed              # once: seed the database
 ```
 - Use another host port with `APP_PORT=8080 docker compose up -d --build`.
 - Stop with `docker compose down`; add `-v` to delete the database volume too.
 - The app runs `prisma migrate deploy` automatically when it starts.
+
+### Windows (Docker Desktop, with or without WSL)
+1. Start **Docker Desktop**. If you use WSL, enable it under *Settings → Resources → WSL integration*.
+2. Clone and run the Docker commands above, either in **PowerShell** or in the **Ubuntu (WSL)** terminal. In WSL, clone inside `~` (not `/mnt/c/...`); it is much faster there.
+3. Open http://localhost:3000/cockpit in the Windows browser.
+
+If an old clone shows `$'\r': command not found` or `set: pipefail: invalid option`, those are Windows line endings. Use the Node downloader (`node scripts/data/download.mjs`), or run `git pull` and clone again; the repo now forces Linux line endings via `.gitattributes`.
 
 ## 12. Production build (without Docker)
 ```bash
