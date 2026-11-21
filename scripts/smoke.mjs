@@ -104,6 +104,20 @@ await check('flights list', async () => {
   assert(r.status === 200 && r.json?.length >= 1, `len ${r.json?.length}`)
 })
 
+// ---- W3-T21 recorder + landing score
+await check('start → 25 samples → LANDED → score > 0 → replay data', async () => {
+  const s = await req('POST', '/api/flights', { scenarioId: 5 })
+  assert(s.status === 201, `start ${s.status}`)
+  const samples = Array.from({ length: 25 }, (_, i) => ({ tMs: i * 200, x: -4 + i * 0.15, y: 0, altFt: 4000 - i * 40, hdgDeg: 90, iasKt: 100, vsFpm: -500, nav: { locFrac: 0.1, locDevDeg: 0.25, gsDevDeg: 0 } }))
+  const p = await req('POST', `/api/flights/${s.json.id}/samples`, { samples })
+  assert(p.status === 200 && p.json?.count === 25, `samples ${p.status}`)
+  const e = await req('PATCH', `/api/flights/${s.json.id}/end`, { result: 'LANDED', landing: { lateralM: 5, vsFpm: -350 } })
+  assert(e.status === 200 && e.json?.score?.total > 0, `end ${e.status} ${e.text.slice(0, 100)}`)
+  const g = await req('GET', `/api/flights/${s.json.id}`)
+  assert(g.status === 200 && g.json?.samples?.length === 25, `get ${g.status}`)
+  ctx.replayId = s.json.id
+})
+
 // ---- pages
 for (const page of ['/', '/cockpit', '/login', '/register', '/scenarios', '/flights', '/fly/1', '/fly/2']) {
   await check(`page ${page} 200`, async () => {

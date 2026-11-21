@@ -5,6 +5,7 @@ import type { ScenarioDTO } from '../../../shared/types'
 import { useSimStore } from '../../stores/sim'
 import { buildScenarioWorld } from '../../composables/useScenarioWorld'
 import { useFlightSession } from '../../composables/useFlightSession'
+import { useRecorder } from '../../composables/useRecorder'
 import { useNavData } from '../../composables/useNavData'
 import { useKeyboard } from '../../composables/useKeyboard'
 import { useSimLoop } from '../../composables/useSimLoop'
@@ -16,9 +17,11 @@ definePageMeta({ layout: 'cockpit', middleware: 'auth' })
 const route = useRoute()
 const scenarioId = Number(route.params.id)
 const store = useSimStore()
-const { navCenter } = storeToRefs(store)
+const { navCenter, world } = storeToRefs(store)
 const nav = useNavData(navCenter)
 const session = useFlightSession()
+const recorder = useRecorder(world, session.flightId, session.ended)
+session.beforeEnd.push(recorder.flush)
 const { data: scenario, error: scenarioError } = await useFetch<ScenarioDTO>(`/api/scenarios/${scenarioId}`)
 
 function begin(): void {
