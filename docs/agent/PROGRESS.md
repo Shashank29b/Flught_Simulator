@@ -41,7 +41,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | P3 | W4-T24 | ND | T23 | DONE |
 | P3 | P3-CHK | Checkpoint: coupled ILS on the glass cockpit | P2, P3 | DONE |
 | P4 | W5-T28 | INS model (drift) | P3-CHK | DONE |
-| P4 | W5-T29 | GPS + INS/GPS blend | T28 | TODO |
+| P4 | W5-T29 | GPS + INS/GPS blend | T28 | DONE |
 | P4 | W5-T31 | INS/GPS/blended positions on the map, nav source selector | T29 | TODO |
 | P5 | W6-T35 | Dockerfile + compose app service (one-command run) | – | TODO |
 | P5 | FINAL | Final regression, demo script, tag v1.0 | P1–P5 | TODO |
@@ -56,6 +56,9 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W5-T29 · DONE · 2026-11-21
+- app/nav/gps.ts (5 m noise, outage → null), app/nav/blend.ts (estimate of INS error, k = 0.3; frozen in outages). GS1/GS2, BL1, outage-drift tests.
 
 ### W5-T28 · DONE · 2026-11-21
 - app/nav/ins.ts: error-state INS (bias + noise integrated twice), metres; IN1/IN2 + determinism tests.
