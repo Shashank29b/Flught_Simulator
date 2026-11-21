@@ -77,3 +77,22 @@ describe('frame re-centring', async () => {
     expect(groundElevation(w)).toBe(100)
   })
 })
+
+describe('engine ILS', async () => {
+  const { SEED_STATIONS, RWY09, air } = await import('./helpers/fixtures')
+  const { AIRPORT_ELEV_FT, NM_TO_FT, deg2rad } = await import('../../shared/utils/units')
+  it('E6 established on the localiser and glide slope 8 NM out', () => {
+    const d = Math.hypot(-8 - 0.16, 0 + 0.08) // to the GS antenna
+    const w = createWorld({ stations: SEED_STATIONS, runways: [RWY09], ac: air({ x: -8, y: 0, hdgDeg: 90, altFt: AIRPORT_ELEV_FT + d * NM_TO_FT * Math.tan(deg2rad(3)) }), radios: { nav1MHz: 110.3 } })
+    const e = simStep(w, { roll: 0, pitch: 0, throttle: 120 / 350 }, 1 / 60)
+    expect(e.nav.ils?.locValid).toBe(true)
+    expect(Math.abs(e.nav.ils!.locDevDeg)).toBeLessThan(0.05)
+    expect(e.nav.ils?.gsValid).toBe(true)
+    expect(Math.abs(e.nav.ils!.gsDevDeg)).toBeLessThan(0.05)
+    expect(e.nav.raFt).toBeNull() // ≈ 2600 ft AGL: above the 2500 ft radio-altimeter limit
+  })
+  it('E6b the outer marker sounds overhead', () => {
+    const w = createWorld({ stations: SEED_STATIONS, runways: [RWY09], ac: air({ x: -4.5, y: 0, altFt: AIRPORT_ELEV_FT + 1400 }) })
+    expect(simStep(w, { roll: 0, pitch: 0, throttle: 0.4 }, 1 / 60).nav.markers?.om).toBe(true)
+  })
+})

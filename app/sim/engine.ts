@@ -8,6 +8,9 @@ import { DEFAULT_STATE, step } from './flightModel'
 import { vorReceive } from '../nav/vor'
 import { dmeReceive } from '../nav/dme'
 import { adfReceive } from '../nav/adf'
+import { ilsReceive } from '../nav/ils'
+import { markersReceive } from '../nav/markers'
+import { radioAltFt } from '../nav/radioAlt'
 
 export interface Radios { nav1MHz: number; obsDeg: number; adfKHz: number; baroHpa: number }
 
@@ -84,6 +87,9 @@ export function simStep(w: World, c: Controls, dt: number): World {
     vor1: vorReceive(w.stations, r.nav1MHz, r.obsDeg, ac, groundElevFt),
     dme1: dmeReceive(w.stations, r.nav1MHz, ac, groundElevFt),
     adf: adfReceive(w.stations, r.adfKHz, ac, groundElevFt),
+    ils: ilsReceive(w.stations, w.runways, r.nav1MHz, ac, groundElevFt),
+    markers: markersReceive(w.stations, ac, groundElevFt),
+    raFt: radioAltFt(ac, groundElevFt),
   }
   let next: World = { ...w, ac, nav, auto, groundElevFt, lastControls: controls, simMs: w.simMs + dt * 1000 }
   next = applyObjective(next, dt)

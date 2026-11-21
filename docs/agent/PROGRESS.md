@@ -23,7 +23,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | W2-T15 | ADF receiver, AdfRadio, RMI | W1-CHK | DONE |
 | W2-T16 | DVOR visual, range flags, wind from scenario | T14, T15 | DONE |
 | W2-CHK | Week 2 checkpoint | T11–T16 | DONE |
-| W3-T17 | ILS, markers, radio altimeter logic | W2-CHK | TODO |
+| W3-T17 | ILS, markers, radio altimeter logic | W2-CHK | DONE |
 | W3-T18 | HSI, marker lights, RA readout, audio callouts | T17 | TODO |
 | W3-T19 | ProfileView | T17 | TODO |
 | W3-T20 | Touchdown judge + flight end on landing/crash | T17 | TODO |
@@ -51,6 +51,11 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W3-T17 · DONE · 2026-11-21
+- app/nav/{ils,markers,radioAlt}.ts; engine sets nav.ils/markers/raFt using the ground elevation.
+- Deviation: ilsReceive(stations, runways, navMHz, ac, elevFt) takes the runway list (LOC→runwayId) instead of one runway; nearest LOC on the frequency wins.
+- Tests I1–I4, S1–S3, M1–M2, RA1, CO1–CO2, E6/E6b.
 
 ### FINAL CHECK · DONE · 2026-11-21
 - All green: check (93 unit), int (9), smoke, e2e (10 browser checks), production build (no warnings).
