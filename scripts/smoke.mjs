@@ -81,6 +81,29 @@ await check('login', async () => {
   assert((await req('GET', '/api/auth/me')).status === 200, 'me failed')
 })
 
+// ---- W2-T13 scenarios + flights
+await check('scenarios >= 9', async () => {
+  const r = await req('GET', '/api/scenarios')
+  assert(r.status === 200 && r.json?.length >= 9, `len ${r.json?.length}`)
+  ctx.scenarioId = r.json[0].id
+})
+await check('scenario has config', async () => {
+  const r = await req('GET', `/api/scenarios/${ctx.scenarioId}`)
+  assert(r.status === 200 && r.json?.target?.type, r.text.slice(0, 120))
+})
+await check('start → abort → score 0 → 409', async () => {
+  const s = await req('POST', '/api/flights', { scenarioId: ctx.scenarioId })
+  assert(s.status === 201 && s.json?.id, `start ${s.status}`)
+  const e = await req('PATCH', `/api/flights/${s.json.id}/end`, { result: 'ABORTED' })
+  assert(e.status === 200 && e.json?.score?.total === 0, `end ${e.status}`)
+  const e2 = await req('PATCH', `/api/flights/${s.json.id}/end`, { result: 'ABORTED' })
+  assert(e2.status === 409, `second end ${e2.status}`)
+})
+await check('flights list', async () => {
+  const r = await req('GET', '/api/flights')
+  assert(r.status === 200 && r.json?.length >= 1, `len ${r.json?.length}`)
+})
+
 // ---- pages
 for (const page of ['/', '/login', '/register', '/fly/1']) {
   await check(`page ${page} 200`, async () => {
