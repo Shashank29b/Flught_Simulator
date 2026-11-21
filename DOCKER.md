@@ -73,3 +73,16 @@ The app seeds itself again on start.
 | Map has few or no airports | Wait about 30 s after the first start (seeding), then reload. Still empty: `docker compose logs app --tail 50` |
 | Page shows an error | Run `docker compose logs app --tail 50` and send the output |
 | Is it running? | `docker compose ps`: `db` and `app` should be *Up* |
+
+---
+
+## Developer mode (`npm run dev`, live reload while editing code)
+Needs **Node.js 22**. It uses the Docker database but runs the app with Node:
+```bash
+docker compose stop app      # free port 3000 (the Docker app)
+docker compose up -d db      # database only
+npm install                  # first time, and after git pull
+npm run setup                # creates tables and seeds if the database is empty
+npm run dev                  # http://localhost:3000/cockpit
+```
+Go back to the Docker app: stop `npm run dev` (Ctrl+C), then run `docker compose up -d`.
