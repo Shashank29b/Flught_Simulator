@@ -4,6 +4,7 @@ import type { AirportInfo, AircraftState, Atmosphere, Controls, FlightResult, Na
 import { evaluateObjective, type ObjProgress } from './objectives'
 import { autoflightStep, journeyGroundElev, type AutoState, type Journey } from './autoflight'
 import { JET, type AircraftProfile } from './aircraft'
+import { judgeTouchdown, type Touchdown } from './landing'
 import { DEFAULT_STATE, step } from './flightModel'
 import { vorReceive } from '../nav/vor'
 import { dmeReceive } from '../nav/dme'
@@ -38,6 +39,8 @@ export interface World {
   /** The controls applied in the last step (shown on the yoke/throttle display). */
   lastControls: Controls
   profile: AircraftProfile
+  /** Last touchdown result (shown in the cockpit; ends the flight in Test mode). */
+  lastTouchdown: Touchdown | null
 }
 
 export const DEFAULT_RADIOS: Radios = { nav1MHz: 113.5, obsDeg: 90, adfKHz: 350, baroHpa: 1013.25 }
@@ -63,6 +66,7 @@ export function createWorld(init: Partial<Omit<World, 'ac' | 'radios'>> & { ac?:
     auto: init.auto ?? null,
     lastControls: init.lastControls ?? { roll: 0, pitch: 0, throttle: 0 },
     profile: init.profile ?? JET,
+    lastTouchdown: init.lastTouchdown ?? null,
   }
 }
 
@@ -92,6 +96,14 @@ export function simStep(w: World, c: Controls, dt: number): World {
     raFt: radioAltFt(ac, groundElevFt),
   }
   let next: World = { ...w, ac, nav, auto, groundElevFt, lastControls: controls, simMs: w.simMs + dt * 1000 }
+  if (!w.ac.onGround && ac.onGround) {
+    const td = judgeTouchdown(ac0, ac, w.runways)
+    next = { ...next, lastTouchdown: td }
+    // Test mode: a touchdown ends the flight (landing objective → LANDED/CRASHED; any other objective → crash only)
+    if (w.objective && (w.objective.type === 'LAND' || td.result === 'CRASHED')) {
+      next = { ...next, done: { result: td.result, landing: { lateralM: td.lateralM, vsFpm: td.vsFpm }, reasons: td.reasons } }
+    }
+  }
   next = applyObjective(next, dt)
   return next
 }

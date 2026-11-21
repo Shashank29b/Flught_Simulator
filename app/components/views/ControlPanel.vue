@@ -82,6 +82,9 @@ v-for="b in yoke" :key="b.key" :class="b.cls" class="rounded bg-slate-800 px-1 p
       <span>FUEL {{ store.world.ac.fuelPct.toFixed(0) }}%</span>
       <span :class="store.world.ac.onGround ? 'text-amber-300' : 'text-green-400'">{{ store.world.ac.onGround ? `ON GROUND${store.world.ac.iasKt < store.world.profile.rotateKt ? ` · rotate at ${store.world.profile.rotateKt} kt` : ''}` : 'AIRBORNE' }}</span>
       <span v-if="store.paused" class="text-amber-400">PAUSED</span>
+      <span v-if="store.world.lastTouchdown" :class="store.world.lastTouchdown.result === 'LANDED' ? 'text-green-400' : 'text-red-400'" :title="store.world.lastTouchdown.reasons.join('; ')">
+        TOUCHDOWN {{ store.world.lastTouchdown.result }}{{ store.world.lastTouchdown.runwayIdent ? ` ${store.world.lastTouchdown.runwayIdent}` : '' }} · {{ Math.abs(store.world.lastTouchdown.vsFpm).toFixed(0) }} fpm · {{ Math.abs(store.world.lastTouchdown.lateralM).toFixed(0) }} m {{ store.world.lastTouchdown.lateralM >= 0 ? 'R' : 'L' }}
+      </span>
     </div>
     <p class="text-[11px] text-slate-500">Keyboard: W/S stick forward/back (nose down/up) · A/D roll · Q/E yaw (rudder, steers on the ground) · ↑/↓ or +/− throttle · G gear · F flaps · P pause · R reset. Rotate speed depends on the aircraft. Any W/S/A/D/Q/E input disengages the journey autopilot.</p>
   </div>

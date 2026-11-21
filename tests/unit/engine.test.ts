@@ -96,3 +96,20 @@ describe('engine ILS', async () => {
     expect(simStep(w, { roll: 0, pitch: 0, throttle: 0.4 }, 1 / 60).nav.markers?.om).toBe(true)
   })
 })
+
+describe('engine touchdown', async () => {
+  const { RWY09, air } = await import('./helpers/fixtures')
+  const { AIRPORT_ELEV_FT } = await import('../../shared/utils/units')
+  it('E7 Test mode LAND objective ends with LANDED', () => {
+    const w = createWorld({ runways: [RWY09], objective: { type: 'LAND', runwayIdent: '09' }, ac: air({ x: 0.1, y: 0, altFt: AIRPORT_ELEV_FT + 30, pitchDeg: -1, iasKt: 140, throttle: 140 / 350, gearDown: true }) })
+    const e = run(w, { roll: 0, pitch: 0, throttle: 140 / 350 }, 10)
+    expect(e.done?.result).toBe('LANDED')
+    expect(e.lastTouchdown?.runwayIdent).toBe('09')
+  })
+  it('free flight records the touchdown but keeps flying', () => {
+    const w = createWorld({ runways: [RWY09], ac: air({ x: 0.1, y: 0, altFt: AIRPORT_ELEV_FT + 30, pitchDeg: -1, iasKt: 140, throttle: 0.4, gearDown: false }) })
+    const e = run(w, { roll: 0, pitch: 0, throttle: 0.4 }, 10)
+    expect(e.done).toBeNull()
+    expect(e.lastTouchdown?.result).toBe('CRASHED')
+  })
+})

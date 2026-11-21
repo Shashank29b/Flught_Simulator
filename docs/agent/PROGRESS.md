@@ -57,6 +57,10 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 ## Handoff log
 Newest at the top. At most 5 lines per task.
 
+### W3-T20 · DONE · 2026-11-21
+- app/sim/landing.ts judgeTouchdown(pre, ac, runways) picks the runway touched (or nearest); engine sets world.lastTouchdown on every touchdown and ends Test-mode flights (LAND objective, or any crash).
+- Cockpit status line shows the last touchdown (result, runway, fpm, metres off centre).
+
 ### W3-T18 · DONE · 2026-11-21
 - HSI.vue + hsiMath.ts (auto VOR/LOC mode: LOC when NAV 1 is on a localiser frequency, course = runway heading), MarkerRaPanel.vue (O/M/I lamps, RA, callout text), useAudio (marker tones + spoken callouts; off until enabled).
 - Cockpit instruments grid is now 5 × 2; triple-tap cards for HSI and markers/RA. ILS preset sits on the 09L centreline (hdg 090.5).
