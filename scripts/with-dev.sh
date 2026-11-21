@@ -13,7 +13,7 @@ for i in $(seq 1 90); do
   if [ "$i" = 90 ]; then echo "dev server did not start"; tail -n 30 "$LOG"; exit 1; fi
 done
 # warm up pages (first SSR request can trigger a dependency re-optimise restart)
-for p in / /fly/1; do
+for p in / /login /fly/1; do
   for i in $(seq 1 60); do
     code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:3000$p" || true)
     [ "$code" = 200 ] && break

@@ -15,7 +15,7 @@ import CDI from '../../components/instruments/CDI.vue'
 import DmeReadout from '../../components/instruments/DmeReadout.vue'
 import NavRadio from '../../components/radios/NavRadio.vue'
 
-definePageMeta({ layout: 'cockpit' })
+definePageMeta({ layout: 'cockpit', middleware: 'auth' })
 
 const store = useSimStore()
 const nav = useNavData()
