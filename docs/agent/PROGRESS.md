@@ -22,7 +22,7 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 | W2-T14 | Scenarios page, cockpit loads scenario, flight start/end, objectives, flight log | T12, T13 | DONE |
 | W2-T15 | ADF receiver, AdfRadio, RMI | W1-CHK | DONE |
 | W2-T16 | DVOR visual, range flags, wind from scenario | T14, T15 | DONE |
-| W2-CHK | Week 2 checkpoint | T11–T16 | TODO |
+| W2-CHK | Week 2 checkpoint | T11–T16 | DONE |
 | W3-T17 | ILS, markers, radio altimeter logic | W2-CHK | TODO |
 | W3-T18 | HSI, marker lights, RA readout, audio callouts | T17 | TODO |
 | W3-T19 | ProfileView | T17 | TODO |
@@ -51,6 +51,11 @@ Pick the first `TODO` whose dependencies are all `DONE`. A task without listed d
 
 ## Handoff log
 Newest at the top. At most 5 lines per task.
+
+### W2-CHK · DONE · 2026-11-21
+- Unit 63, int 9, smoke all green.
+- Human visual check pending (Week 2 list in TESTING.md): register/login, scenarios, NDB homing with the ADF/RMI, wind drift, flight log.
+- Next session: start at W3-T17 (ILS).
 
 ### W2-T16 · DONE · 2026-11-21
 - VorDiagram.vue: DVOR 48-antenna ring / CVOR rotating pattern (slowed), live site error; out-of-range flags already handled by CDI (OFF), ADF and RMI (park at 090).
