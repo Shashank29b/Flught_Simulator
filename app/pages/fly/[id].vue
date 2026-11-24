@@ -50,7 +50,7 @@ useSimLoop()
     <p class="text-red-400">This scenario does not exist.</p>
     <NuxtLink to="/scenarios" class="text-sky-400">Back to Test mode scenarios</NuxtLink>
   </div>
-  <div v-else class="flex h-[calc(100vh-37px)] flex-col gap-2 p-2">
+  <div v-else class="flex min-h-[calc(100vh-37px)] flex-col gap-2 p-2">
     <FlightBanner :world="store.world" :title="`Test mode · ${scenario?.title ?? ''}`" :score-total="session.scoreTotal.value" :error="session.error.value" @abort="abort" @restart="begin" />
     <CockpitPanel />
   </div>

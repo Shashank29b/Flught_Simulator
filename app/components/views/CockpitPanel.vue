@@ -47,9 +47,10 @@ const audio = useAudio(toRef(() => store.world.nav.markers), toRef(() => store.w
 </script>
 
 <template>
-  <div class="grid min-h-0 flex-1 grid-cols-1 gap-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-    <div class="flex min-h-[420px] flex-col gap-2">
-      <div class="relative min-h-0 flex-1 overflow-hidden rounded border border-slate-800">
+  <div class="grid grid-cols-1 items-start gap-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+    <div class="flex flex-col gap-2">
+      <!-- fixed-height map: own stacking context so Leaflet layers never paint over neighbouring panels -->
+      <div class="relative isolate h-[60vh] min-h-[380px] overflow-hidden rounded border border-slate-800">
         <InfoTap id="map" class="absolute left-12 top-2 z-[1000]"><span class="block rounded bg-slate-800/90 px-2 py-1 text-[10px] text-slate-300">triple-tap here: map info</span></InfoTap>
         <div class="absolute left-12 top-9 z-[1000] flex gap-1 text-xs">
           <button class="rounded px-2 py-1 shadow" :class="mapTab === 'osm' ? 'bg-sky-600' : 'bg-slate-800'" @click="mapTab = 'osm'">Map (OSM)</button>
@@ -62,7 +63,7 @@ const audio = useAudio(toRef(() => store.world.nav.markers), toRef(() => store.w
       </div>
       <InfoTap id="controls"><ControlPanel /></InfoTap>
     </div>
-    <div class="flex min-h-0 flex-col gap-2 overflow-y-auto">
+    <div class="flex flex-col gap-2">
       <ClientOnly>
         <div class="flex items-center gap-1 text-xs">
           <span class="text-slate-400">Instruments:</span>

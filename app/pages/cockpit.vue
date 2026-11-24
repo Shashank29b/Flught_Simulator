@@ -25,7 +25,7 @@ useSimLoop()
 </script>
 
 <template>
-  <div class="flex h-[calc(100vh-37px)] flex-col gap-2 p-2">
+  <div class="flex min-h-[calc(100vh-37px)] flex-col gap-2 p-2">
     <div class="flex items-center gap-3 rounded border border-slate-800 bg-slate-950 px-3 py-1.5 text-sm">
       <span class="font-semibold text-sky-300">Cockpit · free flight at VOBL Bengaluru</span>
       <span class="text-xs text-slate-500">All instruments, radios and controls in one view · <b class="text-slate-300">triple-tap any panel for an explanation</b> · scoring is in Test mode.</span>

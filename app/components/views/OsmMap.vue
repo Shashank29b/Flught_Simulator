@@ -200,7 +200,7 @@ onUnmounted(() => {
 })
 
 watch(visible, applyVisibility, { deep: true })
-const legendOpen = ref(true)
+const legendOpen = ref(false)
 const LEGEND: { key: LayerKey | null; sym: string; color: string; label: string }[] = [
   { key: 'airports', sym: 'apt', color: '#dc2626', label: 'Airport: large / medium / small' },
   { key: 'runways', sym: 'bar', color: '#111827', label: 'Runway' },
